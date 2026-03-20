@@ -72,20 +72,20 @@ function renderChoicesBtn(nodeId) {
 
   choicesArea.innerHTML = '';
 
-  if (choice.requires) {
-      let hasRequirements = true;
-      for (let varName in choice.requires) {
-        const requiredValue = choice.requires[varName];
-        const currentValue = variablesData[varName] || 0;
+  // if (choice.requires) {
+  //     let hasRequirements = true;
+  //     for (let varName in choice.requires) {
+  //       const requiredValue = choice.requires[varName];
+  //       const currentValue = variablesData[varName] || 0;
 
-        if (currentValue < requiredValue) {
-          hasRequirements = false;
-          break;
-        }
-      }
+  //       if (currentValue < requiredValue) {
+  //         hasRequirements = false;
+  //         break;
+  //       }
+  //     }
       
-      if (!hasRequirements) return; 
-    }
+  //     if (!hasRequirements) return; 
+  //   }
 
   node.choices.forEach(choice => {
     const btn = document.createElement('button');

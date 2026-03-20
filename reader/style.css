@@ -88,12 +88,9 @@ body {
 
 /* ====== story-content ====== */
 #story-content {
-
-}
-
-#story-content p {
-    white-space: pre-line;
-    margin-bottom: 1.5em;
+  text-align: justify;
+  text-indent: 2.5em;
+  padding-inline: 1.5em;
 }
 
 #choices-container {
