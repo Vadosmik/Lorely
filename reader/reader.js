@@ -45,7 +45,7 @@ function renderHistory(historyData) {
     }
   });
 
-  renderChoicesBtn(lastSceneId);
+  renderChoicesBtn(storyData.nodes[lastSceneId]);
 }
 
 function renderNode(nodeId) {
@@ -63,31 +63,43 @@ function renderNode(nodeId) {
     contentArea.appendChild(p);
   });
 
-  renderChoicesBtn(nodeId);
+  renderChoicesBtn(node);
 }
 
-function renderChoicesBtn(nodeId) {
-  const node = storyData.nodes[nodeId];
-  if (!node || !node.choices) return;
-
+function renderChoicesBtn(node) {
   choicesArea.innerHTML = '';
 
-  // if (choice.requires) {
-  //     let hasRequirements = true;
-  //     for (let varName in choice.requires) {
-  //       const requiredValue = choice.requires[varName];
-  //       const currentValue = variablesData[varName] || 0;
-
-  //       if (currentValue < requiredValue) {
-  //         hasRequirements = false;
-  //         break;
-  //       }
-  //     }
-      
-  //     if (!hasRequirements) return; 
-  //   }
+  if (node.auto_next && Array.isArray(node.auto_next)) {
+    for (let rule of node.auto_next) {
+      let met = true;
+      if (rule.requires) {
+        for (let v in rule.requires) {
+          if ((variablesData[v] || 0) < rule.requires[v]) met = false;
+        }
+      }
+      if (met) {
+        renderNode(rule.next_node);
+        return; // Przerwij, idziemy do następnego węzła!
+      }
+    }
+  }
 
   node.choices.forEach(choice => {
+    if (choice.requires) {
+      let hasRequirements = true;
+      for (let varName in choice.requires) {
+        const requiredValue = choice.requires[varName];
+        const currentValue = variablesData[varName] || 0;
+
+        if (currentValue < requiredValue) {
+          hasRequirements = false;
+          break;
+        }
+      }
+
+      if (!hasRequirements) return;
+    }
+
     const btn = document.createElement('button');
     btn.textContent = choice.text;
     btn.className = 'choice-btn';

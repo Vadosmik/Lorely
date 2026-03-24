@@ -1,0 +1,34 @@
+{
+	"story_title": "",
+	"variables": {
+		"variable_name": 0
+	},
+	"nodes": {
+		"node_name_1": {
+			"text": "",
+			"bg_music": "song_name.mp3",
+			"auto_next": [
+				{
+					"requires": {
+						"variable_name": 10
+					},
+					"next_node": "node_name_x"
+				}
+			],
+			"choices": [
+				{
+					"text": "text",
+					"next_node": "node_name_x",
+					"variables": {
+						"variable_name": 1
+					}
+				},
+				{
+					"text": "text",
+					"next_node": "node_name_x",
+					"variables": {}
+				}
+			]
+		}
+	}
+}
