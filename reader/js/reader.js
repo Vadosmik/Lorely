@@ -5,6 +5,9 @@ const titleElement = document.getElementById('story-title');
 let storyData = null;
 let historyData = null;
 let variablesData = null;
+let currentAudio = null;
+
+const FADE_DURATION = 2000;
 
 async function loadStory() {
   try {
@@ -36,6 +39,8 @@ function renderHistory(historyData) {
     const node = storyData.nodes[sceneId];
 
     if (node) {
+      if (node.bg_music) handleMusic(node.bg_music);
+      
       const paragraphs = node.text.split('\n\n');
       paragraphs.forEach(text => {
         const p = document.createElement('p');
@@ -51,6 +56,10 @@ function renderHistory(historyData) {
 function renderNode(nodeId) {
   const node = storyData.nodes[nodeId];
   if (!node) return;
+
+  if (node.bg_music) {
+    handleMusic(node.bg_music);
+  }
 
   choicesArea.innerHTML = '';
   historyData.push(nodeId);
@@ -79,7 +88,7 @@ function renderChoicesBtn(node) {
       }
       if (met) {
         renderNode(rule.next_node);
-        return; // Przerwij, idziemy do następnego węzła!
+        return;
       }
     }
   }
@@ -123,13 +132,56 @@ function renderChoicesBtn(node) {
   });
 }
 
-//requires do json funkcja jezeli 
+function handleMusic(audioPath) {
+  if (!audioPath) return;
+
+  if (currentAudio && currentAudio.src.includes(audioPath)) return;
+
+  const oldAudio = currentAudio;
+  const newAudio = new Audio(audioPath);
+  
+  newAudio.loop = true;
+  newAudio.volume = 0;
+  currentAudio = newAudio;
+
+  if (oldAudio) {
+    const fadeOutInterval = 50;
+    const fadeOutStep = oldAudio.volume / (FADE_DURATION / fadeOutInterval);
+
+    const fadeOutTimer = setInterval(() => {
+      if (oldAudio.volume > fadeOutStep) {
+        oldAudio.volume -= fadeOutStep;
+      } else {
+        oldAudio.volume = 0;
+        oldAudio.pause();
+        clearInterval(fadeOutTimer);
+      }
+    }, fadeOutInterval);
+  }
+
+  newAudio.play().then(() => {
+    const fadeInInterval = 50;
+    const targetVolume = 0.5;
+    const fadeInStep = targetVolume / (FADE_DURATION / fadeInInterval);
+
+    const fadeInTimer = setInterval(() => {
+      if (newAudio.volume < targetVolume) {
+        newAudio.volume = Math.min(targetVolume, newAudio.volume + fadeInStep);
+      } else {
+        newAudio.volume = targetVolume;
+        clearInterval(fadeInTimer);
+      }
+    }, fadeInInterval);
+  }).catch(e => {
+    console.warn("Autoplay zablokowany. Muzyka ruszy po kliknięciu w wybór.");
+  });
+}
 
 function resetStory() {
   localStorage.removeItem('lorely_variables');
   localStorage.removeItem('lorely_history');
-  location.reload(); // Odśwież stronę, żeby zacząć od zera
+  location.reload();
 }
 
-// Uruchomienie na starcie
+// START
 loadStory();

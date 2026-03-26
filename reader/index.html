@@ -5,10 +5,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lorely | Story Reader</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="reader.js" defer></script>
-  <script src="setting.js" defer></script>
-  <script src="color-theme.js" defer></script>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/reader.js" defer></script>
+  <script src="js/setting.js" defer></script>
+  <script src="js/color-theme.js" defer></script>
 </head>
 
 <body>
@@ -52,6 +52,7 @@
   <div id="myMenu" hidden>
     <div id="myMenuContent" class="menu">
       <h2>Menu</h2>
+      <!-- Text controller -->
       <hr>
       <div>
         <p>textSize: </p>
@@ -61,6 +62,17 @@
         <button id="decText">-</button>
         <input type="range" min="12" max="42" value="19" id="textSize">
         <button id="incText">+</button>
+      </div>
+      <hr>
+      <!-- line height controller -->
+      <div>
+        <p>lineHeight: </p>
+        <p id="line-height-value" style="font-weight: bold;">1.6</p>
+      </div>
+      <div>
+        <button id="decLineHeight">-</button>
+        <input type="range" min="0.8" max="3" step="0.1" value="1.6" id="lineHeight">
+        <button id="incLineHeight">+</button>
       </div>
       <hr>
     </div>

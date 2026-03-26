@@ -1,0 +1,1 @@
+// w przysłosci to ona bedzie pobierało dane JSON do skryptu

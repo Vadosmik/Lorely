@@ -1,8 +1,8 @@
 :root {
-  --color-surface: #222;
-  --color-bg: #3a3a3a;
-  --color-text: #cbcbcb;
-  --color-muted: #888;
+  --color-bg: #4A4A4D;
+  --color-surface: #6C6C70;
+  --color-text: #E9E9F4;
+  --color-muted: #ABAAB2;
 
   --font-main: "Calibri", sans-serif;
   --font-size-base: 19px;
@@ -20,10 +20,24 @@
 }
 
 [data-theme="light"] {
-  --color-bg: #cbcbcb;
-  --color-surface: #bbb;
-  --color-text: #222;
-  --color-muted: #888;
+  --color-bg: #FFFFFF;
+  --color-surface: #EBEBEE;
+  --color-text: #272727;
+  --color-muted: #8B8A8E;
+}
+
+[data-theme="paper"] {
+  --color-bg: #F6E9D1;
+  --color-surface: #D4C8B7;
+  --color-text: #33271B;
+  --color-muted: #847F78;
+}
+
+[data-theme="black"] {
+  --color-bg: #000000;
+  --color-surface: #39393C;
+  --color-text: #ADADAD;
+  --color-muted: #8D8D94;
 }
 
 [data-theme="light"] .moon-icon {
@@ -42,7 +56,12 @@
 }
 
 body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
   font-family: var(--font-main);
+  line-height: var(--line-height-base);
   background-color: var(--color-bg);
   color: var(--color-text);
   font-size: var(--font-size-base);
@@ -50,8 +69,8 @@ body {
 }
 
 #lorely-reader {
-  padding: 70px 0 60px 0;
-  min-height: 100vh;
+  flex: 1;
+  padding-bottom: 60px;
 }
 
 /* ====== color-theme ====== */
@@ -75,8 +94,9 @@ body {
 
 /* ====== HEADER ====== */
 .story-header {
-  position: fixed;
+  position: sticky;
   top: 0;
+  z-index: 1000;
 
   display: flex;
   justify-content: space-between;
@@ -86,11 +106,11 @@ body {
   margin-bottom: 10px;
   background-color: var(--color-surface);
   transition: background-color 0.4s, color 0.4s;
-}
 
-.story-header h1 {
-  font-size: 1.4em;
-  margin: 0;
+  h1 {
+    font-size: 1.4em;
+    margin: 0;
+  }
 }
 
 /* ====== story-content ====== */
@@ -176,18 +196,19 @@ body {
   }
 }
 
-  .menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 9998;
-  }
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 9998;
+}
 
 /* ====== FOOTER ====== */
 .reader-footer {
+  transition: all 0.4s, color 0.4s;
   position: fixed;
   bottom: 0;
   width: 100%;
