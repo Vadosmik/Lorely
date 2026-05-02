@@ -11,7 +11,7 @@ The goal is to bridge the gap between writing a book and developing a game.
 
 ---
 
-## 🛠 Technology Stack
+## Technology Stack
 *   **Backend:** Python with `FastAPI`.
 *   **Frontend:** React + `React Flow`.
 *   **Database:** 
@@ -23,7 +23,7 @@ The goal is to bridge the gap between writing a book and developing a game.
 
 ---
 
-## 🗺 Roadmap
+## Roadmap
 
 | Version | Focus | Key Deliverables |
 | :--- | :--- | :--- |
@@ -31,7 +31,7 @@ The goal is to bridge the gap between writing a book and developing a game.
 
 ---
 
-## 👥 The Team
+## The Team
 
 We are a small, dedicated team building the future of interactive storytelling.
 
