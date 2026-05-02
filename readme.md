@@ -21,8 +21,6 @@ The goal is to bridge the gap between writing a book and developing a game.
 
 ---
 
----
-
 ## Roadmap
 
 | Version | Focus | Key Deliverables |
@@ -35,8 +33,12 @@ The goal is to bridge the gap between writing a book and developing a game.
 
 We are a small, dedicated team building the future of interactive storytelling.
 
-| Role | Responsibility |
-| :--- | :--- |
-| **Backend & Architect** | **Vadim Mikanovich** – System design, FastAPI development, Database management (Postgres/Redis), and DevOps. |
-| **Product & Marketing** | **Maksim Voitovich** – Feature ideation, user flow logic, market strategy, and community management. |
-| **UI/UX Design** | **Ira** – Visual identity, editor interface design, and reader experience optimization. |
+## 👥 The Team
+
+[![Instagram](https://img.shields.io/badge/-E4405F?style=flat-square&logo=instagram&logoColor=white)](https://instagram.com/handle)
+
+| Role | Member | Links |
+| :--- | :--- | :--- |
+| **Backend & Architect** | **Vadim Mikanovich** – System design, FastAPI development, DB & DevOps. | [![GitHub](https://img.shields.io/badge/-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/Vadosmik) [![linkedin](https://img.shields.io/badge/LinkedIn-blue?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/vadzim-mikanovich-0225a8283/) |
+| **Product & Marketing** | **Maksim Voitovich** – Feature ideation, user flow logic, and strategy. |  [![Email](https://img.shields.io/badge/-D14836?style=flat-square&logo=gmail&logoColor=white)](mailto:voytovichmax@gmail.com) |
+| **UI/UX Design** | **Anonim** – Visual identity, editor design, and reader experience. | [![Behance](https://img.shields.io/badge/-1769ff?style=flat-square&logo=behance&logoColor=white)](https://behance.net/handle) [![Instagram](https://img.shields.io/badge/-E4405F?style=flat-square&logo=instagram&logoColor=white)](https://instagram.com/handle) |
