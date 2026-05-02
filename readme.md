@@ -35,8 +35,6 @@ We are a small, dedicated team building the future of interactive storytelling.
 
 ## 👥 The Team
 
-[![Instagram](https://img.shields.io/badge/-E4405F?style=flat-square&logo=instagram&logoColor=white)](https://instagram.com/handle)
-
 | Role | Member | Links |
 | :--- | :--- | :--- |
 | **Backend & Architect** | **Vadim Mikanovich** – System design, FastAPI development, DB & DevOps. | [![GitHub](https://img.shields.io/badge/-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/Vadosmik) [![linkedin](https://img.shields.io/badge/LinkedIn-blue?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/vadzim-mikanovich-0225a8283/) |
