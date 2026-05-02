@@ -33,8 +33,6 @@ The goal is to bridge the gap between writing a book and developing a game.
 
 We are a small, dedicated team building the future of interactive storytelling.
 
-## 👥 The Team
-
 | Role | Member | Links |
 | :--- | :--- | :--- |
 | **Backend & Architect** | **Vadim Mikanovich** – System design, FastAPI development, DB & DevOps. | [![GitHub](https://img.shields.io/badge/-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/Vadosmik) [![linkedin](https://img.shields.io/badge/LinkedIn-blue?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/vadzim-mikanovich-0225a8283/) |
