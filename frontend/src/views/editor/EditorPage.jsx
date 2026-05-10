@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'preact/hooks';
 import { ListView } from './ListView';
 import { PreviewView } from './PreviewView';
-import { EditView } from './EditView'; // Import the new EditView component
+import { EditView } from './EditView';
 
 export default function EditorPage() {
   const [view, setView] = useState('list');
