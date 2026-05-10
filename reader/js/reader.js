@@ -10,11 +10,11 @@ let currentAudio = null;
 let fadeInTimer = null;
 let fadeOutTimer = null;
 const FADE_DURATION = 2000;
-const MAX_VOLUME = 0.005;
+const MAX_VOLUME = 0.1;
 
 async function loadStory() {
   try {
-    const response = await fetch('test.json');
+    const response = await fetch('story_flow.json');
     storyData = await response.json();
     titleElement.textContent = storyData.story_title;
 
