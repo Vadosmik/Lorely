@@ -3,7 +3,7 @@ import EditorPage from './views/editor/EditorPage';
 import { ListView } from './views/editor/ListView';
 
 export function App() {
-  const base = '/Lorely/frontend/dist';
+  const base = '/Lorely/frontend';
   return (
     <LocationProvider>
       <Router>
