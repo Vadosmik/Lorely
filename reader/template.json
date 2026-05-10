@@ -1,5 +1,8 @@
 {
 	"story_title": "",
+	"history": [
+		"node_name_1"
+	],
 	"variables": {
 		"variable_name": 0
 	},

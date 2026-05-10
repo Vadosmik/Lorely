@@ -1,6 +1,7 @@
 const contentArea = document.getElementById('story-content');
 const choicesArea = document.getElementById('choices-container');
 const titleElement = document.getElementById('story-title');
+const storyUploadInput = document.getElementById('story-upload');
 
 let storyData = null;
 let historyData = null;
@@ -12,26 +13,60 @@ let fadeOutTimer = null;
 const FADE_DURATION = 2000;
 const MAX_VOLUME = 0.1;
 
-async function loadStory() {
+function initializeStory(data) {
+  storyData = data;
+  if (titleElement) {
+    titleElement.textContent = storyData.story_title;
+  } else {
+    document.title = storyData.story_title || "Lorely Reader";
+  }
+
+  contentArea.innerHTML = '';
+  choicesArea.innerHTML = '';
+
+  // === HISTORY ===
+  const savedHistory = localStorage.getItem('lorely_history');
+  historyData = savedHistory ? JSON.parse(savedHistory) : (Array.isArray(storyData.history) ? storyData.history : []);
+
+  // === VARIABLES ===
+  const savedVars = localStorage.getItem('lorely_variables');
+  variablesData = savedVars ? JSON.parse(savedVars) : (storyData.variables || {});
+
+  renderHistory(historyData);
+  storyUploadInput.style.display = 'none'; // Hide input after story loads
+}
+
+async function loadDefaultStory() {
   try {
     const response = await fetch('story_flow.json');
-    storyData = await response.json();
-    titleElement.textContent = storyData.story_title;
-
-    // === HISTORY ===
-    const savedHistory = localStorage.getItem('lorely_history');
-    historyData = savedHistory ? JSON.parse(savedHistory) : storyData.history;
-
-    // === VARIABLES ===
-    const savedVars = localStorage.getItem('lorely_variables');
-    variablesData = savedVars ? JSON.parse(savedVars) : (storyData.variables || {});
-
-    renderHistory(historyData);
+    const data = await response.json();
+    initializeStory(data);
   } catch (error) {
-    console.error("Błąd ładowania historii:", error);
+    console.error("Błąd ładowania domyślnej historii:", error);
     contentArea.innerHTML = "<p>Nie udało się załadować historii.</p>";
   }
 }
+
+function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        initializeStory(data);
+        localStorage.removeItem('lorely_history');
+        localStorage.removeItem('lorely_variables');
+      } catch (error) {
+        console.error("Błąd parsowania pliku JSON:", error, "Raw content:", e.target.result);
+        alert("Nieprawidłowy plik JSON. Sprawdź konsolę, aby uzyskać więcej szczegółów.");
+      }
+    };
+    reader.readAsText(file);
+  }
+}
+
+storyUploadInput.addEventListener('change', handleFileUpload);
 
 function renderHistory(historyData) {
   contentArea.innerHTML = '';
@@ -188,4 +223,4 @@ function resetStory() {
 }
 
 // START
-loadStory();
+// loadStory();
