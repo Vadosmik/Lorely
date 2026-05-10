@@ -7,7 +7,10 @@ let historyData = null;
 let variablesData = null;
 let currentAudio = null;
 
+let fadeInTimer = null;
+let fadeOutTimer = null;
 const FADE_DURATION = 2000;
+const MAX_VOLUME = 0.005;
 
 async function loadStory() {
   try {
@@ -137,43 +140,44 @@ function handleMusic(audioPath) {
 
   if (currentAudio && currentAudio.src.includes(audioPath)) return;
 
+  clearInterval(fadeInTimer);
+  clearInterval(fadeOutTimer);
+
   const oldAudio = currentAudio;
   const newAudio = new Audio(audioPath);
   
   newAudio.loop = true;
-  newAudio.volume = 0;
+  newAudio.volume = 0; 
   currentAudio = newAudio;
 
-  if (oldAudio) {
-    const fadeOutInterval = 50;
-    const fadeOutStep = oldAudio.volume / (FADE_DURATION / fadeOutInterval);
+  const fadeIntervalTime = 50;
+  const steps = FADE_DURATION / fadeIntervalTime;
 
-    const fadeOutTimer = setInterval(() => {
+  if (oldAudio) {
+    const fadeOutStep = oldAudio.volume / steps;
+    fadeOutTimer = setInterval(() => {
       if (oldAudio.volume > fadeOutStep) {
-        oldAudio.volume -= fadeOutStep;
+        oldAudio.volume = Math.max(0, oldAudio.volume - fadeOutStep);
       } else {
         oldAudio.volume = 0;
         oldAudio.pause();
         clearInterval(fadeOutTimer);
       }
-    }, fadeOutInterval);
+    }, fadeIntervalTime);
   }
 
   newAudio.play().then(() => {
-    const fadeInInterval = 50;
-    const targetVolume = 0.5;
-    const fadeInStep = targetVolume / (FADE_DURATION / fadeInInterval);
-
-    const fadeInTimer = setInterval(() => {
-      if (newAudio.volume < targetVolume) {
-        newAudio.volume = Math.min(targetVolume, newAudio.volume + fadeInStep);
+    const fadeInStep = MAX_VOLUME / steps;
+    fadeInTimer = setInterval(() => {
+      if (newAudio.volume < MAX_VOLUME) {
+        newAudio.volume = Math.min(MAX_VOLUME, +(newAudio.volume + fadeInStep).toFixed(4));
       } else {
-        newAudio.volume = targetVolume;
+        newAudio.volume = MAX_VOLUME;
         clearInterval(fadeInTimer);
       }
-    }, fadeInInterval);
+    }, fadeIntervalTime);
   }).catch(e => {
-    console.warn("Autoplay zablokowany. Muzyka ruszy po kliknięciu w wybór.");
+    console.warn("Autoplay zablokowany - wymagana interakcja.");
   });
 }
 
