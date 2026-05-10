@@ -3,7 +3,7 @@ import preact from '@preact/preset-vite'
 
 export default defineConfig({
   plugins: [preact()],
-  base: '/Lorely/frontend/',
+  base: '/Lorely/frontend/dist',
   resolve: {
     alias: {
       'react': 'preact/compat',
