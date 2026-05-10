@@ -1,22 +1,31 @@
 import { Handle, Position } from 'reactflow';
 
 const handleStyle = {
-  width: 20, // Larger size for mobile
-  height: 20, // Larger size for mobile
+  width: 15,
+  height: 15,
   background: '#FFD54F',
-  transform: 'translate(-50%, -50%)', // Centering for handles
+  border: '0',
 };
 
-export function StartNode({ data, selected }) {
+const labelStyle = {
+  fontSize: '14px',
+  fontWeight: 'bold',
+  color: '#444',
+  padding: '10px 20px',
+  background: 'white',
+  borderRadius: '20px',
+  border: '2px solid #FFD54F',
+  textAlign: 'center'
+};
+
+export function StartNode({ data }) {
   return (
-    <div>
-      <div>
-        {'Start'}
-      </div>
+    <div style={labelStyle}>
+      Start
       <Handle 
         type="source" 
         position={Position.Bottom}
-        style={handleStyle}
+        style={{ ...handleStyle, bottom: -8 }} // Przesunięcie kółka na krawędź dolną
       />
     </div>
   );
@@ -26,82 +35,55 @@ export function StoryNode({ id, data, selected }) {
   return (
     <div style={{
       position: 'relative',
-      maxHeight: '150px',
-      maxWidth: '150px',
-      minHeight: '100px',
-      minWidth: '120px',
+      width: '150px',
+      minHeight: '120px',
       borderRadius: '15px',
-      border: selected ? '2px solid #FFD54F' : '1px dashed #FFD54F',
+      border: selected ? '2px solid #FFD54F' : '1px solid #FFD54F',
       background: '#FEF9E7',
-      padding: '10px',
+      padding: '15px',
       display: 'flex',
       flexDirection: 'column',
+      justifyContent: 'space-between',
       fontFamily: 'sans-serif',
-      boxShadow: selected ? '0 0 10px rgba(255, 213, 79, 0.5)' : 'none',
+      boxShadow: selected ? '0 0 10px rgba(255, 213, 79, 0.5)' : '0 2px 5px rgba(0,0,0,0.05)',
     }}>
       {/* ID węzła w rogu */}
-      <div style={{ 
-        fontSize: '8px', 
-        color: '#BDBDBD', 
-        position: 'absolute', 
-        top: '5px', 
-        right: '8px' 
-      }}>
+      <div style={{ fontSize: '8px', color: '#BDBDBD', position: 'absolute', top: '5px', right: '8px' }}>
         #{id}
       </div>
 
-      <Handle type="target" position={Position.Top} style={handleStyle} />
-      
-      <div style={{ 
-        marginTop: '8px',
-        display: 'flex', 
-        flexDirection: 'column', 
-        height: '100%', 
-        justifyContent: 'space-between'
-      }}>
-        
-        <div style={{
-          fontSize: '10px',
-          lineHeight: '1.2em',
-          maxHeight: '3.6em',
-          overflow: 'hidden',
-          color: '#444',
-        }}>
+      <Handle type="target" position={Position.Top} style={{ ...handleStyle, top: -10 }} />
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+        <div style={{ fontSize: '11px', lineHeight: '1.2em', maxHeight: '3.6em', overflow: 'hidden', color: '#444', fontWeight: '500' }}>
           {data.text || 'text...'}
         </div>
 
-        <div style={{ margin: 'auto'}}>
-          <span style={{ fontSize: '10px', letterSpacing: '2px'}}>•••</span>
+        <div style={{ margin: 'auto', textAlign: 'center', opacity: 0.3 }}>
+          <span style={{ letterSpacing: '3px' }}>•••</span>
         </div>
 
-        <div style={{
-          fontSize: '10px',
-          maxHeight: '3.6em',
-          color: '#666',
-          textAlign: 'right',
-          fontStyle: 'italic'
-        }}>
+        <div style={{ fontSize: '11px', color: '#888', textAlign: 'right', fontStyle: 'italic' }}>
           {data.text && data.text.length > 50 ? data.text.slice(-80) : ''}
         </div>
 
       </div>
 
-      <Handle type="source" position={Position.Bottom} style={handleStyle} />
-    </div>
+      <Handle type="source" position={Position.Bottom} style={{ ...handleStyle, bottom: -10 }} />
+
+      </div>
   );
 }
 
-export function EndNode({ data, selected }) {
+export function EndNode({ data }) {
   return (
-    <div>
+    <div style={labelStyle}>
       <Handle 
         type="target" 
         position={Position.Top} 
-        style={handleStyle}
+        style={{ ...handleStyle, top: -8 }} // Przesunięcie kółka na krawędź górną
       />
-      <div>
-        {'End'}
-      </div>
+      End
     </div>
   );
 }
