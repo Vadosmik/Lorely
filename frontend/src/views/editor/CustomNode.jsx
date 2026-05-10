@@ -1,5 +1,12 @@
 import { Handle, Position } from 'reactflow';
 
+const handleStyle = {
+  width: 20, // Larger size for mobile
+  height: 20, // Larger size for mobile
+  background: '#FFD54F',
+  transform: 'translate(-50%, -50%)', // Centering for handles
+};
+
 export function StartNode({ data, selected }) {
   return (
     <div>
@@ -9,6 +16,7 @@ export function StartNode({ data, selected }) {
       <Handle 
         type="source" 
         position={Position.Bottom}
+        style={handleStyle}
       />
     </div>
   );
@@ -42,7 +50,7 @@ export function StoryNode({ id, data, selected }) {
         #{id}
       </div>
 
-      <Handle type="target" position={Position.Top} style={{ background: '#FFD54F'}} />
+      <Handle type="target" position={Position.Top} style={handleStyle} />
       
       <div style={{ 
         marginTop: '8px',
@@ -78,7 +86,7 @@ export function StoryNode({ id, data, selected }) {
 
       </div>
 
-      <Handle type="source" position={Position.Bottom} style={{ background: '#FFD54F'}} />
+      <Handle type="source" position={Position.Bottom} style={handleStyle} />
     </div>
   );
 }
@@ -89,6 +97,7 @@ export function EndNode({ data, selected }) {
       <Handle 
         type="target" 
         position={Position.Top} 
+        style={handleStyle}
       />
       <div>
         {'End'}

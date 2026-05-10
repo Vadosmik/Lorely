@@ -4,22 +4,22 @@ export function ListView({ onEditStory, onPreviewStory, onCreateNewStory }) {
   // Placeholder for a single test story
   const testStory = {
     id: 'test-story-1',
-    name: 'Moja Przykładowa Historia',
-    description: 'Krótki opis testowej historii, która ma za zadanie zaprezentować funkcjonalność listy opowieści.'
+    name: 'My Example Story',
+    description: 'A short description of the test story, designed to showcase the functionality of the story list.'
   };
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.header}>Twoje Historie</h1>
+      <h1 style={styles.header}>Your Stories</h1>
       
-      <button onClick={onCreateNewStory} style={styles.addButton}>+ Dodaj Nową Historię</button>
+      <button onClick={onCreateNewStory} style={styles.addButton}>+ Add New Story</button>
 
       <div style={styles.storyCard}>
         <h2 style={styles.storyTitle}>{testStory.name}</h2>
         <p style={styles.storyDescription}>{testStory.description}</p>
         <div style={styles.buttonGroup}>
-          <button onClick={() => onEditStory(testStory.id)} style={styles.editButton}>Edytuj Historię</button>
-          <button onClick={() => onPreviewStory(testStory.id)} style={styles.previewButton}>Podgląd</button>
+          <button onClick={() => onEditStory(testStory.id)} style={styles.editButton}>Edit Story</button>
+          <button onClick={() => onPreviewStory(testStory.id)} style={styles.previewButton}>Preview</button>
         </div>
       </div>
     </div>

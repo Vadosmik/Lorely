@@ -38,7 +38,7 @@ export function RichTextEditorModal({ nodeId, initialText, onSave, onClose }) {
   return (
     <div style={modalStyles.overlay}>
       <div style={modalStyles.modalContent}>
-        <h2 style={modalStyles.header}>Edytuj Treść Węzła: {nodeId}</h2>
+        <h2 style={modalStyles.header}>Edit Node Content: {nodeId}</h2>
         <ReactQuill
           theme="snow"
           value={editorContent}
@@ -48,8 +48,8 @@ export function RichTextEditorModal({ nodeId, initialText, onSave, onClose }) {
           style={modalStyles.editor}
         />
         <div style={modalStyles.buttonGroup}>
-          <button onClick={handleSave} style={modalStyles.saveButton}>Zapisz</button>
-          <button onClick={onClose} style={modalStyles.cancelButton}>Anuluj</button>
+          <button onClick={handleSave} style={modalStyles.saveButton}>Save</button>
+          <button onClick={onClose} style={modalStyles.cancelButton}>Cancel</button>
         </div>
       </div>
     </div>

@@ -16,8 +16,8 @@ export function PreviewView({ onBackToList, onEditFlow }) {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
         <button onClick={onBackToList} style={{ border: 'none', background: 'none', fontSize: '18px' }}>←</button>
-        <span style={{ fontWeight: 'bold' }}>Preview</span>
-        <button style={{ border: 'none', background: 'none', color: 'red' }}>Del</button>
+        <span style={{ fontWeight: 'bold' }}>Project Settings</span>
+        <button style={{ border: 'none', background: 'none', color: 'red' }}>Delete</button>
       </div>
 
       {/* Cover Placeholder */}
@@ -32,19 +32,19 @@ export function PreviewView({ onBackToList, onEditFlow }) {
         justifyContent: 'center',
         border: '2px dashed #9CA3AF'
       }}>
-        <span style={{ color: '#6B7280', fontSize: '12px' }}>Add img</span>
+        <span style={{ color: '#6B7280', fontSize: '12px' }}>Add Cover</span>
       </div>
 
       {/* Inputs */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <label>
-          <span style={{ fontSize: '12px', color: '#666' }}>Title</span>
-          <input style={inputStyle} type="text" placeholder="Write title..." value="My history" />
+          <span style={{ fontSize: '12px', color: '#666' }}>Story Title</span>
+          <input style={inputStyle} type="text" placeholder="Enter title..." value="My Story" />
         </label>
 
         <label>
           <span style={{ fontSize: '12px', color: '#666' }}>Description</span>
-          <textarea style={inputStyle} rows={3} placeholder="about" />
+          <textarea style={inputStyle} rows={3} placeholder="What is this story about?" />
         </label>
       </div>
 
@@ -66,7 +66,7 @@ export function PreviewView({ onBackToList, onEditFlow }) {
           boxShadow: '0 4px 10px rgba(255, 213, 79, 0.4)'
         }}
       >
-        Edit Story
+        🖊️ Edit Flow (Whiteboard)
       </button>
     </div>
   );

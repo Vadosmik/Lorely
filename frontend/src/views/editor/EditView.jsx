@@ -46,7 +46,7 @@ export function EditView({
       id: `node_${Date.now()}`,
       type: 'storyNode',
       position: { x: flowX, y: flowY },
-      data: { text: 'Nowa scena' },
+      data: { text: 'New scene' },
       origin: [0.5, 0.5],
     };
     setNodes((nds) => nds.concat(newNode));
@@ -55,14 +55,14 @@ export function EditView({
   const exportToJson = () => {
     const startNode = nodes.find(n => n.type === 'startNode');
     const exportData = {
-      story_title: "Test", // Replace with actual story title
+      story_title: "My Story", // Consistent with PreviewView
       history: startNode ? [startNode.id] : [],
       nodes: nodes.reduce((acc, node) => {
         const outgoingEdges = edges.filter((e) => e.source === node.id);
         acc[node.id] = {
           text: node.data?.text || "",
           choices: outgoingEdges.map((e) => ({
-            text: e.data?.label || "Domyślny wybór",
+            text: e.data?.label || "Default choice",
             next_node: e.target
           }))
         };
@@ -119,7 +119,7 @@ export function EditView({
       >
         <Background variant="dots" gap={12} size={1} />
 
-        {/* Przycisk Mapy */}
+        {/* Map Button */}
         <button onClick={() => setIsMapVisible(!isMapVisible)} style={mapToggleStyle}>
           {isMapVisible ? '✕ Map' : 'Map'}
         </button>
@@ -130,8 +130,8 @@ export function EditView({
       </ReactFlow>
 
       {/* UI Overlay */}
-      <button onClick={onBackToList} style={backButtonStyle}>Powrót do Listy</button>
-      <button onClick={exportToJson} style={saveButtonStyle}>Zapisz JSON</button>
+      <button onClick={onBackToList} style={backButtonStyle}>Back to List</button>
+      <button onClick={exportToJson} style={saveButtonStyle}>Save JSON</button>
       <button onClick={addNewNode} style={addNodeButtonStyle}>+</button>
 
       {isEditorModalOpen && (
