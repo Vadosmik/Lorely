@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Not Found</title>
+</head>
+<body>
+    <div id="app">
+        <!-- Your SPA will be mounted here -->
+    </div>
+    <script type="module" src="/src/main.jsx"></script>
+    <script>
+        // This script is specifically for GitHub Pages SPA routing.
+        // It redirects all 404s back to the SPA's index.html (which is this file).
+        // The SPA's router (preact-iso) will then handle the correct route.
+        (function(){
+            var redirect = sessionStorage.getItem('redirect');
+            if (redirect) {
+                sessionStorage.removeItem('redirect');
+                window.history.replaceState(null, null, redirect);
+            }
+        })();
+    </script>
+    <!-- 
+        IMPORTANT: After running 'npm run build' in 'frontend/',
+        copy the *entire content* of 'frontend/dist/index.html'
+        and replace the content of this file ('frontend/404.html') with it.
+        This ensures your SPA's bundled assets are correctly loaded for 404 fallbacks.
+    -->
+    <h1>404 - Page Not Found (Placeholder)</h1>
+    <p>This is a placeholder 404.html. Please replace its content with your built frontend/dist/index.html content after building.</p>
+    <p>If you're seeing this on GitHub Pages, it means the client-side routing fallback is working, but you still need to update this file's content.</p>jep
+</body>
+</html>

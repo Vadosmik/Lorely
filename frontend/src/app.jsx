@@ -1,10 +1,6 @@
 import { LocationProvider, Router, Route } from 'preact-iso';
 import EditorPage from './views/editor/EditorPage';
-import { ListView } from './views/editor/ListView'; // Changed to named import
-// import ProfilePge from './views/profile/ProfilePge';
-
-// Jeśli preact-iso nie obsługuje base path wprost,
-// musisz dodać bazę do ścieżek:
+import { ListView } from './views/editor/ListView';
 
 export function App() {
   const base = '/Lorely/frontend/dist';
