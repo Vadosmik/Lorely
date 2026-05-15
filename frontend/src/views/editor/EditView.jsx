@@ -15,14 +15,10 @@ import 'reactflow/dist/style.css';
 const nodeTypes = { startNode: StartNode, storyNode: StoryNode, endNode: EndNode };
 const edgeTypes = { customEdge: CustomEdge };
 
-export function EditView({
-  initialNodes,
-  initialEdges,
-  onBackToList,
-}) {
+export function EditView({ initialNodes, initialEdges, onBackToList }) {
   const [nodes, setNodes, onNodesChange] = useNodesState(() => initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(() => initialEdges);
-  const [isMapVisible, setIsMapVisible] = useState(false); // Changed to false by default for consistency with user's reported state.
+  const [isMapVisible, setIsMapVisible] = useState(false);
   const [rfInstance, setRfInstance] = useState(null);
 
   // State for Rich Text Editor Modal
@@ -115,7 +111,7 @@ export function EditView({
         onConnect={onConnect}
         onInit={setRfInstance}
         fitView
-        onNodeDoubleClick={handleNodeDoubleClick} // Re-enabled double click handler
+        onNodeDoubleClick={handleNodeDoubleClick}
       >
         <Background variant="dots" gap={12} size={1} />
 
@@ -156,22 +152,22 @@ const inputStyle = {
 };
 
 const backButtonStyle = {
-  position: 'absolute', top: 15, left: 15, zIndex: 20,
+  position: 'fixed', top: 15, left: 15, zIndex: 50,
   padding: '10px 20px', background: 'white', border: '1px solid #ccc', borderRadius: '8px'
 };
 
 const saveButtonStyle = {
-  position: 'absolute', top: 15, right: 15, zIndex: 20,
+  position: 'fixed', top: 15, right: 15, zIndex: 50,
   padding: '10px 20px', background: '#4CAF50', color: 'white', border: 'none', borderRadius: '8px'
 };
 
 const addNodeButtonStyle = {
-  position: 'absolute', bottom: 20, right: 20, zIndex: 20,
+  position: 'fixed', bottom: 20, right: 20, zIndex: 20,
   width: 50, height: 50, borderRadius: '50%', background: '#FFD54F', color: 'white', border: 'none', fontSize: '24px'
 };
 
 const mapToggleStyle = {
-  position: 'absolute', bottom: 10, left: 10, zIndex: 20,
+  position: 'fixed', bottom: 10, left: 10, zIndex: 20,
   padding: '5px 10px', borderRadius: '8px', border: '1px solid #FFD54F', background: 'white'
 };
 

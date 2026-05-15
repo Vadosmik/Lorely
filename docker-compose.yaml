@@ -1,0 +1,49 @@
+services:
+  frontend:
+    build: ./frontend
+    container_name: lorely-frontend
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - app-net
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    container_name: lorely-backend
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - DATABASE_URL=postgres://lorely:lorely@db:5432/lorely
+    networks:
+      - app-net
+    depends_on:
+      - db
+
+  db:
+    build: ./BD
+    container_name: lorely-db
+    ports:
+      - '5432:5432'
+    volumes:
+      - db-data:/var/lib/postgresql
+    environment:
+      POSTGRES_USER: lorely
+      POSTGRES_PASSWORD: lorely
+      POSTGRES_DB: lorely
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    driver: bridge
+
+volumes:
+  db-data:

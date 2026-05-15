@@ -32,3 +32,24 @@
   font-weight: bold;
   font-size: 18px;
 }
+
+/* Responsive styles for ReactQuill toolbar */
+@media (max-width: 768px) {
+  .ql-toolbar.ql-snow {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    background-color: #f0f0f0; /* Light background for the toolbar */
+    border-top: 1px solid #ccc;
+    z-index: 1001; /* Higher than modal overlay to be on top */
+    padding: 10px 5px; /* Adjust padding for mobile */
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  }
+
+  /* Adjustments for Quill editor content to not be covered by fixed toolbar */
+  .ql-container.ql-snow {
+    margin-bottom: 70px; /* Space for the fixed toolbar */
+  }
+}

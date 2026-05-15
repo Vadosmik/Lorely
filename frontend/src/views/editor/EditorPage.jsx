@@ -23,18 +23,15 @@ export default function EditorPage() {
   const handleEditStory = (storyId) => {
     setCurrentStoryId(storyId);
     setView('edit');
-    // Here you would load the story data into nodes and edges for the editor
   };
 
   const handlePreviewStory = (storyId) => {
     setCurrentStoryId(storyId);
     setView('preview');
-    // Here you would prepare data for preview, maybe pass to PreviewView
   };
 
   const handleCreateNewStory = () => {
-    // Logic for creating a new story
-    setView('edit'); // Or a dedicated creation view
+    setView('edit');
   };
 
   const handleBackToList = () => {
