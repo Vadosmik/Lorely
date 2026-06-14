@@ -19,9 +19,6 @@ services:
       - '8080:8080'
     volumes:
       - ./backend:/app
-      - /app/node_modules
-    environment:
-      - DATABASE_URL=postgres://lorely:lorely@db:5432/lorely
     networks:
       - app-net
     depends_on:

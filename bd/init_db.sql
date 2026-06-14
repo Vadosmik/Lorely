@@ -10,7 +10,7 @@ CREATE TABLE role (
 -- === USERS === --
 CREATE TABLE users (
   id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  avatar_path TEXT,
+  avatar_path TEXT DEFAULT '/uploads/avatars/default_avatar.svg',
   username VARCHAR(100) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
   pass_hash VARCHAR(255) NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE reading_status (
 CREATE TABLE story (
   id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   author_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  cover_path VARCHAR(255),
+  cover_path TEXT DEFAULT '/uploads/covers/default_cover.png',
   title VARCHAR(255) NOT NULL,
   summary TEXT,
   likes INT DEFAULT 0,
