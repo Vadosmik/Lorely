@@ -1,0 +1,6 @@
+fastapi[all]==0.111.0
+sqlmodel==0.0.19
+asyncpg==0.29.0
+pyjwt==2.8.0
+pydantic-settings==2.2.1
+python-dotenv==1.0.1
