@@ -27,14 +27,24 @@ class StoryCategory(SQLModel, table=True):
 class Genre(SQLModel, table=True):
   __tablename__ = "genres"
   id: Optional[int] = Field(default=None, primary_key=True)
-  title: str = Field(unique=True)
+  slug: str = Field(unique=True)
+
+  en: str = Field(unique=True)
+  ru: str = Field(unique=True)
+  pl: str = Field(unique=True)
+  by: str = Field(unique=True)
 
   stories: List["Story"] = Relationship(back_populates="genres", link_model=StoryGenre)
 
 class Category(SQLModel, table=True):
   __tablename__ = "categories"
   id: Optional[int] = Field(default=None, primary_key=True)
-  title: str = Field(unique=True) # Zmienione ze 'story' na 'title' zgodnie z ERD
+  slug: str = Field(unique=True)
+
+  en: str = Field(unique=True)
+  ru: str = Field(unique=True)
+  pl: str = Field(unique=True)
+  by: str = Field(unique=True)
 
   stories: List["Story"] = Relationship(back_populates="categories", link_model=StoryCategory)
 
@@ -47,7 +57,7 @@ class Story(SQLModel, table=True):
   author_id: int
   cover_pic_path: Optional[str] = Field(default=None)
   title: str
-  description: str
+  description: str = Field(default=None)
 
   liked: int = Field(default=0)
   viewed: int = Field(default=0)
@@ -57,7 +67,7 @@ class Story(SQLModel, table=True):
   story_json_path: str
 
   created_at: datetime = Field(default_factory=datetime.utcnow)
-  updated_at: datetime = Field(default_factory=datetime.datetime.utcnow, sa_column_kwargs={"onupdate": datetime.datetime.utcnow})
+  updated_at: datetime = Field(default_factory=datetime.utcnow, sa_column_kwargs={"onupdate": datetime.utcnow})
   deleted_at: Optional[datetime] = Field(default=None)
 
   genres: List[Genre] = Relationship(back_populates="stories", link_model=StoryGenre)

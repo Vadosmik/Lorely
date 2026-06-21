@@ -23,16 +23,18 @@ async def get_current_token_payload(token: TokenDep) -> dict:
     user_id: str = payload.get("sub")
     if user_id is None:
       raise credentials_exception
-      return payload
+    return payload
   except jwt.PyJWTError:
     raise credentials_exception
 
+PayloadDep = Annotated[dict, Depends(get_current_token_payload)]
+
 # 2. Only ID
-async def get_current_user_id(payload: Annotated[dict, Depends(get_current_token_payload)]) -> int:
+async def get_current_user_id(payload: PayloadDep) -> int:
   return int(payload.get("sub"))
 
 # 3. is it an admin
-async def check_is_admin(payload: Annotated[dict, Depends(get_current_token_payload)]) -> bool:
+async def check_is_admin(payload: PayloadDep) -> bool:
   roles = payload.get("roles", [])
   if "admin" not in roles:
     raise HTTPException(
@@ -42,7 +44,7 @@ async def check_is_admin(payload: Annotated[dict, Depends(get_current_token_payl
   return True
 
 # 4. have subcription na przyszłość
-# async def require_premium_tier(payload: Annotated[dict, Depends(get_current_token_payload)]) -> bool:
+# async def require_premium_tier(payload: PayloadDep) -> bool:
 #   tier = payload.get("tier", "free")
 #   if tier != "premium":
 #     raise HTTPException(

@@ -56,11 +56,17 @@ async def login(login_data: UserLogin, session: SessionDep):
     raise HTTPException(
       status_code=status.HTTP_401_UNAUTHORIZED,
       detail="Incorrect username/email or password",
-      headers={"WWW-Authenticate": "Bearer"},
+      headers={"WWW-Authenticate": "Bearer"}
+    )
+  
+  if not user.is_active:
+    raise HTTPException(
+      status_code=status.HTTP_403_FORBIDDEN,
+      detail="This user is banned"
     )
   
   # 3. Generowanie tokenu
-  user_roles = [role.title for role in user.roles]
+  user_roles = [role.title for role in (user.roles or [])]
   
   access_token = create_access_token(
     data={

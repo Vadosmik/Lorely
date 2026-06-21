@@ -16,7 +16,7 @@ class StoryStatus(str, Enum):
 # -- Story --
 class StoryBase(BaseModel):
   title: str = Field(min_length=1, max_length=255)
-  description: str = Field(min_length=1, max_length=2000)
+  description: Optional[str] = Field(min_length=1, max_length=2000)
   age_rate: int = Field(default=18, ge=0, le=22)
 
 class StoryCreate(StoryBase):
@@ -24,12 +24,13 @@ class StoryCreate(StoryBase):
 
 class StoryRead(StoryBase):
   id: int
-  author_id: int
   cover_pic_path: Optional[str]
+
   liked: int
   viewed: int
   status: StoryStatus
   story_json_path: str
+  
   created_at: datetime
   updated_at: datetime
   

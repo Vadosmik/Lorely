@@ -3,7 +3,7 @@ from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
-import datetime  # Potrzebne do stref czasowych
+import datetime
 
 from core.db import get_session
 from core.security import get_password_hash
@@ -56,22 +56,22 @@ async def delete_my_account(session: SessionDep, current_user: CurrentUserDep):
 # --- PUBLIC PROFILE & USERS ---
 @router.get("/", response_model=list[UserRead])
 async def get_users(session: SessionDep):
-  query = select(User).where(User.is_active == True)
+  query = select(User).where(User.deleted_at == None)
   result = await session.execute(query)
   return result.scalars().all()
 
 @router.get("/{username}", response_model=UserRead)
 async def get_user_profile(username: str, session: SessionDep):
-  query = select(User).where(User.username == username, User.is_active == True)
+  query = select(User).where(User.username == username, User.deleted_at == None)
   result = await session.execute(query)
-  user = result.scalar_one_or_none()  # <--- Naprawiona literówka
+  user = result.scalar_one_or_none()
 
   if not user:
     raise HTTPException(status_code=404, detail="User not found")
   return user
 
 # --- USER ROLES ---
-@router.get("/{username}/roles", response_model=list[RoleRead])  # <--- Poprawiony model na list[RoleRead]
+@router.get("/{username}/roles", response_model=list[RoleRead])
 async def get_user_roles(username: str, session: SessionDep, admin: CurrentAdminDep):
   query = select(User).where(User.username == username).options(selectinload(User.roles))
   result = await session.execute(query)
