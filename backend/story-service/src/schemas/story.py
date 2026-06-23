@@ -16,11 +16,22 @@ class StoryStatus(str, Enum):
 # -- Story --
 class StoryBase(BaseModel):
   title: str = Field(min_length=1, max_length=255)
-  description: Optional[str] = Field(min_length=1, max_length=2000)
+  description: Optional[str] = Field(max_length=2000)
   age_rate: int = Field(default=18, ge=0, le=22)
 
 class StoryCreate(StoryBase):
   story_json_path: str
+
+class StoryGetCatalog(StoryBase):
+  id: int
+  cover_pic_path: Optional[str]
+
+  status: StoryStatus
+  
+  created_at: datetime
+  updated_at: datetime
+
+  model_config = ConfigDict(from_attributes=True)
 
 class StoryRead(StoryBase):
   id: int
@@ -41,7 +52,7 @@ class StoryRead(StoryBase):
 
 class StoryUpdate(BaseModel):
   title: Optional[str] = Field(None, min_length=1, max_length=255)
-  description: Optional[str] = Field(None, min_length=1, max_length=2000)
+  description: Optional[str] = Field(None, max_length=2000)
   age_rate: Optional[int] = Field(None, ge=0, le=22)
   status: Optional[StoryStatus] = None
   cover_pic_path: Optional[str] = None

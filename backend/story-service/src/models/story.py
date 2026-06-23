@@ -57,7 +57,7 @@ class Story(SQLModel, table=True):
   author_id: int
   cover_pic_path: Optional[str] = Field(default=None)
   title: str
-  description: str = Field(default=None)
+  description: Optional[str] = Field(default=None, nullable=True)
 
   liked: int = Field(default=0)
   viewed: int = Field(default=0)
