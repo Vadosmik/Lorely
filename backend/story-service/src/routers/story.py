@@ -6,7 +6,7 @@ from sqlmodel import select
 import datetime
 
 from core.db import get_session
-from core.dependencies import get_current_user_id, check_is_admin
+from core.dependencies import get_current_user_id
 from src.schemas.story import StoryRead, StoryUpdate, StoryCreate, StoryGetCatalog
 from src.models.story import Story, Genre, Category
 
