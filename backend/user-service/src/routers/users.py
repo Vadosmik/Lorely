@@ -6,9 +6,9 @@ from sqlmodel import select
 import datetime
 
 from core.db import get_session
-from core.security import get_password_hash
+from core.security import get_password_hash, verify_password
 from core.dependencies import get_current_user, get_current_admin
-from src.schemas.users import UserRead, UserUpdate
+from src.schemas.users import UserRead, UserUpdate, PasswordUpdate
 from src.schemas.roles import RoleRead
 from src.models.users import User
 
@@ -35,11 +35,14 @@ async def update_my_profile(user_data: UserUpdate, session: SessionDep, current_
   return current_user
 
 @router.patch("/me/password")
-async def change_my_password(password_data: UserUpdate, session: SessionDep, current_user: CurrentUserDep):
-  if not password_data.password:
+async def change_my_password(data: PasswordUpdate, session: SessionDep, current_user: CurrentUserDep):
+  if not data.new_password:
     raise HTTPException(status_code=400, detail="New password is required")
   
-  current_user.hashed_password = get_password_hash(password_data.password)
+  if not verify_password(data.old_password, current_user.hashed_password):
+    raise HTTPException(status_code=400, detail="Incorrect old password")
+  
+  current_user.hashed_password = get_password_hash(data.new_password)
   session.add(current_user)
   await session.commit()
   return {"message": "Password changed successfully"}

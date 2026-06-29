@@ -1,4 +1,18 @@
 services:
+  nginx:
+    image: nginx:latest
+    container_name: lorely-gateway
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./cors.conf:/etc/nginx/cors.conf:ro
+    ports:
+      - "80:80"
+    networks:
+      - lorely-net
+    depends_on:
+      - user-service
+      - story-service
+      - storage-service
   user-service:
     build: ./user-service
     container_name: user-service
@@ -16,8 +30,6 @@ services:
   story-service:
     build: ./story-service
     container_name: story-service
-    ports:
-      - '8001:8000'
     env_file:
       - .env
       - ./story-service/.env
@@ -26,11 +38,20 @@ services:
     depends_on:
       db:
         condition: service_healthy
+  catalog-service:
+    build: ./catalog-service
+    container_name: catalog-service
+    env_file:
+      - .env
+      - ./catalog-service/.env
+    networks:
+      - lorely-net
+    depends_on:
+      db:
+        condition: service_healthy
   storage-service:
     build: ./storage-service
     container_name: storage-service
-    ports:
-      - '8002:8000'
     env_file:
       - .env
       - ./storage-service/.env
@@ -47,8 +68,6 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - '5432:5432'
     volumes:
       - db-data:/var/lib/postgresql
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
@@ -75,7 +94,7 @@ services:
     networks:
       - lorely-net
     healthcheck:
-      test: ["CMD-SHELL", "timeout 5s bash -c ':> /dev/tcp/127.0.0.1/9000' || exit 1"]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 1s
       timeout: 1s
       retries: 3

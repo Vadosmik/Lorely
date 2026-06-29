@@ -23,7 +23,7 @@ class User(SQLModel, table=True):
 
   ava_pic_path: Optional[str] = Field(default=None)
   bio: Optional[str] = Field(default=None)
-  birthday_date: Optional[date] = Field(default=None)
+  birthday_date: Optional[date] = Field(default_factory=datetime.utcnow)
 
   is_active: bool = Field(default=True)
   tos_accepted_at: Optional[datetime] = Field(default_factory=datetime.utcnow)

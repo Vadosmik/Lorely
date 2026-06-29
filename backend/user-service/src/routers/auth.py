@@ -3,10 +3,10 @@ from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
+import jwt
 
 from core.db import get_session
-from core.security import create_access_token, get_password_hash, verify_password
-from core.dependencies import get_current_user
+from core.security import create_access_token, get_password_hash, verify_password, create_refresh_token
 from src.schemas.users import Token, UserCreate, UserLogin, UserRead
 from src.models.users import User
 
@@ -74,6 +74,49 @@ async def login(login_data: UserLogin, session: SessionDep):
       "roles": user_roles
       }
     )
+  refresh_token = create_refresh_token(data={"sub": str(user.id)})
 
   # 4. Zwrócenie tokenu
-  return {"access_token": access_token, "token_type": "bearer"}
+  return {
+      "access_token": access_token, 
+      "refresh_token": refresh_token,
+      "token_type": "bearer"
+    }
+
+
+# @router.post("/refresh", response_model=Token)
+# async def refresh_access_token(refresh_token: str, session: SessionDep):
+#   try:
+#     # Dekodujemy otrzymany refresh token
+#     payload = jwt.decode(refresh_token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
+      
+#     # Sprawdzamy czy to na pewno token typu 'refresh'
+#     if payload.get("type") != "refresh":
+#       raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token type")
+          
+#     user_id = payload.get("sub")
+#     if not user_id:
+#       raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token claims")
+            
+#   except jwt.ExpiredSignatureError:
+#     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token expired. Please login again.")
+#   except jwt.PyJWTError:
+#     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+
+#   # Pobieramy użytkownika z bazy, aby upewnić się, że nadal istnieje i jest aktywny
+#   query = select(User).where(User.id == user_id).options(selectinload(User.roles))
+#   result = await session.execute(query)
+#   user = result.scalar_one_or_none()
+
+#   if not user or not user.is_active:
+#     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or inactive")
+
+#   # Generujemy NOWY access token
+#   user_roles = [role.title for role in (user.roles or [])]
+#   new_access_token = create_access_token(data={"sub": str(user.id), "roles": user_roles})
+
+#   return {
+#     "access_token": new_access_token,
+#     "refresh_token": refresh_token,
+#     "token_type": "bearer"
+#     }

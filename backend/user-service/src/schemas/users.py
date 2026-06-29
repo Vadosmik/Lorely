@@ -10,6 +10,7 @@ class UserLogin(BaseModel):
 
 class Token(BaseModel):
   access_token: str
+  refresh_token: str
   token_type: str = "bearer"
 
 class UserBase(BaseModel):
@@ -59,11 +60,6 @@ class UserUpdate(BaseModel):
   ava_pic_path: Optional[str] = None
   bio: Optional[str] = None
   birthday_date: Optional[date] = None
-  password: Optional[str] = Field(
-    None,
-    min_length=8,
-    pattern="^[-a-zA-Z0-9+*=_!?@#$%&~.]+$"
-    ) # Zmiana hasła
   
   @field_validator('username')
   @classmethod
@@ -71,6 +67,13 @@ class UserUpdate(BaseModel):
     if v.lower() in FORBIDDEN_USERNAMES:
       raise ValueError(f"Username: '{v}' is reserved.")
     return v
+  
+class PasswordUpdate(BaseModel):
+  old_password: str
+  new_password: str = Field(
+    min_length=8,
+    pattern="^[-a-zA-Z0-9+*=_!?@#$%&~.]+$"
+  )
 
 # Panel Admina - rozszerzone uprawnienia (np. banowanie, przywracanie)
 class UserAdminUpdate(UserUpdate):

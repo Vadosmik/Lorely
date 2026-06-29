@@ -77,7 +77,7 @@ async def download_file(object_name: str):
   
   raise HTTPException(status_code=404, detail="File not found")
 
-@router.delete("/delete/{object_name}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/delete/{object_name:path}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_file(object_name: str, current_user: CurrentUserDep):
   bucket, filename = object_name.split('/', 1)
 

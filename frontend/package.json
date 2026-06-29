@@ -11,6 +11,7 @@
   "dependencies": {
     "preact": "^10.29.1",
     "preact-iso": "^2.12.0",
+    "preact-router": "^4.1.2",
     "quill": "^2.0.3",
     "react-quill": "^2.0.0",
     "reactflow": "^11.11.4"

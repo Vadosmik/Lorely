@@ -7,7 +7,6 @@ from src.schemas.genre import GenreRead
 from src.schemas.category import CategoryRead
 
 class StoryStatus(str, Enum):
-  DRAFT = "Draft"
   ANNOUNCEMENT = "Announcement"
   CONTINUES = "Continues"
   FROZEN = "Frozen"
@@ -16,11 +15,19 @@ class StoryStatus(str, Enum):
 # -- Story --
 class StoryBase(BaseModel):
   title: str = Field(min_length=1, max_length=255)
-  description: Optional[str] = Field(max_length=2000)
+  description: Optional[str] = Field(default=None, max_length=2000)
   age_rate: int = Field(default=18, ge=0, le=22)
 
 class StoryCreate(StoryBase):
+  id: int
+  author_id: int
+  cover_pic_path: Optional[str] = Field(default=None)
+  age_rate: int = Field(default=18)
+  status: StoryStatus = Field(default=StoryStatus.ANNOUNCEMENT)
   story_json_path: str
+
+  genre_ids: Optional[List[int]] = None
+  category_ids: Optional[List[int]] = None
 
 class StoryGetCatalog(StoryBase):
   id: int
@@ -28,7 +35,7 @@ class StoryGetCatalog(StoryBase):
 
   status: StoryStatus
   
-  created_at: datetime
+  published_at: datetime
   updated_at: datetime
 
   model_config = ConfigDict(from_attributes=True)
@@ -36,10 +43,12 @@ class StoryGetCatalog(StoryBase):
 class StoryRead(StoryBase):
   id: int
   cover_pic_path: Optional[str]
+  author_id: int
 
   liked: int
   viewed: int
   status: StoryStatus
+
   story_json_path: str
   
   created_at: datetime
@@ -59,6 +68,10 @@ class StoryUpdate(BaseModel):
   story_json_path: Optional[str] = None
   genre_ids: Optional[List[int]] = None
   category_ids: Optional[List[int]] = None
+
+class StoryUpdateLikeView(BaseModel):
+  liked: Optional[int] = None
+  viewed: Optional[int] = None
 
 class StoryRelationsPayload(BaseModel):
   genre_ids: List[int] = []

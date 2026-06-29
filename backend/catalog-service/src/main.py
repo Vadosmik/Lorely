@@ -13,7 +13,6 @@ from src.routers.category import router as category_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-  # Tworzenie tabel
   async with engine.begin() as conn:
     await conn.run_sync(SQLModel.metadata.create_all)
   yield

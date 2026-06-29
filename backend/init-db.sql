@@ -1,3 +1,3 @@
 CREATE DATABASE lorely_user_db;
 CREATE DATABASE lorely_story_db;
-CREATE DATABASE lorely_category_db;
+CREATE DATABASE lorely_catalog_db;
