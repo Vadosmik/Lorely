@@ -20,41 +20,18 @@ class StoryBase(BaseModel):
   age_rate: int = Field(default=18, ge=0, le=22)
 
 class StoryCreate(StoryBase):
-  id: int
-  author_id: int = 0
-  cover_pic_path: Optional[str] = Field(default=None)
-  age_rate: int = Field(default=18)
-  status: StoryStatus = Field(default=StoryStatus.ANNOUNCEMENT)
   story_json_path: str
-
-  genre_ids: Optional[List[int]] = None
-  category_ids: Optional[List[int]] = None
-
-class StoryGetCatalog(StoryBase):
-  id: int
-  cover_pic_path: Optional[str]
-
-
-  author_id: int
-  status: StoryStatus
-  
-  published_at: datetime
-  updated_at: datetime
-
-  model_config = ConfigDict(from_attributes=True)
 
 class StoryRead(StoryBase):
   id: int
   cover_pic_path: Optional[str]
-  author_id: int
 
   liked: int
   viewed: int
   status: StoryStatus
-
   story_json_path: str
   
-  published_at: datetime
+  created_at: datetime
   updated_at: datetime
   
   genres: List[GenreRead] = []
@@ -64,17 +41,13 @@ class StoryRead(StoryBase):
 
 class StoryUpdate(BaseModel):
   title: Optional[str] = Field(None, min_length=1, max_length=255)
-  description: Optional[str] = Field(None, max_length=2000)
+  description: Optional[str] = Field(None, min_length=1, max_length=2000)
   age_rate: Optional[int] = Field(None, ge=0, le=22)
   status: Optional[StoryStatus] = None
   cover_pic_path: Optional[str] = None
   story_json_path: Optional[str] = None
   genre_ids: Optional[List[int]] = None
   category_ids: Optional[List[int]] = None
-
-class StoryUpdateLikeView(BaseModel):
-  liked: Optional[int] = None
-  viewed: Optional[int] = None
 
 class StoryRelationsPayload(BaseModel):
   genre_ids: List[int] = []

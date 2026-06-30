@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'preact/hooks';
 import { storyService } from '../services/storyService.js';
+import { profileService } from '../services/ProfileServiece.js';
+import { catalogService } from '../services/catalogService.js';
 import { storageService } from '../services/storageService.js';
 
 export default function EditPage() {
   const [stories, setStories] = useState([]);
+  const [publishedStories, setpublishedStories] = useState([]);
   const [storyData, setStoryData] = useState(null);
   const [title, setTitle] = useState('');
   const [coverUrl, setCoverUrl] = useState(null);
@@ -13,8 +16,14 @@ export default function EditPage() {
     async function fetchEditList() {
       try {
         const data = await storyService.getStories();
+        const pub_data = await catalogService.getStories();
+        const user = await profileService.getMe();
 
         setStories(data);
+
+        const myPublished = pub_data.filter(story => Number(story.author_id) === Number(user.id));
+        setpublishedStories(myPublished);
+
       } catch (err) {
         console.error(err);
       }
@@ -185,6 +194,60 @@ export default function EditPage() {
     }
   };
 
+  const handlePublishSubmit = async (id) => {
+    console.log('Publishing story...');
+
+    try {
+      const fullStoryData = await storyService.getStory(id);
+
+      const updatePayload = {
+        id: id,
+        title: fullStoryData.title,
+        description: fullStoryData.description,
+        cover_pic_path: fullStoryData.cover_pic_path,
+        age_rate: fullStoryData.age_rate,
+        status: fullStoryData.status,
+        story_json_path: fullStoryData.story_json_path,
+        genre_ids: fullStoryData.genre_ids || [],
+        category_ids: fullStoryData.category_ids || []
+      };
+
+      const isAlreadyPublished = publishedStories.some(s => s.id === id);
+
+      if (!isAlreadyPublished) {
+        const newPublishedStory = await catalogService.publishStory(updatePayload);
+
+        setpublishedStories([...publishedStories, newPublishedStory]);
+        console.log('Story published successfully (POST)!');
+      } else {
+        const updatedCatalogStory = await catalogService.updateStoryInfo(id, updatePayload);
+
+        setpublishedStories(publishedStories.map(s => s.id === id ? updatedCatalogStory : s));
+        console.log('Catalog updated successfully (PATCH)!');
+      }
+    } catch (err) {
+      console.error(`Error: ${err.message}`);
+    }
+  };
+
+  const handlePublishDelete = async (id) => {
+    console.log('Deleting from catalog...');
+    try {
+      await catalogService.deleteStory(id);
+
+      setpublishedStories(publishedStories.filter(s => s.id !== id));
+
+      if (storyData && storyData.id === id) {
+        setStoryData(null);
+        setCoverUrl(null);
+      }
+
+      console.log('Publish deleted successfully!');
+    } catch (err) {
+      console.error(`Error: ${err.message}`);
+    }
+  };
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>Story Editor</h1>
@@ -208,16 +271,32 @@ export default function EditPage() {
 
       <h2>My Stories List</h2>
       <ul>
-        {stories.map(story => (
-          <li key={story.id}>
-            <button onClick={() => handleGetStory(story.id)}>
-              {story.title}
-            </button>
-            <button onClick={() => alert("added")}>
-              publish
-            </button>
-          </li>
-        ))}
+        {stories.map(story => {
+          const isPublished = publishedStories.some(s => s.id === story.id);
+
+          return (
+            <li key={story.id}>
+              <button onClick={() => handleGetStory(story.id)}>
+                {story.title}
+              </button>
+              <button
+                onClick={() => handlePublishSubmit(story.id)}
+                style={{ marginLeft: '10px', backgroundColor: isPublished ? '#2196F3' : '#4CAF50', color: 'white', border: 'none', padding: '5px 10px', cursor: 'pointer' }}
+              >
+                {isPublished ? 'Update Catalog' : 'Publish'}
+              </button>
+              {isPublished ? 
+              <button
+                onClick={() => handlePublishDelete(story.id)}
+                style={ styles.deleteBtn }
+              >
+                Delete from catalog
+              </button> : 
+              ''
+              }
+            </li>
+          );
+        })}
       </ul>
 
       <hr style={{ margin: '30px 0', borderColor: '#333' }} />
@@ -241,7 +320,7 @@ export default function EditPage() {
               type="file"
               accept="image/*"
               onChange={handleFileChange}
-              brakuje style={{ display: 'none' }}
+              style={{ display: 'none' }}
             />
 
             <div style={{ marginTop: '10px' }}>

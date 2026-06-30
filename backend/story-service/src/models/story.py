@@ -23,7 +23,7 @@ class StoryCategory(SQLModel, table=True):
   story_id: Optional[int] = Field(default=None, foreign_key="story.id", primary_key=True)
   category_id: Optional[int] = Field(default=None, foreign_key="categories.id", primary_key=True)
 
-# 2. Dictionary (Genre / Category)
+# 2. Słowniki (Genre / Category)
 class Genre(SQLModel, table=True):
   __tablename__ = "genres"
   id: Optional[int] = Field(default=None, primary_key=True)
@@ -52,7 +52,7 @@ class Category(SQLModel, table=True):
 class Story(SQLModel, table=True):
   __tablename__ = "story"
 
-  id: Optional[int] =  Field(default=None, primary_key=True, sa_column_kwargs={"autoincrement": False})
+  id: Optional[int] = Field(default=None, primary_key=True)
   
   author_id: int
   cover_pic_path: Optional[str] = Field(default=None)
@@ -63,11 +63,12 @@ class Story(SQLModel, table=True):
   viewed: int = Field(default=0)
   age_rate: int = Field(default=18)
   
-  status: StoryStatus = Field(default=StoryStatus.ANNOUNCEMENT)
+  status: StoryStatus = Field(default=StoryStatus.DRAFT)
   story_json_path: str
 
-  published_at: datetime = Field(default_factory=datetime.utcnow)
+  created_at: datetime = Field(default_factory=datetime.utcnow)
   updated_at: datetime = Field(default_factory=datetime.utcnow, sa_column_kwargs={"onupdate": datetime.utcnow})
+  deleted_at: Optional[datetime] = Field(default=None)
 
   genres: List[Genre] = Relationship(back_populates="stories", link_model=StoryGenre)
   categories: List[Category] = Relationship(back_populates="stories", link_model=StoryCategory)
