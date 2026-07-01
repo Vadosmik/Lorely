@@ -343,12 +343,12 @@ export default function ProfilePage() {
           onChange={handleFileChange}
         />
 
-        <button type="submit" style={styles.submitBtn}>
+        <button type="submit">
           Update Ava
         </button>
 
         {/* NAPRAWIONO: Zmiana typu na 'button' i dodanie onClick */}
-        <button type="button" onClick={handleAvatarDelete} style={styles.deleteBtn}>
+        <button type="button" onClick={handleAvatarDelete}>
           Delete Ava
         </button>
       </form>
@@ -362,10 +362,5 @@ const styles = {
   hr: {
     borderColor: '#333',
     marginBottom: '20px',
-  },
-  error: {
-    textAlign: 'center',
-    color: '#ff4a4a',
-    padding: '50px',
   }
 };

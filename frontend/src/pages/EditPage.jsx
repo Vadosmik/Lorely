@@ -3,8 +3,15 @@ import { storyService } from '../services/storyService.js';
 import { profileService } from '../services/ProfileServiece.js';
 import { catalogService } from '../services/catalogService.js';
 import { storageService } from '../services/storageService.js';
+import { EditView } from './editor/EditView.jsx';
+import { transformJsonToFlow } from './editor/transformJsonToFlow.js';
 
 export default function EditPage() {
+  const [currentStoryId, setCurrentStoryId] = useState(null);
+
+  const [initialNodes, setInitialNodes] = useState(null);
+  const [initialEdges, setCInitialEdges] = useState(null);
+
   const [stories, setStories] = useState([]);
   const [publishedStories, setpublishedStories] = useState([]);
   const [storyData, setStoryData] = useState(null);
@@ -75,6 +82,18 @@ export default function EditPage() {
         setCoverUrl(url);
       } else {
         setCoverUrl(null);
+      }
+
+      if (data && data.story_json_path) {
+        const blob = await storageService.getFile(data.story_json_path);
+        const url = URL.createObjectURL(blob);
+        const jsonResponse = await fetch(url);
+        const storyJson = await jsonResponse.json();
+
+        const { initialNodes, initialEdges } = transformJsonToFlow(storyJson)
+
+        setInitialNodes(initialNodes)
+        setCInitialEdges(initialEdges)
       }
     } catch (err) {
       console.dir(err);
@@ -178,15 +197,26 @@ export default function EditPage() {
 
   const handleStoryDelete = async () => {
     try {
+      console.log('Rozpoczynam procedurę usuwania...');
+
+      const isPublished = publishedStories.some(s => s.id === storyData.id);
+      if (isPublished) {
+        console.log('Opowiadanie jest w katalogu. Usuwam najpierw wpis z katalogu...');
+        await catalogService.deleteStory(storyData.id);
+        setpublishedStories(prev => prev.filter(s => s.id !== storyData.id));
+      }
+
       await storyService.deleteStory(storyData.id);
 
       const data = await storyService.getStories();
-
       setStories(data);
 
       setStoryData(null);
       setCoverUrl(null);
       setSelectedFile(null);
+
+      setInitialNodes(null);
+      setCInitialEdges(null);
 
       console.log('Story deleted successfully!');
     } catch (err) {
@@ -248,6 +278,34 @@ export default function EditPage() {
     }
   };
 
+  const handleSaveStoryJson = async (updatedJsonStructure) => {
+    if (!storyData || !storyData.story_json_path) {
+      console.error("have`t JSON!");
+      return;
+    }
+
+    try {
+      const jsonBlob = new Blob(
+        [JSON.stringify(updatedJsonStructure, null, 2)],
+        { type: 'application/json' }
+      );
+
+      if (storyData && storyData.story_json_path) {
+        try {
+          await storageService.deleteFile(storyData.story_json_path);
+        } catch (delErr) {
+          console.warn("Old file not found on storage, skipping deletion:", delErr);
+        }
+      }
+
+      const newJsonPath = await storageService.uploadFile('stories', jsonBlob);
+      const updatedStory = await storyService.updateStoryInfo(storyData.id, { story_json_path: newJsonPath });
+      setStoryData(updatedStory);
+    } catch (err) {
+      console.error(`Błąd zapisu struktury grafu: ${err.message}`);
+    }
+  };
+
   return (
     <div style={{ padding: '20px' }}>
       <h1>Story Editor</h1>
@@ -255,7 +313,7 @@ export default function EditPage() {
       <h3>Create New Story</h3>
       <form onSubmit={handleSubmitNewStory}>
         <div style={{ marginBottom: '10px' }}>
-          <label htmlFor="story_title" style={{ display: 'block' }}>Title:</label>
+          <label htmlFor="story_title">Title:</label>
           <input
             type="text"
             id="story_title"
@@ -267,7 +325,7 @@ export default function EditPage() {
         <button type="submit">Add New Story</button>
       </form>
 
-      <hr style={{ margin: '30px 0', borderColor: '#333' }} />
+      <hr style={styles.hr} />
 
       <h2>My Stories List</h2>
       <ul>
@@ -285,21 +343,20 @@ export default function EditPage() {
               >
                 {isPublished ? 'Update Catalog' : 'Publish'}
               </button>
-              {isPublished ? 
-              <button
-                onClick={() => handlePublishDelete(story.id)}
-                style={ styles.deleteBtn }
-              >
-                Delete from catalog
-              </button> : 
-              ''
+              {isPublished ?
+                <button
+                  onClick={() => handlePublishDelete(story.id)}
+                >
+                  Delete from catalog
+                </button> :
+                ''
               }
             </li>
           );
         })}
       </ul>
 
-      <hr style={{ margin: '30px 0', borderColor: '#333' }} />
+      <hr style={styles.hr} />
 
       {storyData ? (
         <div>
@@ -320,14 +377,13 @@ export default function EditPage() {
               type="file"
               accept="image/*"
               onChange={handleFileChange}
-              style={{ display: 'none' }}
             />
 
             <div style={{ marginTop: '10px' }}>
-              <button type="submit" style={styles.submitBtn}>
+              <button type="submit">
                 Update cover
               </button>
-              <button type="button" onClick={handleCoverDelete} style={{ ...styles.deleteBtn, marginLeft: '10px' }}>
+              <button type="button" onClick={handleCoverDelete}>
                 Delete Cover
               </button>
             </div>
@@ -337,13 +393,12 @@ export default function EditPage() {
 
             <h3>Title:</h3>
 
-            <div style={styles.formGroup}>
-              <label htmlFor="ltitle" style={styles.label}>Title:</label>
+            <div>
+              <label htmlFor="ltitle">Title:</label>
               <input
                 type="text"
                 id="ltitle"
                 name="title"
-                style={styles.input}
                 minLength={1}
                 maxLength={255}
                 value={storyData?.title || ''}
@@ -352,13 +407,12 @@ export default function EditPage() {
               />
             </div>
 
-            <div style={styles.formGroup}>
-              <label htmlFor="ldesc" style={styles.label}>Description:</label>
+            <div>
+              <label htmlFor="ldesc">Description:</label>
               <textarea
                 type="text"
                 id="ldesc"
                 name="description"
-                style={styles.input}
                 maxLength={2000}
                 value={storyData.description || ''}
                 onInput={handleChange}
@@ -366,14 +420,13 @@ export default function EditPage() {
               />
             </div>
 
-            <div style={styles.formGroup}>
-              <label htmlFor="lage_rate" style={styles.label}>Age rate:</label>
+            <div>
+              <label htmlFor="lage_rate">Age rate:</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <input
                   type="number"
                   id="lage_rate"
                   name="age_rate"
-                  style={styles.input}
                   min="0"
                   max="22"
                   value={storyData.age_rate ?? ''}
@@ -385,12 +438,12 @@ export default function EditPage() {
             </div>
 
             <div style={{ marginTop: '10px' }}>
-              <button type="submit" style={styles.submitBtn}>
+              <button type="submit">
                 Update Story
               </button>
             </div>
           </form>
-          <button type="button" onClick={handleStoryDelete} style={{ ...styles.deleteBtn, marginLeft: '10px' }}>
+          <button type="button" onClick={handleStoryDelete}>
             Delete Story
           </button>
         </div>
@@ -398,23 +451,29 @@ export default function EditPage() {
         <p>Select a story from the list above to view details and edit its cover.</p>
       )}
 
+      <hr style={styles.hr} />
+
+      {initialNodes && initialEdges ? (
+        <EditView
+          initialNodes={initialNodes}
+          initialEdges={initialEdges}
+          storyData={storyData}
+          onSaveStoryJson={handleSaveStoryJson}
+        />
+      ) : (
+        <p style={{ textAlign: 'center', color: '#888', fontStyle: 'italic' }}>
+          Select a story from the list to load its visual flowchart editor.
+        </p>
+      )}
+
     </div>
   );
 }
 
+
 const styles = {
-  submitBtn: {
-    padding: '8px 12px',
-    backgroundColor: '#4CAF50',
-    color: 'white',
-    border: 'none',
-    cursor: 'pointer'
-  },
-  deleteBtn: {
-    padding: '8px 12px',
-    backgroundColor: '#f44336',
-    color: 'white',
-    border: 'none',
-    cursor: 'pointer'
+  hr: {
+    borderColor: '#333',
+    marginBottom: '20px',
   }
 };

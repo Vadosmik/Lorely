@@ -9,5 +9,8 @@ export default function Home() {
 }
 
 const styles = {
-
-}
+  hr: {
+    borderColor: '#333',
+    marginBottom: '20px',
+  }
+};

@@ -82,27 +82,27 @@ export default function StoryReader({ storyId, storyJson, onReset }) {
   };
 
   return (
-    <div style={styles.readerContainer}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div>
+      <div>
         <h2>{storyJson.story_title || "Lorely Reader"}</h2>
-        <button onClick={localReset} style={styles.resetBtn}>Reset Game</button>
+        <button onClick={localReset}>Reset Game</button>
       </div>
 
-      <div style={styles.contentArea}>
+      <div>
         {historyData.map((sceneId, idx) => {
           const node = storyJson.nodes[sceneId];
           if (!node) return null;
           return (
             <div key={`${sceneId}_${idx}`}>
               {node.text.split('\n\n').map((para, pIdx) => (
-                <p key={pIdx} style={{ lineHeight: '1.6', marginBottom: '15px' }}>{para}</p>
+                <p key={pIdx}>{para}</p>
               ))}
             </div>
           );
         })}
       </div>
 
-      <div style={styles.choicesArea}>
+      <div>
         {activeNode && activeNode.choices && activeNode.choices.map((choice, idx) => {
           if (choice.requires) {
             for (let varName in choice.requires) {
@@ -113,7 +113,6 @@ export default function StoryReader({ storyId, storyJson, onReset }) {
             <button
               key={idx}
               onClick={() => handleSelectChoice(choice.next_node, choice.variables)}
-              style={styles.choiceBtn}
             >
               {choice.text}
             </button>

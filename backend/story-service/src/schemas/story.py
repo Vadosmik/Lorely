@@ -26,8 +26,6 @@ class StoryRead(StoryBase):
   id: int
   cover_pic_path: Optional[str]
 
-  liked: int
-  viewed: int
   status: StoryStatus
   story_json_path: str
   

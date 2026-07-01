@@ -95,7 +95,7 @@ async def delete_story(story_id: int, session: SessionDep, current_user: Current
   if not story:
     raise HTTPException(status_code=404, detail="Story not found")
   
-  story.deleted_at = datetime.datetime.now(datetime.timezone.utc)
+  story.deleted_at = datetime.datetime.now()
 
   session.add(story)
   await session.commit()

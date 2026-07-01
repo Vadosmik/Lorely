@@ -28,7 +28,6 @@ export function NavBar({ user, onLogout }) {
   );
 }
 
-// Proste style inline na start, żeby od razu wyglądało czysto (możesz przenieść do CSS)
 const styles = {
   navbar: {
     display: 'flex',

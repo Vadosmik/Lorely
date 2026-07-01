@@ -1,37 +1,67 @@
 {
 	"story_title": "",
 	"history": [
-		"node_name_1"
+		"node_name_0"
 	],
 	"variables": {
 		"variable_name": 0
 	},
 	"nodes": {
+		"start": {
+			"position": { "x": 0, "y": -400 },
+      "type": "startNode",
+      "text": "start",
+			"auto_next": [
+        {
+          "next_node": "node_name_0"
+        }
+      ]
+		},
+		"node_name_0": {
+      "position": { "x": 0, "y": -200 },
+      "type": "storyNode",
+      "text": "Hello this is Lorely",
+      "choices": [
+        {
+          "text": "hello",
+          "next_node": "node_name_1"
+        },
+        {
+          "text": "Good bye",
+          "next_node": "node_name_2",
+          "variables": {
+            "variable_name": 3
+          }
+        }
+      ]
+    },
 		"node_name_1": {
+      "position": { "x": -100, "y": 0 },
+      "type": "storyNode",
+      "text": "cute",
+      "auto_next": [
+        {
+          "next_node": "node_name_3"
+        }
+      ]
+    },
+		"node_name_2": {
+			"position": { "x": 100, "y": 0 },
+			"type": "storyNode",
 			"text": "",
-			"bg_music": "song_name.mp3",
 			"auto_next": [
 				{
 					"requires": {
-						"variable_name": 10
+						"variable_name": 3
 					},
-					"next_node": "node_name_x"
-				}
-			],
-			"choices": [
-				{
-					"text": "text",
-					"next_node": "node_name_x",
-					"variables": {
-						"variable_name": 1
-					}
-				},
-				{
-					"text": "text",
-					"next_node": "node_name_x",
-					"variables": {}
+					"next_node": "node_name_3"
 				}
 			]
+		},
+		"node_name_3": {
+			"position": { "x": 0, "y": 200 },
+			"type": "storyNode",
+			"text": "the end"
 		}
 	}
 }
