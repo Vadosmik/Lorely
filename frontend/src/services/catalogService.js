@@ -1,4 +1,3 @@
-// Poprawny storyService.js
 const API_BASE = 'http://localhost:80/catalog';
 
 const getHeaders = () => {
@@ -16,9 +15,21 @@ export const catalogService = {
     return res.json();
   },
 
+  async getMinePublishedStories() {
+    const res = await fetch(`${API_BASE}/mine`, {
+      headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error('Server error');
+    return res.json();
+  },
+
   async getStory(story_id) {
     const res = await fetch(`${API_BASE}/${story_id}`);
-    if (!res.ok) throw new Error('Server error');
+    if (!res.ok) {
+      const err = new Error('Server error');
+      err.status = res.status;
+      throw err;
+    };
     return res.json();
   },
 

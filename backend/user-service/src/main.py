@@ -15,11 +15,9 @@ from src.seed import create_initial_admin
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-  # Tworzenie tabel
   async with engine.begin() as conn:
     await conn.run_sync(SQLModel.metadata.create_all)
   
-  # Uruchomienie seeder'a
   await create_initial_admin()
   yield
 

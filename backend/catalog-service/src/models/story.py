@@ -5,7 +5,6 @@ from sqlmodel import SQLModel, Field, Relationship
 
 # 1. Status(Enum)
 class StoryStatus(str, Enum):
-  DRAFT = "Draft"
   ANNOUNCEMENT = "Announcement"
   CONTINUES = "Continues"
   FROZEN = "Frozen"
@@ -64,7 +63,7 @@ class Story(SQLModel, table=True):
   age_rate: int = Field(default=18)
   
   status: StoryStatus = Field(default=StoryStatus.ANNOUNCEMENT)
-  story_json_path: str
+  story_json_path: Optional[str] = Field(default=None, nullable=True)
 
   published_at: datetime = Field(default_factory=datetime.utcnow)
   updated_at: datetime = Field(default_factory=datetime.utcnow, sa_column_kwargs={"onupdate": datetime.utcnow})

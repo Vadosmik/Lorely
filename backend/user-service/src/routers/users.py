@@ -63,7 +63,17 @@ async def get_users(session: SessionDep):
   result = await session.execute(query)
   return result.scalars().all()
 
-@router.get("/{username}", response_model=UserRead)
+@router.get("/{id}", response_model=UserRead)
+async def get_user_profile(id: str, session: SessionDep):
+  query = select(User).where(User.id == id, User.deleted_at == None)
+  result = await session.execute(query)
+  user = result.scalar_one_or_none()
+
+  if not user:
+    raise HTTPException(status_code=404, detail="User not found")
+  return user
+
+@router.get("/by/{username}", response_model=UserRead)
 async def get_user_profile(username: str, session: SessionDep):
   query = select(User).where(User.username == username, User.deleted_at == None)
   result = await session.execute(query)
@@ -74,9 +84,9 @@ async def get_user_profile(username: str, session: SessionDep):
   return user
 
 # --- USER ROLES ---
-@router.get("/{username}/roles", response_model=list[RoleRead])
-async def get_user_roles(username: str, session: SessionDep, admin: CurrentAdminDep):
-  query = select(User).where(User.username == username).options(selectinload(User.roles))
+@router.get("/{id}/roles", response_model=list[RoleRead])
+async def get_user_roles(id: str, session: SessionDep, admin: CurrentAdminDep):
+  query = select(User).where(User.id == id).options(selectinload(User.roles))
   result = await session.execute(query)
   user = result.scalar_one_or_none()
      

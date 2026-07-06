@@ -1,6 +1,6 @@
 import { useLocation } from 'preact-iso';
 import { useState } from 'preact/hooks';
-import { authService } from '../services/authService';
+import { authService } from '../services/AuthService';
 
 export default function AuthPage({ onLoginSuccess }) {
   const [loginForm, setLoginForm] = useState({
@@ -39,6 +39,7 @@ export default function AuthPage({ onLoginSuccess }) {
     try {
       const data = await authService.login(loginForm.usernameOrEmail, loginForm.password);
       localStorage.setItem('token', data.access_token);
+      localStorage.setItem('refresh_token', data.refresh_token);
       setStatus('Successfully logged in!');
       if (onLoginSuccess) await onLoginSuccess();
       route('/');

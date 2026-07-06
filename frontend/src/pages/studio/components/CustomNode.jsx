@@ -25,7 +25,7 @@ export function StartNode({ data }) {
       <Handle 
         type="source" 
         position={Position.Bottom}
-        style={{ ...handleStyle, bottom: -8 }} // Przesunięcie kółka na krawędź dolną
+        style={{ ...handleStyle, bottom: -8 }}
       />
     </div>
   );
@@ -47,7 +47,6 @@ export function StoryNode({ id, data, selected }) {
       fontFamily: 'sans-serif',
       boxShadow: selected ? '0 0 10px rgba(255, 213, 79, 0.5)' : '0 2px 5px rgba(0,0,0,0.05)',
     }}>
-      {/* ID węzła w rogu */}
       <div style={{ fontSize: '8px', color: '#BDBDBD', position: 'absolute', top: '5px', right: '8px' }}>
         #{id}
       </div>
@@ -81,7 +80,7 @@ export function EndNode({ data }) {
       <Handle 
         type="target" 
         position={Position.Top} 
-        style={{ ...handleStyle, top: -8 }} // Przesunięcie kółka na krawędź górną
+        style={{ ...handleStyle, top: -8 }}
       />
       End
     </div>

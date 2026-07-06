@@ -14,8 +14,21 @@ export const profileService = {
     return res.json();
   },
 
-  async getUser(username) {
-    const res = await fetch(`${API_BASE}/${username}`, {
+  async getUser(id) {
+    const res = await fetch(`${API_BASE}/${id}`, {
+      method: 'GET'
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Server error: ${res.status}`);
+    }
+
+    return res.json();
+  },
+
+  async getUserByUsername(username) {
+    const res = await fetch(`${API_BASE}/by/${username}`, {
       method: 'GET'
     });
 

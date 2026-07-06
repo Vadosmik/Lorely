@@ -16,11 +16,24 @@ SessionDep = Annotated[AsyncSession, Depends(get_session)]
 CurrentUserDep = Annotated[int, Depends(get_current_user_id)]
 
 @router.post("/", response_model=StoryRead, status_code=status.HTTP_201_CREATED)
-async def create_story(story_date: StoryCreate, session: SessionDep, current_user: CurrentUserDep):
+async def create_story(story_data: StoryCreate, session: SessionDep, current_user: CurrentUserDep):
+
+  update_data = story_data.model_dump(exclude={"author_id", "genre_ids", "category_ids"})
+
   db_story = Story(
-    **story_date.model_dump(exclude={"author_id"}),
+    **update_data,
     author_id=current_user
-    )
+  )
+
+  if story_data.genre_ids is not None:
+    genre_query = select(Genre).where(Genre.id.in_(story_data.genre_ids))
+    genres_res = await session.execute(genre_query)
+    db_story.genres = genres_res.scalars().all()
+
+  if story_data.category_ids is not None:
+    category_query = select(Category).where(Category.id.in_(story_data.category_ids))
+    category_res = await session.execute(category_query)
+    db_story.categories = category_res.scalars().all()
 
   session.add(db_story)
   await session.commit()
@@ -37,6 +50,13 @@ async def create_story(story_date: StoryCreate, session: SessionDep, current_use
 @router.get("/", response_model=List[StoryGetCatalog])
 async def get_my_stories(session: SessionDep):
   query = select(Story)
+  result = await session.execute(query)
+
+  return result.scalars().all()
+
+@router.get("/mine", response_model=List[StoryGetCatalog])
+async def get_my_stories(session: SessionDep, current_user: CurrentUserDep):
+  query = select(Story).where(Story.author_id == current_user)
   result = await session.execute(query)
 
   return result.scalars().all()

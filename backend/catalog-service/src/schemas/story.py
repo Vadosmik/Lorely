@@ -7,7 +7,6 @@ from src.schemas.genre import GenreRead
 from src.schemas.category import CategoryRead
 
 class StoryStatus(str, Enum):
-  DRAFT = "Draft"
   ANNOUNCEMENT = "Announcement"
   CONTINUES = "Continues"
   FROZEN = "Frozen"
@@ -25,7 +24,7 @@ class StoryCreate(StoryBase):
   cover_pic_path: Optional[str] = Field(default=None)
   age_rate: int = Field(default=18)
   status: StoryStatus = Field(default=StoryStatus.ANNOUNCEMENT)
-  story_json_path: str
+  story_json_path: Optional[str] = Field(default=None)
 
   genre_ids: Optional[List[int]] = None
   category_ids: Optional[List[int]] = None
@@ -41,6 +40,9 @@ class StoryGetCatalog(StoryBase):
   published_at: datetime
   updated_at: datetime
 
+  genre_ids: Optional[List[int]] = None
+  category_ids: Optional[List[int]] = None
+
   model_config = ConfigDict(from_attributes=True)
 
 class StoryRead(StoryBase):
@@ -52,7 +54,7 @@ class StoryRead(StoryBase):
   viewed: int
   status: StoryStatus
 
-  story_json_path: str
+  story_json_path: Optional[str] = Field(default=None)
   
   published_at: datetime
   updated_at: datetime

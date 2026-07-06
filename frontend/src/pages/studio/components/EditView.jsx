@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'preact/compat';
+import React, { useEffect, useCallback, useState } from 'preact/compat';
 import ReactFlow, {
   Background,
   MiniMap,
@@ -6,9 +6,11 @@ import ReactFlow, {
   useEdgesState,
   addEdge
 } from 'reactflow';
+
 import { StartNode, StoryNode, EndNode } from './CustomNode';
 import { CustomEdge } from './CustomEdge';
 import { RichTextEditorModal } from './RichTextEditorModal';
+import { transformFlowToJson } from '../../../services/transformJsonToFlow.js';
 
 import 'reactflow/dist/style.css';
 
@@ -27,7 +29,12 @@ export function EditView({ initialNodes, initialEdges, storyData, onSaveStoryJso
   const [editingNodeId, setEditingNodeId] = useState(null);
   const [editingNodeText, setEditingNodeText] = useState('');
 
-  // --- LOGIKA ---
+  // --- LOGIC ---
+  useEffect(() => {
+    if (initialNodes) setNodes(initialNodes);
+    if (initialEdges) setEdges(initialEdges);
+  }, [initialNodes, initialEdges, setNodes, setEdges]);
+
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge({ ...params, type: 'customEdge' }, eds)),
     [setEdges]
@@ -36,6 +43,8 @@ export function EditView({ initialNodes, initialEdges, storyData, onSaveStoryJso
   const addNewNode = useCallback(() => {
     if (!rfInstance) return;
     const { x, y, zoom } = rfInstance.getViewport();
+    // const flowX = 0;
+    // const flowY = 0;
     const flowX = ((window.innerWidth / 2 - x) / zoom) - 75;
     const flowY = ((window.innerHeight / 2 - y) / zoom) - 40;
 
@@ -50,35 +59,13 @@ export function EditView({ initialNodes, initialEdges, storyData, onSaveStoryJso
   }, [rfInstance, setNodes]);
 
   const handleSaveFlow = () => {
-    const startNode = nodes.find(n => n.type === 'startNode');
-    
-    const exportData = {
-      story_title: storyData.title,
-      history: startNode ? [startNode.id] : [],
-      variables: storyData.variables || {},
-      nodes: nodes.reduce((acc, node) => {
-        const outgoingEdges = edges.filter((e) => e.source === node.id);
-        acc[node.id] = {
-          position: node.position || { "x": 0, "y": 0 },
-          type: node.type || "storyNode",
-          text: node.data?.text || "",
-          choices: outgoingEdges.map((e) => ({
-            text: e.data?.label || "Next",
-            next_node: e.target
-          }))
-        };
-        return acc;
-      }, {})
-    };
-
     if (onSaveStoryJson) {
-      onSaveStoryJson(exportData);
+      onSaveStoryJson(transformFlowToJson(nodes, edges, storyData));
     }
   };
 
   // --- Rich Text Editor handlers ---
   const handleNodeDoubleClick = useCallback((event, node) => {
-    console.log('Node double-clicked:', node); // For debugging
     setEditingNodeId(node.id);
     setEditingNodeText(node.data.text || '');
     setIsEditorModalOpen(true);
@@ -102,7 +89,7 @@ export function EditView({ initialNodes, initialEdges, storyData, onSaveStoryJso
   }, []);
 
   return (
-    <div style={{ width: '400px', height: '400px', position: 'relative' }}>
+    <div style={{ width: '100vw', height: '95vh', position: 'relative' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -153,15 +140,17 @@ const inputStyle = {
 };
 
 const saveButtonStyle = {
+  position: 'absolute', bottom: 35, right: 80, zIndex: 20,
   padding: '10px 20px', background: '#4CAF50', color: 'white', border: 'none', borderRadius: '8px'
 };
 
 const addNodeButtonStyle = {
+  position: 'absolute', bottom: 30, right: 10, zIndex: 20,
   width: 50, height: 50, borderRadius: '50%', background: '#FFD54F', color: 'white', border: 'none', fontSize: '24px'
 };
 
 const mapToggleStyle = {
-  position: 'releteve', bottom: 200, left: 10, zIndex: 20,
+  position: 'absolute', bottom: 30, left: 10, zIndex: 20,
   padding: '5px 10px', borderRadius: '8px', border: '1px solid #FFD54F', background: 'white'
 };
 

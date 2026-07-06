@@ -50,7 +50,7 @@ export default function StoryReader({ storyId, storyJson, onReset }) {
             setHistoryData(nextHistory);
             localStorage.setItem(historyKey, JSON.stringify(nextHistory));
             processNode(rule.next_node, currentVars, nextHistory);
-          }, 1000);
+          }, 100);
           return;
         }
       }
@@ -91,13 +91,12 @@ export default function StoryReader({ storyId, storyJson, onReset }) {
       <div>
         {historyData.map((sceneId, idx) => {
           const node = storyJson.nodes[sceneId];
-          if (!node) return null;
+          if (!node || !node.text) return null;
           return (
-            <div key={`${sceneId}_${idx}`}>
-              {node.text.split('\n\n').map((para, pIdx) => (
-                <p key={pIdx}>{para}</p>
-              ))}
-            </div>
+            <div
+              key={`${sceneId}_${idx}`}
+              dangerouslySetInnerHTML={{ __html: node.text }}
+            />
           );
         })}
       </div>

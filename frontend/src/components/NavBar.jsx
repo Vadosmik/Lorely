@@ -1,27 +1,26 @@
-import { Button } from './Button';
-
 export function NavBar({ user, onLogout }) {
   return (
     <nav className="navbar" style={styles.navbar}>
       <div className="nav-brand">
-        <a href="/" style={styles.linkBold}>Lorely</a>
+        <a href="/" style={styles.brand}>Lorely</a>
       </div>
 
       <div className="nav-links" style={styles.links}>
         <a href="/" style={styles.link}>Home</a>
         <a href="/catalog" style={styles.link}>Catalog</a>
 
+
         {user && (
-          <div>
-            <a href="/editor" style={styles.link}>Editor</a>
-            <a href={`/${user.username}`} style={styles.link}> {user.username} </a>
-          </div>
+          <>
+            <a href="/studio" style={styles.link}>Studio</a>
+            <a href={`/${user.username}`} style={styles.link}>{user.username}</a>
+          </>
         )}
 
         {user ? (
-          <Button variant="secondary" onClick={onLogout}>log out</Button>
+          <a onClick={onLogout} style={{ ...styles.link, ...styles.button }}>Log out</a>
         ) : (
-          <a href="/login"><Button variant="primary">log in</Button></a>
+          <a href="/login" style={{ ...styles.link, ...styles.button }}>Log in</a>
         )}
       </div>
     </nav>
@@ -39,6 +38,8 @@ const styles = {
     borderBottom: '1px solid #333'
   },
   brand: {
+    color: '#fff',
+    textDecoration: 'none',
     fontSize: '24px',
     fontWeight: 'bold'
   },
@@ -50,10 +51,13 @@ const styles = {
   link: {
     color: '#ccc',
     textDecoration: 'none',
-    fontSize: '16px'
+    fontSize: '16px',
+    cursor: 'pointer'
   },
-  linkBold: {
-    color: '#fff',
-    textDecoration: 'none'
+  button: {
+    background: '#000fff',
+    padding: '6px 12px',
+    borderRadius: '4px',
+    color: '#fff'
   }
 };

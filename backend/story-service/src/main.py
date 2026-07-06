@@ -7,13 +7,9 @@ from core.config import settings
 from core.db import engine
 
 from src.routers.story import router as story_router
-from src.routers.genre import router as genre_router
-from src.routers.category import router as category_router
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-  # Tworzenie tabel
   async with engine.begin() as conn:
     await conn.run_sync(SQLModel.metadata.create_all)
   yield
@@ -38,5 +34,3 @@ async def health_check():
   return {"status": "ok"}
 
 app.include_router(story_router)
-app.include_router(genre_router)
-app.include_router(category_router)

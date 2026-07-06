@@ -23,7 +23,7 @@ export function CustomEdge({
   };
 
   const onEdit = () => {
-    const newLabel = prompt("Tytuł wyboru:", data?.label || "");
+    const newLabel = prompt("Title choice:", data?.label || "");
     if (newLabel !== null) {
       setEdges((eds) =>
         eds.map((edge) => 
@@ -67,7 +67,7 @@ export function CustomEdge({
                 boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
               }}
             >
-              {data?.label || 'Opcje'}
+              {data?.label || 'Auto'}
             </button>
           ) : (
             <div style={{
@@ -79,8 +79,8 @@ export function CustomEdge({
               boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
               alignItems: 'center'
             }}>
-              <button onClick={onEdit} style={btnStyle}>Edytuj</button>
-              <button onClick={() => alert('Wkrótce: Zmienne')} style={btnStyle}>⚙️</button>
+              <button onClick={onEdit} style={btnStyle}>Edit</button>
+              <button onClick={() => alert('Soon: variable')} style={btnStyle}>⚙️</button>
               <button onClick={onRemove} style={{...btnStyle, background: '#ff4d4d'}}>Del</button>
               
               {/* Przycisk zamknięcia menu */}
@@ -105,7 +105,6 @@ export function CustomEdge({
   );
 }
 
-// Prosty styl dla przycisków wewnątrz popupu
 const btnStyle = {
   background: '#555',
   color: 'white',
