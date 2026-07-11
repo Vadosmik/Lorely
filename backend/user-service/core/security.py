@@ -16,7 +16,6 @@ def get_password_hash(password: str) -> str:
 def create_access_token(data: dict) -> str:
   to_encode = data.copy()
   
-  # Ustawiamy czas wygaśnięcia na podstawie konfiguracji
   expire = datetime.now(timezone.utc) + timedelta(minutes=settings.JWT_EXPIRATION)
   to_encode.update({"exp": expire})
     
@@ -25,10 +24,21 @@ def create_access_token(data: dict) -> str:
   return encoded_jwt
 
 def create_refresh_token(data: dict) -> str:
-    to_encode = data.copy()
+  to_encode = data.copy()
 
-    expire = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRATION)
-    to_encode.update({"exp": expire, "type": "refresh"})
+  expire = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRATION)
+  to_encode.update({"exp": expire, "type": "refresh"})
 
-    encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
-    return encoded_jwt
+  encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+  return encoded_jwt
+
+def decode_refresh_token(refresh_token: str) -> str:
+  try:
+    payload = jwt.decode(refresh_token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
+    if payload.get("type") != "refresh":
+      raise ValueError("Invalid token type")
+    return payload["sub"]
+  except jwt.ExpiredSignatureError:
+    raise ValueError("Refresh token expired")
+  except jwt.PyJWTError:
+    raise ValueError("Invalid token")

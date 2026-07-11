@@ -3,11 +3,12 @@ from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
-import jwt
+from datetime import date
 
+from core.config import settings
 from core.db import get_session
-from core.security import create_access_token, get_password_hash, verify_password, create_refresh_token
-from src.schemas.users import Token, UserCreate, UserLogin, UserRead
+from core.security import create_access_token, get_password_hash, verify_password, create_refresh_token, decode_refresh_token
+from src.schemas.users import Token, RefreshTokenRequest, UserCreate, UserLogin, UserRead
 from src.models.users import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -44,14 +45,45 @@ async def register(user_data: UserCreate, session: SessionDep):
   # 5. return
   return db_user
 
+def calculate_age(user):
+  if user.birthday_date is None:
+    return 12
+  
+  birthday = user.birthday_date
+  
+  today = date.today()
+  age = today.year - birthday.year
+  if (today.month, today.day) < (birthday.month, birthday.day):
+    age -= 1
+
+  return age
+
+def _generate_user_tokens(user: User, refresh_token: str = None) -> dict:
+  user_roles = [role.title for role in (user.roles or [])]
+
+  access_token = create_access_token(
+    data={
+      "sub": str(user.id),
+      "age": calculate_age(user),
+      "roles": user_roles
+      }
+    )
+  
+  if not refresh_token:
+    refresh_token = create_refresh_token(data={"sub": str(user.id)})
+
+  return {
+      "access_token": access_token, 
+      "refresh_token": refresh_token,
+      "token_type": "bearer"
+    }
+
 @router.post("/login", response_model=Token)
 async def login(login_data: UserLogin, session: SessionDep):
-  # 1. Szukamy użytkownika (z poprawionymi nawiasami)
   query = select(User).where((User.email == login_data.username_or_email) | (User.username == login_data.username_or_email)).options(selectinload(User.roles))
   result = await session.execute(query)
   user = result.scalar_one_or_none()
 
-  # 2. Wspólna walidacja (User + Hasło)
   if not user or not verify_password(login_data.password, user.hashed_password):
     raise HTTPException(
       status_code=status.HTTP_401_UNAUTHORIZED,
@@ -65,58 +97,20 @@ async def login(login_data: UserLogin, session: SessionDep):
       detail="This user is banned"
     )
   
-  # 3. Generowanie tokenu
-  user_roles = [role.title for role in (user.roles or [])]
-  
-  access_token = create_access_token(
-    data={
-      "sub": str(user.id),
-      "roles": user_roles
-      }
-    )
-  refresh_token = create_refresh_token(data={"sub": str(user.id)})
+  return _generate_user_tokens(user)
 
-  # 4. Zwrócenie tokenu
-  return {
-      "access_token": access_token, 
-      "refresh_token": refresh_token,
-      "token_type": "bearer"
-    }
+@router.post("/refresh", response_model=Token)
+async def refresh_access_token(payload: RefreshTokenRequest, session: SessionDep):
+  try:
+    user_id = decode_refresh_token(payload.refresh_token)
+  except ValueError as e:
+    raise HTTPException(status_code=401, detail=str(e))
 
+  query = select(User).where(User.id == user_id).options(selectinload(User.roles))
+  result = await session.execute(query)
+  user = result.scalar_one_or_none()
 
-# @router.post("/refresh", response_model=Token)
-# async def refresh_access_token(refresh_token: str, session: SessionDep):
-#   try:
-#     # Dekodujemy otrzymany refresh token
-#     payload = jwt.decode(refresh_token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
-      
-#     # Sprawdzamy czy to na pewno token typu 'refresh'
-#     if payload.get("type") != "refresh":
-#       raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token type")
-          
-#     user_id = payload.get("sub")
-#     if not user_id:
-#       raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token claims")
-            
-#   except jwt.ExpiredSignatureError:
-#     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token expired. Please login again.")
-#   except jwt.PyJWTError:
-#     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+  if not user or not user.is_active:
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or inactive")
 
-#   # Pobieramy użytkownika z bazy, aby upewnić się, że nadal istnieje i jest aktywny
-#   query = select(User).where(User.id == user_id).options(selectinload(User.roles))
-#   result = await session.execute(query)
-#   user = result.scalar_one_or_none()
-
-#   if not user or not user.is_active:
-#     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or inactive")
-
-#   # Generujemy NOWY access token
-#   user_roles = [role.title for role in (user.roles or [])]
-#   new_access_token = create_access_token(data={"sub": str(user.id), "roles": user_roles})
-
-#   return {
-#     "access_token": new_access_token,
-#     "refresh_token": refresh_token,
-#     "token_type": "bearer"
-#     }
+  return _generate_user_tokens(user, refresh_token=payload.refresh_token)

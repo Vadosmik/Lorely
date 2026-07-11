@@ -3,7 +3,7 @@ from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
-import datetime
+from datetime import datetime, timezone
 
 from core.db import get_session
 from core.security import get_password_hash, verify_password
@@ -22,6 +22,7 @@ CurrentAdminDep = Annotated[User, Depends(get_current_admin)]
 @router.get("/me/profile", response_model=UserRead)
 async def get_my_profile(current_user: CurrentUserDep):
   return current_user
+
 
 @router.patch("/me/profile", response_model=UserRead)
 async def update_my_profile(user_data: UserUpdate, session: SessionDep, current_user: CurrentUserDep):
@@ -50,7 +51,7 @@ async def change_my_password(data: PasswordUpdate, session: SessionDep, current_
 @router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_my_account(session: SessionDep, current_user: CurrentUserDep):
   current_user.is_active = False
-  current_user.deleted_at = datetime.datetime.now(datetime.timezone.utc)
+  current_user.deleted_at = datetime.now(timezone.utc)
 
   session.add(current_user)
   await session.commit()

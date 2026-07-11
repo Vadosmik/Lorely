@@ -1,4 +1,3 @@
-import { useState } from 'preact/hooks';
 import { getBezierPath, useReactFlow, EdgeLabelRenderer } from 'reactflow';
 
 export function CustomEdge({
@@ -9,29 +8,25 @@ export function CustomEdge({
   targetY,
   sourcePosition,
   targetPosition,
-  data
+  data,
+  selected,
 }) {
   const { setEdges } = useReactFlow();
-  const [showSettings, setShowSettings] = useState(false);
-  
+
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition,
   });
 
-  const onRemove = () => {
-    setEdges((eds) => eds.filter((edge) => edge.id !== id));
+  const onLabelClick = (e) => {
+    e.stopPropagation();
+    setEdges((eds) =>
+      eds.map((edge) => ({ ...edge, selected: edge.id === id }))
+    );
   };
 
-  const onEdit = () => {
-    const newLabel = prompt("Title choice:", data?.label || "");
-    if (newLabel !== null) {
-      setEdges((eds) =>
-        eds.map((edge) => 
-          edge.id === id ? { ...edge, data: { ...edge.data, label: newLabel } } : edge
-        )
-      );
-    }
-    setShowSettings(false);
+  const onRemove = (e) => {
+    e.stopPropagation();
+    setEdges((eds) => eds.filter((edge) => edge.id !== id));
   };
 
   return (
@@ -41,63 +36,29 @@ export function CustomEdge({
         className="react-flow__edge-path"
         d={edgePath}
         markerEnd="url(#react-flow__arrowclosed)"
-        style={{ strokeWidth: 2, stroke: '#FFD54F' }}
+        style={{ strokeWidth: selected ? 3 : 2, stroke: '#FFD54F' }}
       />
-      
+
       <EdgeLabelRenderer>
         <div
+          onClick={onLabelClick}
           style={{
             position: 'absolute',
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             pointerEvents: 'all',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            cursor: 'pointer',
           }}
           className="nodrag nopan"
         >
-          {/* Główny przycisk - Etykieta */}
-          {!showSettings ? (
-            <button
-              onClick={() => setShowSettings(true)}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '20px',
-                background: '#fff',
-                border: '2px solid #FFD54F',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-              }}
-            >
-              {data?.label || 'Auto'}
+          <div style={styles.badge}>{data?.label || 'Auto'}</div>
+
+          {selected && (
+            <button onClick={onRemove} style={styles.delButton} title="Usuń połączenie">
+              ✕
             </button>
-          ) : (
-            <div style={{
-              display: 'flex',
-              gap: '5px',
-              background: '#333',
-              padding: '5px',
-              borderRadius: '12px',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-              alignItems: 'center'
-            }}>
-              <button onClick={onEdit} style={btnStyle}>Edit</button>
-              <button onClick={() => alert('Soon: variable')} style={btnStyle}>⚙️</button>
-              <button onClick={onRemove} style={{...btnStyle, background: '#ff4d4d'}}>Del</button>
-              
-              {/* Przycisk zamknięcia menu */}
-              <button 
-                onClick={() => setShowSettings(false)} 
-                style={{ 
-                  background: 'none', 
-                  border: 'none', 
-                  color: '#ccc', 
-                  fontSize: '16px', 
-                  padding: '0 5px',
-                  cursor: 'pointer' 
-                }}
-              >
-                ok
-              </button>
-            </div>
           )}
         </div>
       </EdgeLabelRenderer>
@@ -105,13 +66,28 @@ export function CustomEdge({
   );
 }
 
-const btnStyle = {
-  background: '#555',
-  color: 'white',
-  border: 'none',
-  padding: '6px 10px',
-  borderRadius: '8px',
-  fontSize: '11px',
-  cursor: 'pointer',
-  fontWeight: 'bold'
+const styles = {
+  badge: {
+    padding: '6px 14px',
+    borderRadius: '20px',
+    background: '#fff',
+    border: '2px solid #FFD54F',
+    fontSize: '12px',
+    fontWeight: 'bold',
+    boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+    pointerEvents: 'none',
+  },
+  delButton: {
+    width: '22px',
+    height: '22px',
+    borderRadius: '50%',
+    background: '#ff4d4d',
+    color: 'white',
+    border: 'none',
+    fontSize: '12px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 };

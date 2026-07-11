@@ -4,7 +4,7 @@ import { useState, useEffect } from 'preact/hooks';
 import { storyService } from '../../services/StoryService.js';
 import { catalogService } from '../../services/CatalogService.js';
 import { storageService } from '../../services/StorageService.js';
-import { profileService } from '../../services/ProfileServiece.js';
+import { profileService } from '../../services/ProfileService.js';
 
 const StoryStatus = {
   ANNOUNCEMENT: "Announcement",
@@ -14,7 +14,7 @@ const StoryStatus = {
 };
 
 
-export default function StoryEditorDashboard() {
+export default function StudioDashboard() {
   const [stories, setStories] = useState([]);
   const [publishedDetails, setPublishedDetails] = useState([]);
   const [selectedStatuses, setSelectedStatuses] = useState({});

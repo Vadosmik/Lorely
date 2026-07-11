@@ -1,88 +1,164 @@
 import { Handle, Position } from 'reactflow';
 
-const handleStyle = {
-  width: 15,
-  height: 15,
-  background: '#FFD54F',
-  border: '0',
-};
-
-const labelStyle = {
-  fontSize: '14px',
-  fontWeight: 'bold',
-  color: '#444',
-  padding: '10px 20px',
-  background: 'white',
-  borderRadius: '20px',
-  border: '2px solid #FFD54F',
-  textAlign: 'center'
-};
+function stripHtml(html) {
+  return (html || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
 
 export function StartNode({ data }) {
   return (
-    <div style={labelStyle}>
+    <div style={styles.label}>
       Start
-      <Handle 
-        type="source" 
-        position={Position.Bottom}
-        style={{ ...handleStyle, bottom: -8 }}
-      />
+      <Handle type="source" position={Position.Bottom} style={styles.handleBottomSmall} />
     </div>
   );
 }
 
+
 export function StoryNode({ id, data, selected }) {
+  const plainText = stripHtml(data.text);
+  const isLongText = plainText.length > 120;
+  const tail = isLongText ? plainText.slice(plainText.length - 42) : '';
+
   return (
-    <div style={{
-      position: 'relative',
-      width: '150px',
-      minHeight: '120px',
-      borderRadius: '15px',
-      border: selected ? '2px solid #FFD54F' : '1px solid #FFD54F',
-      background: '#FEF9E7',
-      padding: '15px',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      fontFamily: 'sans-serif',
-      boxShadow: selected ? '0 0 10px rgba(255, 213, 79, 0.5)' : '0 2px 5px rgba(0,0,0,0.05)',
-    }}>
-      <div style={{ fontSize: '8px', color: '#BDBDBD', position: 'absolute', top: '5px', right: '8px' }}>
-        #{id}
+    <div style={{ ...styles.node, ...(selected ? styles.nodeSelected : styles.nodeIdle) }}>
+      <div style={styles.nodeId}>#{id}</div>
+
+      <Handle type="target" position={Position.Top} style={styles.handleTop} />
+
+
+      <div style={styles.body}>
+        <div style={styles.preview} dangerouslySetInnerHTML={{ __html: plainText || 'text...' }} />
+
+        {tail && (
+          <>
+            <div style={styles.divider}>
+              <span style={styles.dividerDots}>•••</span>
+            </div>
+            <div style={styles.tail}>...{tail}</div>
+          </>
+        )}
       </div>
 
-      <Handle type="target" position={Position.Top} style={{ ...handleStyle, top: -10 }} />
-
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
-        <div style={{ fontSize: '11px', lineHeight: '1.2em', maxHeight: '3.6em', overflow: 'hidden', color: '#444', fontWeight: '500' }}>
-          {data.text || 'text...'}
-        </div>
-
-        <div style={{ margin: 'auto', textAlign: 'center', opacity: 0.3 }}>
-          <span style={{ letterSpacing: '3px' }}>•••</span>
-        </div>
-
-        <div style={{ fontSize: '11px', color: '#888', textAlign: 'right', fontStyle: 'italic' }}>
-          {data.text && data.text.length > 50 ? data.text.slice(-80) : ''}
-        </div>
-
-      </div>
-
-      <Handle type="source" position={Position.Bottom} style={{ ...handleStyle, bottom: -10 }} />
-
-      </div>
+      <Handle type="source" position={Position.Bottom} style={styles.handleBottom} />
+    </div>
   );
 }
 
 export function EndNode({ data }) {
   return (
-    <div style={labelStyle}>
-      <Handle 
-        type="target" 
-        position={Position.Top} 
-        style={{ ...handleStyle, top: -8 }}
-      />
+    <div style={styles.label}>
+      <Handle type="target" position={Position.Top} style={styles.handleTopSmall} />
       End
     </div>
   );
 }
+
+const styles = {
+  handle: {
+    width: 15,
+    height: 15,
+    background: '#FFD54F',
+    border: '0',
+  },
+  handleTop: {
+    width: 15,
+    height: 15,
+    background: '#FFD54F',
+    border: '0',
+    top: -10,
+  },
+  handleBottom: {
+    width: 15,
+    height: 15,
+    background: '#FFD54F',
+    border: '0',
+    bottom: -10,
+  },
+  handleTopSmall: {
+    width: 15,
+    height: 15,
+    background: '#FFD54F',
+    border: '0',
+    top: -8,
+  },
+  handleBottomSmall: {
+    width: 15,
+    height: 15,
+    background: '#FFD54F',
+    border: '0',
+    bottom: -8,
+  },
+  label: {
+    fontSize: '14px',
+    fontWeight: 'bold',
+    color: '#444',
+    padding: '10px 20px',
+    background: 'white',
+    borderRadius: '20px',
+    border: '2px solid #FFD54F',
+    textAlign: 'center',
+  },
+  node: {
+    position: 'relative',
+    width: '170px',
+    minHeight: '130px',
+    borderRadius: '14px',
+    background: '#FFFDF6',
+    padding: '14px',
+    display: 'flex',
+    flexDirection: 'column',
+    fontFamily: 'sans-serif',
+  },
+  nodeIdle: {
+    border: '1px solid #EDE0B0',
+    boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
+  },
+  nodeSelected: {
+    border: '2px solid #FFD54F',
+    boxShadow: '0 0 0 4px rgba(255, 213, 79, 0.25)',
+  },
+  nodeId: {
+    fontSize: '9px',
+    color: '#D9CBA0',
+    position: 'absolute',
+    top: '8px',
+    right: '10px',
+    fontFamily: 'monospace',
+  },
+  body: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+    marginTop: '4px',
+  },
+  preview: {
+    fontSize: '12px',
+    lineHeight: '1.35em',
+    color: '#3a3a3a',
+    fontWeight: '500',
+    display: '-webkit-box',
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
+  },
+  divider: {
+    textAlign: 'center',
+    opacity: 0.35,
+  },
+  dividerDots: {
+    letterSpacing: '3px',
+    fontSize: '10px',
+    color: '#B08D2E',
+  },
+  tail: {
+    fontSize: '11px',
+    lineHeight: '1.3em',
+    color: '#9a9a9a',
+    fontStyle: 'italic',
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
+  },
+};

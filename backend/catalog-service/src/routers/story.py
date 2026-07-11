@@ -6,14 +6,15 @@ from sqlmodel import select
 import datetime
 
 from core.db import get_session
-from core.dependencies import get_current_user_id
-from src.schemas.story import StoryRead, StoryUpdate, StoryCreate, StoryGetCatalog
+from core.dependencies import get_current_user_id, get_current_user_age
+from src.schemas.story import StoryRead, StoryUpdate, StoryCreate, StoryGetCatalog, StoryFilterPayload
 from src.models.story import Story, Genre, Category
 
 router = APIRouter(prefix="/stories", tags=["stories"])
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 CurrentUserDep = Annotated[int, Depends(get_current_user_id)]
+CurrentUserAgeDep = Annotated[int, Depends(get_current_user_age)]
 
 @router.post("/", response_model=StoryRead, status_code=status.HTTP_201_CREATED)
 async def create_story(story_data: StoryCreate, session: SessionDep, current_user: CurrentUserDep):
@@ -48,10 +49,25 @@ async def create_story(story_data: StoryCreate, session: SessionDep, current_use
   return full_story
 
 @router.get("/", response_model=List[StoryGetCatalog])
-async def get_my_stories(session: SessionDep):
-  query = select(Story)
+async def get_stories(session: SessionDep, current_age: CurrentUserAgeDep):
+  query = select(Story).where(Story.age_rate <= current_age)
   result = await session.execute(query)
 
+  return result.scalars().all()
+
+@router.post("/search", response_model=List[StoryGetCatalog])
+async def search_stories(session: SessionDep, filters: StoryFilterPayload, current_age: CurrentUserAgeDep):
+  query = select(Story).where(Story.age_rate <= current_age)
+
+  if filters.genre_ids:
+    for genre_id in filters.genre_ids:
+      query = query.where(Story.genres.any(Genre.id == genre_id))
+
+  if filters.category_ids:
+    for category_id in filters.category_ids:
+      query = query.where(Story.categories.any(Category.id == category_id))
+
+  result = await session.execute(query)
   return result.scalars().all()
 
 @router.get("/mine", response_model=List[StoryGetCatalog])

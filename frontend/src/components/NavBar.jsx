@@ -13,6 +13,7 @@ export function NavBar({ user, onLogout }) {
         {user && (
           <>
             <a href="/studio" style={styles.link}>Studio</a>
+            <a href="/admin" style={styles.link}>ADMIN</a>
             <a href={`/${user.username}`} style={styles.link}>{user.username}</a>
           </>
         )}

@@ -1,9 +1,31 @@
-const API_BASE = 'http://localhost:80/category';
+import { apiClient } from './apiClient';
+
+const PATH = '/category';
 
 export const categoryService = {
-    async getCategories() {
-    const res = await fetch(`${API_BASE}/`);
-    if (!res.ok) throw new Error('Server error');
+  async getCategories() {
+    const res = await apiClient.request(`${PATH}/`);
     return res.json();
   },
-}
+
+  async createCategory(categoryData) {
+    const res = await apiClient.request(`${PATH}/`, {
+      method: 'POST',
+      body: JSON.stringify(categoryData)
+    });
+    return res.json();
+  },
+
+  async updateCategory(categoryId, categoryData) {
+    const res = await apiClient.request(`${PATH}/${categoryId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(categoryData)
+    });
+    return res.json();
+  },
+
+  async deleteCategory(categoryId) {
+    const res = await apiClient.request(`${PATH}/${categoryId}`, { method: 'DELETE' });
+    return res.json();
+  }
+};

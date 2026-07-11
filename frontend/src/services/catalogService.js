@@ -1,98 +1,49 @@
-const API_BASE = 'http://localhost:80/catalog';
+import { apiClient } from './apiClient';
 
-const getHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-  };
-};
+const PATH = '/catalog';
 
 export const catalogService = {
   async getStories() {
-    const res = await fetch(`${API_BASE}/`);
-    if (!res.ok) throw new Error('Server error');
+    const res = await apiClient.request(`${PATH}/`);
     return res.json();
   },
 
   async getMinePublishedStories() {
-    const res = await fetch(`${API_BASE}/mine`, {
-      headers: getHeaders(),
+    const res = await apiClient.request(`${PATH}/mine`);
+    return res.json();
+  },
+
+  async searchStories(filters) {
+    const res = await apiClient.request(`${PATH}/search`, {
+      method: 'POST',
+      body: JSON.stringify(filters)
     });
-    if (!res.ok) throw new Error('Server error');
     return res.json();
   },
 
   async getStory(story_id) {
-    const res = await fetch(`${API_BASE}/${story_id}`);
-    if (!res.ok) {
-      const err = new Error('Server error');
-      err.status = res.status;
-      throw err;
-    };
+    const res = await apiClient.request(`${PATH}/${story_id}`);
     return res.json();
   },
 
   async publishStory(storyData) {
-    const res = await fetch(`${API_BASE}/`, {
+    const res = await apiClient.request(`${PATH}/`, {
       method: 'POST',
-      headers: getHeaders(),
       body: JSON.stringify(storyData)
     });
-    if (!res.ok) {
-      throw new Error('Server error');
-    }
     return res.json();
   },
 
   async updateStoryInfo(story_id, updateData) {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-
-    const res = await fetch(`${API_BASE}/${story_id}`, {
+    const res = await apiClient.request(`${PATH}/${story_id}`, {
       method: 'PATCH',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
       body: JSON.stringify(updateData)
     });
-
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-
-      if (res.status === 401) {
-        localStorage.removeItem('token');
-      }
-
-      throw new Error(errorData.detail || 'Update error');
-    }
-
     return res.json();
   },
 
   async deleteStory(story_id) {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-
-    const res = await fetch(`${API_BASE}/${story_id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-
-      if (res.status === 401) {
-        localStorage.removeItem('token');
-      }
-
-      throw new Error(errorData.detail || 'Update error');
-    }
-
+    const res = await apiClient.request(`${PATH}/${story_id}`, { method: 'DELETE' });
     return true;
   }
 };

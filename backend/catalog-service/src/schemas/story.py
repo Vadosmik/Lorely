@@ -81,3 +81,7 @@ class StoryUpdateLikeView(BaseModel):
 class StoryRelationsPayload(BaseModel):
   genre_ids: List[int] = []
   category_ids: List[int] = []
+
+class StoryFilterPayload(BaseModel):
+  genre_ids: Optional[List[int]] = None
+  category_ids: Optional[List[int]] = None

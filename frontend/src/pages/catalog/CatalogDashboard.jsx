@@ -2,7 +2,7 @@ import { useLocation } from 'preact-iso';
 import { useState, useEffect } from 'preact/hooks';
 import { useLanguage } from '../../LanguageContext';
 
-import { profileService } from '../../services/ProfileServiece.js';
+import { profileService } from '../../services/ProfileService.js';
 import { catalogService } from '../../services/CatalogService.js';
 import { storageService } from '../../services/StorageService.js';
 
@@ -16,13 +16,16 @@ export default function CatalogDashboard() {
   const [genres, setGenres] = useState([]);
   const [categories, setCategories] = useState([]);
 
+  const [selectedGenres, setSelectedGenres] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+
   const { route } = useLocation();
   const { currentLang } = useLanguage();
 
   useEffect(() => {
-    async function loadCatalogData() {
+    async function initData() {
       try {
-        const fetchedStories = await catalogService.getStories();
+        const fetchedStories = await catalogService.getStories([]);
         const fetchedGenres = await genreService.getGenres();
         const fetchedCategory = await categoryService.getCategories();
 
@@ -56,8 +59,44 @@ export default function CatalogDashboard() {
         console.error(err);
       }
     }
-    loadCatalogData();
+    initData();
   }, []);
+
+  async function loadCatalogData() {
+    try {
+      const filters = {
+        genre_ids: selectedGenres,
+        category_ids: selectedCategories
+      };
+
+      const fetchedStories = await catalogService.searchStories(filters);
+
+      const fetchedUsers = await profileService.getUsers() || [];
+      const usersMap = new Map(fetchedUsers.map(u => [u.id, u.username]));
+
+      fetchedStories.forEach(story => {
+        story.author_username = usersMap.get(story.author_id) || 'Unknown Author';
+      });
+
+      setStories(fetchedStories);
+    } catch (err) {
+      console.error("Błąd filtrowania:", err);
+    }
+  }
+
+  const handleGenreChange = (genreId) => {
+    setSelectedGenres(prev => {
+      const next = prev.includes(genreId) ? prev.filter(id => id !== genreId) : [...prev, genreId];
+      return next;
+    });
+  };
+
+  const handleCategoryChange = (categoryId) => {
+    setSelectedCategories(prev => {
+      const next = prev.includes(categoryId) ? prev.filter(id => id !== categoryId) : [...prev, categoryId];
+      return next;
+    });
+  };
 
   const handleOnNavigateToDetails = (id) => {
     route(`/catalog/${id}/details`);
@@ -67,21 +106,46 @@ export default function CatalogDashboard() {
     <div style={styles.back}>
       <h1>Catalog</h1>
 
+      <label>Genre</label>
       {genres.map(genre => {
+        const isChecked = selectedGenres.includes(genre.id) || false;
+
         return (
-          <label htmlFor={`genre-${genre.id}`}>
-            {genre.slug} ({genre[currentLang] || genre.en})
-          </label>
+          <li key={genre.id}>
+            <input
+              type="checkbox"
+              id={`genre-${genre.id}`}
+              checked={isChecked}
+              onChange={() => handleGenreChange(genre.id)}
+            />
+            <label htmlFor={`genre-${genre.id}`}>
+              {genre.slug} ({genre[currentLang] || genre.en})
+            </label>
+          </li>
         )
       })}
-      <br></br>
+      <label>Category</label>
       {categories.map(category => {
+        const isChecked = selectedCategories.includes(category.id) || false;
+
         return (
-          <label htmlFor={`category-${category.id}`}>
-            {category.slug} ({category[currentLang] || category.en})
-          </label>
+          <li key={category.id}>
+            <input
+              type="checkbox"
+              id={`category-${category.id}`}
+              checked={isChecked}
+              onChange={() => handleCategoryChange(category.id)}
+            />
+            <label htmlFor={`category-${category.id}`}>
+              {category.slug} ({category[currentLang] || category.en})
+            </label>
+          </li>
         )
       })}
+
+      <button type="button" onClick={() => loadCatalogData()}>
+        Search
+      </button>
 
       <h2>Stories List</h2>
       <ul style={styles.grid}>

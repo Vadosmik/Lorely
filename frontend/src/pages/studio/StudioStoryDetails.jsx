@@ -8,7 +8,7 @@ import { storageService } from '../../services/StorageService.js';
 import { genreService } from '../../services/GenreService.js';
 import { categoryService } from '../../services/CategoryService.js';
 
-export default function StoryDetails({ story_id }) {
+export default function StudioStoryDetails({ story_id }) {
   const [story, setStory] = useState(null);
   const [storyData, setStoryData] = useState(null);
 

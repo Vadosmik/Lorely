@@ -1,7 +1,7 @@
 import { useLocation } from 'preact-iso';
 import { useState, useEffect } from 'preact/hooks';
 
-import { profileService } from '../../services/ProfileServiece.js';
+import { profileService } from '../../services/ProfileService.js';
 import { storageService } from '../../services/StorageService.js';
 
 import ProfileView from './ProfileView.jsx';

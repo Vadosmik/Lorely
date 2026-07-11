@@ -3,19 +3,21 @@ import { LocationProvider, Router, Route } from 'preact-iso';
 import { LanguageProvider } from './LanguageContext.jsx';
 
 import { NavBar } from './components/NavBar';
+import { ThemeBtn } from './components/ThemeBtn.jsx';
 
-import { profileService } from './services/ProfileServiece.js';
+import { profileService } from './services/ProfileService.js';
 
 import Home from './pages/HomePage.jsx';
 import ProfilePage from './pages/profile/ProfilePage.jsx';
 import AuthPage from './pages/AuthPage.jsx';
+import AdminPage from './pages/AdminPage.jsx';
 
 import CatalogDashboard from './pages/catalog/CatalogDashboard.jsx';
 import CatalogDetails from './pages/catalog/StoryDetails.jsx';
 import StoryPlayer from './pages/catalog/ReaderPage.jsx';
 
-import StoryEditorDashboard from './pages/studio/StoryEditorDashboard.js'
-import StoryDetails from './pages/studio/EditorStoryDetails.jsx'
+import StudioDashboard from './pages/studio/StudioDashboard.jsx'
+import StudioStoryDetails from './pages/studio/StudioStoryDetails.jsx'
 import StoryFlowCanvas from './pages/studio/StoryFlowCanvas.jsx'
 
 export function App() {
@@ -44,7 +46,8 @@ export function App() {
   return (
     <LanguageProvider>
       <LocationProvider>
-        <NavBar user={user} onLogout={handleLogout} />
+        <NavBar user={user} onLogout={ handleLogout } />
+        <ThemeBtn/>
 
         <Router>
 
@@ -56,10 +59,11 @@ export function App() {
           <StoryPlayer path="/catalog/:story_id/read" />
 
           {/* SEKCJA STUDIA / TWÓRCY */}
-          <StoryEditorDashboard path="/studio" />
-          <StoryDetails path="/studio/:story_id/details" />
+          <StudioDashboard path="/studio" />
+          <StudioStoryDetails path="/studio/:story_id/details" />
           <StoryFlowCanvas path="/studio/:story_id/canvas" />
 
+          <AdminPage path="/admin" />
           <AuthPage path="/login" onLoginSuccess={loadUser} />
           <ProfilePage path="/:username" onProfileUpdate={loadUser} />
 
