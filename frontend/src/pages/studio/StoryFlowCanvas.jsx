@@ -1,7 +1,7 @@
 import { useLocation } from 'preact-iso';
 import { useRef, useState, useEffect, useCallback } from 'preact/hooks';
 
-import { storyService } from '../../services/storyService.js';
+import { storyService } from '../../services/StoryService.js';
 import { storageService } from '../../services/StorageService.js';
 import { transformFlowToJson, transformJsonToFlow } from '../../utils/transformJsonToFlow.js';
 
