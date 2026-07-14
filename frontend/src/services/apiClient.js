@@ -1,9 +1,9 @@
 const BASE_URL = 'http://localhost:80';
 
-const getHeaders = () => {
+const getHeaders = (isFormData = false) => {
   const token = localStorage.getItem('token');
   return {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(token ? { 'Authorization': `Bearer ${token}` } : {})
   };
 };
@@ -20,14 +20,15 @@ export const apiClient = {
     const isFormData = options.body instanceof FormData;
 
     options.headers = {
-      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-      ...getHeaders(),
+      ...getHeaders(isFormData),
       ...options.headers
     };
 
     let res = await fetch(`${BASE_URL}${endpoint}`, options);
 
-    if (res.status === 401) {
+    const isAuthRoute = endpoint.includes('/auth/login') || endpoint.includes('/auth/register');
+
+    if (res.status === 401 && !isAuthRoute) {
       const refreshToken = localStorage.getItem('refreshToken');
       if (refreshToken) {
         try {
@@ -56,7 +57,11 @@ export const apiClient = {
     }
 
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
+      const contentType = res.headers.get('content-type');
+      let errorData = {};
+      if (contentType && contentType.includes('application/json')) {
+        errorData = await res.json().catch(() => ({}));
+      }
       throw new Error(errorData.detail || `Server error: ${res.status}`);
     }
 

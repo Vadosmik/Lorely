@@ -49,9 +49,9 @@ export function ThemeBtn() {
 
 const styles = {
   btn: {
-    position: 'absolute',
-    bottom: '20px',
-    right: '20px',
+    position: 'fixed',
+    bottom: 20,
+    right: 20,
 
     width: '48px',
     height: '48px',

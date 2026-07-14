@@ -6,6 +6,9 @@ import { catalogService } from '../../services/CatalogService.js';
 import { storageService } from '../../services/StorageService.js';
 import { profileService } from '../../services/ProfileService.js';
 
+import CachedImage from '../../components/common/CachedImage'
+import { DEFAULT_COVER } from '../../utils/imageCache';
+
 const StoryStatus = {
   ANNOUNCEMENT: "Announcement",
   CONTINUES: "Continues",
@@ -18,39 +21,22 @@ export default function StudioDashboard() {
   const [stories, setStories] = useState([]);
   const [publishedDetails, setPublishedDetails] = useState([]);
   const [selectedStatuses, setSelectedStatuses] = useState({});
-  const [coverUrls, setCoverUrls] = useState({});
   const [title, setTitle] = useState('');
 
   const { route } = useLocation();
 
   useEffect(() => {
     async function loadStoiesData() {
-      const urlsMap = {};
-
       try {
         const fetchedStories = await storyService.getStories();
         const user = await profileService.getMe();
         const myPublished = await catalogService.getMinePublishedStories();
-
-        await Promise.all(
-          fetchedStories.map(async (story) => {
-            if (story.cover_pic_path) {
-              try {
-                const blob = await storageService.getFile(story.cover_pic_path);
-                urlsMap[story.id] = URL.createObjectURL(blob);
-              } catch (err) {
-                console.error(`${story.id}: `, err);
-              }
-            }
-          })
-        );
 
         const initialSelected = {};
         myPublished.forEach(s => { initialSelected[s.id] = s.status; });
 
         setStories(fetchedStories);
         setPublishedDetails(myPublished);
-        setCoverUrls(urlsMap);
         setSelectedStatuses(initialSelected);
 
       } catch (err) {
@@ -167,81 +153,86 @@ export default function StudioDashboard() {
   };
 
   const handleOnNavigateToDetails = (id) => {
-    // const publishedInfo = publishedDetails.find(s => s.id === id);
-    // route(`/studio/${id}/details`, false, { isPublished: !!publishedInfo });
     route(`/studio/${id}/details`);
   };
 
   return (
-    <div>
-      <h1>Story Editor</h1>
+    <>
+      <section>
+        <h1>Story Editor</h1>
 
-      <h2>Create New Story</h2>
-      <form onSubmit={handleOnStoryCreate}>
-        <div>
-          <label htmlFor="story_title">Title:</label>
-          <input
-            type="text"
-            id="story_title"
-            value={title}
-            onInput={(e) => setTitle(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Add New Story</button>
-      </form>
+        <h2>Create New Story</h2>
+        <form onSubmit={handleOnStoryCreate}>
+          <div>
+            <label htmlFor="story_title">Title:</label>
+            <input
+              type="text"
+              id="story_title"
+              value={title}
+              onInput={(e) => setTitle(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit">Add New Story</button>
+        </form>
+      </section>
 
-      <hr />
+      <section>
+        <h2>My Stories List</h2>
+        <ul>
+          {stories.map(story => {
+            const publishedInfo = publishedDetails.find(s => s.id === story.id);
+            const isPublished = publishedInfo ? true : false;
+            const currentSelectedStatus = selectedStatuses[story.id] || (isPublished ? publishedInfo.status : '');
 
-      <h2>My Stories List</h2>
-      <ul>
-        {stories.map(story => {
-          const publishedInfo = publishedDetails.find(s => s.id === story.id);
-          const isPublished = publishedInfo ? true : false;
-          const currentSelectedStatus = selectedStatuses[story.id] || (isPublished ? publishedInfo.status : '');
+            return (
+              <li key={story.id} style={styles.card}>
+                <CachedImage
+                  path={story.cover_pic_path}
+                  fallback={DEFAULT_COVER}
+                  alt="Cover"
+                  style={styles.cover}
+                />
+                <h3 style={styles.title} >{story.title}</h3>
 
-          return (
-            <li key={story.id} style={styles.card}>
-              <img style={styles.cover} src={coverUrls[story.id] || '/default_cover.jpg'} />
-              <h3 style={styles.title} >{story.title}</h3>
-
-              <select
-                value={currentSelectedStatus}
-                onChange={(e) => handleStatusChange(story.id, e.target.value)}
-                style={styles.select}
-              >
-                <option value=''>---</option>
-                {Object.values(StoryStatus).map(status => (
-                  <option key={status} value={status}>{status}</option>
-                ))}
-              </select>
-
-              <div>
-                <button
-                  onClick={() => handlePublishSubmit(story.id)}
-                  style={styles.btn}
+                <select
+                  value={currentSelectedStatus}
+                  onChange={(e) => handleStatusChange(story.id, e.target.value)}
+                  style={styles.select}
                 >
-                  {isPublished ? 'Update Catalog' : 'Publish'}
-                </button>
+                  <option value=''>---</option>
+                  {Object.values(StoryStatus).map(status => (
+                    <option key={status} value={status}>{status}</option>
+                  ))}
+                </select>
 
-                {isPublished && (
+                <div>
                   <button
-                    onClick={() => handlePublishDelete(story.id)}
-                    style={styles.btnDanger}
+                    onClick={() => handlePublishSubmit(story.id)}
+                    style={styles.btn}
                   >
-                    Delete from catalog
+                    {isPublished ? 'Update Catalog' : 'Publish'}
                   </button>
-                )}
-              </div>
 
-              <button onClick={() => handleOnNavigateToDetails(story.id)} style={styles.linkBtn} >Story Details</button>
-              <button onClick={() => handleOnNavigateToFlow(story.id)} style={styles.linkBtn} >Edit Flow</button>
+                  {isPublished && (
+                    <button
+                      onClick={() => handlePublishDelete(story.id)}
+                      style={styles.btnDanger}
+                    >
+                      Delete from catalog
+                    </button>
+                  )}
+                </div>
 
-            </li>
-          );
-        })}
-      </ul>
-    </div>
+                <button onClick={() => handleOnNavigateToDetails(story.id)} style={styles.linkBtn} >Story Details</button>
+                <button onClick={() => handleOnNavigateToFlow(story.id)} style={styles.linkBtn} >Edit Flow</button>
+
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    </>
   )
 }
 

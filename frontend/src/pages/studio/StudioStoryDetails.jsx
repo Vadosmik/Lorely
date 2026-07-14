@@ -1,12 +1,19 @@
 import { useLocation } from 'preact-iso';
-import { useState, useEffect } from 'preact/hooks';
-import { useLanguage } from '../../LanguageContext.jsx';
+import { useState, useEffect, useRef } from 'preact/hooks';
+import { useLanguage } from '../../context/LanguageContext.jsx';
+
+import { useToast } from '../../context/ToastContext.jsx';
 
 import { storyService } from '../../services/StoryService.js';
 import { catalogService } from '../../services/CatalogService.js';
 import { storageService } from '../../services/StorageService.js';
 import { genreService } from '../../services/GenreService.js';
 import { categoryService } from '../../services/CategoryService.js';
+
+import CachedImage from '../../components/common/CachedImage'
+import { invalidateImageCache } from '../../utils/imageCache';
+
+import { DEFAULT_COVER } from '../../utils/imageCache';
 
 export default function StudioStoryDetails({ story_id }) {
   const [story, setStory] = useState(null);
@@ -15,11 +22,21 @@ export default function StudioStoryDetails({ story_id }) {
   const [genres, setGenres] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  const [coverUrl, setCoverUrl] = useState(null);
+  const [currentCoverUrl, setCurrentCoverUrl] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
 
+  const { showToast } = useToast();
   const { route } = useLocation();
   const { currentLang } = useLanguage();
+
+  const objectUrlRef = useRef(null);
+
+  const revokeLocalPreview = () => {
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    }
+  };
 
   useEffect(() => {
     async function loadStoryData() {
@@ -28,18 +45,14 @@ export default function StudioStoryDetails({ story_id }) {
         const fetchedGenres = await genreService.getGenres();
         const fetchedCategory = await categoryService.getCategories();
 
-        if (fetchedStory && fetchedStory.cover_pic_path) {
-          const blob = await storageService.getFile(fetchedStory.cover_pic_path);
-          const url = URL.createObjectURL(blob);
-          setCoverUrl(url);
-        } else {
-          setCoverUrl(null);
-        }
-
         setGenres(fetchedGenres || []);
         setCategories(fetchedCategory || []);
+
         setStory(fetchedStory);
         setStoryData(fetchedStory);
+
+        setSelectedFile(null)
+        setCurrentCoverUrl(null)
       } catch (err) {
         console.error(err);
       }
@@ -65,8 +78,13 @@ export default function StudioStoryDetails({ story_id }) {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      revokeLocalPreview();
+
       setSelectedFile(file);
-      setCoverUrl(URL.createObjectURL(file));
+
+      const newUrl = URL.createObjectURL(file);
+      objectUrlRef.current = newUrl;
+      setCurrentCoverUrl(newUrl);
     }
   };
 
@@ -102,46 +120,54 @@ export default function StudioStoryDetails({ story_id }) {
 
   const handleCoverSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedFile) {
-      alert('Error: Please select a file first!');
-      return;
-    }
+    if (!selectedFile) return showToast('Please select a file first!', 'error');
+
+    const oldCoverPath = storyData?.cover_pic_path;
 
     try {
-      if (storyData && storyData.cover_pic_path) {
-        await storageService.deleteFile(storyData.cover_pic_path);
+      showToast('Uploading new cover...', 'info');
+      if (oldCoverPath) {
+        invalidateImageCache(oldCoverPath);
+        try {
+          await storageService.deleteFile(oldCoverPath);
+        } catch (e) { }
       }
 
       const newCoverPath = await storageService.uploadFile('covers', selectedFile);
-      const updatePayload = { cover_pic_path: newCoverPath };
+      const updatedStory = await storyService.updateStoryInfo(storyData.id, { cover_pic_path: newCoverPath });
 
-      const updatedStory = await storyService.updateStoryInfo(storyData.id, updatePayload);
       setStoryData(updatedStory);
+      revokeLocalPreview();
       setSelectedFile(null);
+      setCurrentCoverUrl(null);
+
+      showToast('Cover changed successfully!', 'success');
     } catch (err) {
-      console.error(err);
+      showToast(`Error: ${err.message}`, 'error');
     }
   };
 
-  const handleCoverDelete = async (e) => {
-    e.preventDefault();
-    if (!storyData?.cover_pic_path) {
-      alert("You don't have a cover to delete.");
-      return;
+  const handleCoverDelete = async () => {
+    const oldAvaPath = storyData?.cover_pic_path
+    if (!oldAvaPath) {
+      return showToast("You don't have an cover to delete.", 'error');
     }
 
     try {
-      await storageService.deleteFile(storyData.cover_pic_path);
+      showToast('Deleting cover...', 'info');
+      invalidateImageCache(oldAvaPath);
 
-      const updatePayload = { cover_pic_path: null };
-
-      const updatedStory = await storyService.updateStoryInfo(storyData.id, updatePayload);
+      await storageService.deleteFile(oldAvaPath);
+      const updatedStory = await storyService.updateStoryInfo(storyData.id, { cover_pic_path: null });
 
       setStoryData(updatedStory);
-      setCoverUrl(null);
+      revokeLocalPreview();
+      setCurrentCoverUrl(null);
       setSelectedFile(null);
+
+      showToast('Cover deleted successfully!', 'success');
     } catch (err) {
-      console.error(err);
+      showToast(`Error: ${err.message}`, 'error');
     }
   };
 
@@ -195,9 +221,12 @@ export default function StudioStoryDetails({ story_id }) {
 
           <form onSubmit={handleCoverSubmit}>
             <label htmlFor="cover">
-              <img
-                src={coverUrl || '/default_cover.jpg'}
+              <CachedImage
+                path={story.cover_pic_path}
+                previewUrl={currentCoverUrl}
+                fallback={DEFAULT_COVER}
                 alt="Cover"
+                style={styles.cover}
               />
             </label>
 
@@ -205,6 +234,7 @@ export default function StudioStoryDetails({ story_id }) {
               id="cover"
               type="file"
               accept="image/*"
+              style={{ display: 'none' }}
               onChange={handleFileChange}
             />
 
@@ -304,5 +334,10 @@ export default function StudioStoryDetails({ story_id }) {
 }
 
 const styles = {
-
+  cover: {
+    width: 300,
+    aspectRatio: '3 / 4',
+    objectFit: 'cover',
+    display: 'block',
+  },
 };

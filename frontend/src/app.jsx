@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'preact/hooks';
 import { LocationProvider, Router, Route } from 'preact-iso';
-import { LanguageProvider } from './LanguageContext.jsx';
+import { LanguageProvider } from './context/LanguageContext.jsx';
+import { ToastProvider } from './context/ToastContext.jsx';
 
 import { NavBar } from './components/NavBar';
 import { ThemeBtn } from './components/ThemeBtn.jsx';
@@ -20,15 +21,34 @@ import StudioDashboard from './pages/studio/StudioDashboard.jsx'
 import StudioStoryDetails from './pages/studio/StudioStoryDetails.jsx'
 import StoryFlowCanvas from './pages/studio/StoryFlowCanvas.jsx'
 
+import { getCachedStaticImage, DEFAULT_AVATAR, DEFAULT_COVER } from './utils/imageCache';
+
 export function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const loadUser = async () => {
-    const userData = await profileService.getMe();
-    setUser(userData);
-    setLoading(false);
+    if (!localStorage.getItem('token')) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const userData = await profileService.getMe();
+      setUser(userData);
+    } catch (err) {
+      console.warn("User not authorisated:", err.message);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    getCachedStaticImage(DEFAULT_AVATAR);
+    getCachedStaticImage(DEFAULT_COVER);
+  }, []);
 
   useEffect(() => {
     loadUser();
@@ -36,7 +56,7 @@ export function App() {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('refreshToken');
     setUser(null);
     window.location.href = '/login';
   };
@@ -45,30 +65,32 @@ export function App() {
 
   return (
     <LanguageProvider>
-      <LocationProvider>
-        <NavBar user={user} onLogout={ handleLogout } />
-        <ThemeBtn/>
+      <ToastProvider>
+        <LocationProvider>
+          <NavBar user={user} onLogout={handleLogout} />
+          <ThemeBtn />
 
-        <Router>
+          <Router>
 
-          <Home path="/" />
+            <Home path="/" />
 
-          {/* SEKCJA KATALOGU / GRACZA */}
-          <CatalogDashboard path="/catalog" />
-          <CatalogDetails path="/catalog/:story_id/details" />
-          <StoryPlayer path="/catalog/:story_id/read" />
+            {/* SEKCJA KATALOGU / GRACZA */}
+            <CatalogDashboard path="/catalog" />
+            <CatalogDetails path="/catalog/:story_id/details" />
+            <StoryPlayer path="/catalog/:story_id/read" />
 
-          {/* SEKCJA STUDIA / TWÓRCY */}
-          <StudioDashboard path="/studio" />
-          <StudioStoryDetails path="/studio/:story_id/details" />
-          <StoryFlowCanvas path="/studio/:story_id/canvas" />
+            {/* SEKCJA STUDIA / TWÓRCY */}
+            <StudioDashboard path="/studio" />
+            <StudioStoryDetails path="/studio/:story_id/details" />
+            <StoryFlowCanvas path="/studio/:story_id/canvas" />
 
-          <AdminPage path="/admin" />
-          <AuthPage path="/login" onLoginSuccess={loadUser} />
-          <ProfilePage path="/:username" onProfileUpdate={loadUser} />
+            <AdminPage path="/admin" />
+            <AuthPage path="/login" onLoginSuccess={loadUser} />
+            <ProfilePage path="/:username" onProfileUpdate={loadUser} />
 
-        </Router>
-      </LocationProvider>
+          </Router>
+        </LocationProvider>
+      </ToastProvider>
     </LanguageProvider>
   );
 }

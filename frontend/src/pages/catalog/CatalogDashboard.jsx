@@ -1,17 +1,18 @@
 import { useLocation } from 'preact-iso';
 import { useState, useEffect } from 'preact/hooks';
-import { useLanguage } from '../../LanguageContext';
+import { useLanguage } from '../../context/LanguageContext.jsx';
 
 import { profileService } from '../../services/ProfileService.js';
 import { catalogService } from '../../services/CatalogService.js';
-import { storageService } from '../../services/StorageService.js';
 
 import { genreService } from '../../services/GenreService.js';
 import { categoryService } from '../../services/CategoryService.js';
 
+import CachedImage from '../../components/common/CachedImage'
+import { DEFAULT_COVER } from '../../utils/imageCache';
+
 export default function CatalogDashboard() {
   const [stories, setStories] = useState([]);
-  const [coverUrls, setCoverUrls] = useState({});
 
   const [genres, setGenres] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -38,23 +39,8 @@ export default function CatalogDashboard() {
 
         setStories(fetchedStories);
 
-        const urlsMap = {};
-        await Promise.all(
-          fetchedStories.map(async (story) => {
-            if (story.cover_pic_path) {
-              try {
-                const blob = await storageService.getFile(story.cover_pic_path);
-                urlsMap[story.id] = URL.createObjectURL(blob);
-              } catch (err) {
-                console.error(err);
-              }
-            }
-          })
-        );
-
         setGenres(fetchedGenres || []);
         setCategories(fetchedCategory || []);
-        setCoverUrls(urlsMap);
       } catch (err) {
         console.error(err);
       }
@@ -155,8 +141,9 @@ export default function CatalogDashboard() {
               onClick={() => handleOnNavigateToDetails(story.id)}
               style={styles.card}
             >
-              <img
-                src={coverUrls[story.id] || '/default_cover.jpg'}
+              <CachedImage
+                path={story.cover_pic_path}
+                fallback={DEFAULT_COVER}
                 alt="Cover"
                 style={styles.cover}
               />
@@ -174,7 +161,6 @@ export default function CatalogDashboard() {
 
 const styles = {
   back: {
-    background: '#F2F1ED',
     minHeight: '100vh',
   },
   grid: {
@@ -205,7 +191,7 @@ const styles = {
     display: 'block',
   },
   cardContent: {
-    background: '#FFD441',
+    background: 'var(--color-primary)',
     padding: '14px 10px',
     textAlign: 'center',
   },
@@ -214,7 +200,7 @@ const styles = {
     color: '#222',
   },
   author: {
-    color: '#FFD441',
+    color: 'var(--color-primary)',
     marginTop: '4px',
     fontSize: '14px',
 

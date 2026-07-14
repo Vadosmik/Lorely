@@ -1,20 +1,20 @@
 import { useLocation } from 'preact-iso';
 import { useState, useEffect } from 'preact/hooks';
+import { useLanguage } from '../../context/LanguageContext.jsx';
 
 import { profileService } from '../../services/ProfileService.js';
-import { storageService } from '../../services/StorageService.js';
+
+import { toISODateString } from '../../utils/dateFormatter.js';
 
 import ProfileView from './ProfileView.jsx';
 import ProfileEditForms from './ProfileEditForms.jsx';
 
 export default function ProfilePage({ username, onProfileUpdate }) {
   const [userData, setUserData] = useState(null);
-  const [avatarUrl, setAvatarUrl] = useState(null);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const [status, setStatus] = useState('');
-
+  const { currentLang } = useLanguage();
   const { route } = useLocation();
 
   const fetchProfile = async () => {
@@ -33,17 +33,10 @@ export default function ProfilePage({ username, onProfileUpdate }) {
       if (!displayData) return;
 
       if (displayData.birthday_date) {
-        displayData.birthday_date = displayData.birthday_date.split('T')[0];
+        displayData.birthday_date = toISODateString(displayData.birthday_date);
       }
 
       setUserData(displayData);
-
-      if (displayData.ava_pic_path) {
-        const blob = await storageService.getFile(displayData.ava_pic_path);
-        setAvatarUrl(URL.createObjectURL(blob));
-      } else {
-        setAvatarUrl(null);
-      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -76,24 +69,34 @@ export default function ProfilePage({ username, onProfileUpdate }) {
 
   return (
     <div>
-      <h1>{isOwnProfile ? 'My Profile' : `${userData.username}'s Profile`}</h1>
-
-      <ProfileView userData={userData} avatarUrl={avatarUrl} />
+      <ProfileView
+        title={<h1>{isOwnProfile ? 'My Profile' : `${userData.username}'s Profile`}</h1>}
+        userData={userData}
+        currentLang={currentLang}
+      />
 
       {isOwnProfile && (
-        <>
-          <hr style={styles.hr} />
-          <ProfileEditForms
-            initialUserData={userData}
-            initialAvatarUrl={avatarUrl}
-            onProfileRefresh={handleProfileRefresh}
-          />
-        </>
+        <ProfileEditForms
+          initialUserData={userData}
+          onProfileRefresh={handleProfileRefresh}
+        />
       )}
     </div>
   );
 }
 
 const styles = {
-  hr: { borderColor: '#333', marginBottom: '20px' }
+
 };
+
+
+
+// zrobić kaszowanie zdj utilitu, a potem common element CachedImage ktury bedzie miał logike z util
+// import CachedImage from '../common/CachedImage';
+
+// <CachedImage 
+//   path={userData.ava_pic_path} 
+//   fallback="/default_ava.jpg"
+//   alt="User Avatar"
+//   style={styles.avatarImg}
+// />

@@ -1,6 +1,8 @@
 import { useLocation } from 'preact-iso';
 import { useState } from 'preact/hooks';
+
 import { authService } from '../services/AuthService';
+import { useToast } from '../context/ToastContext';
 
 export default function AuthPage({ onLoginSuccess }) {
   const [loginForm, setLoginForm] = useState({
@@ -16,7 +18,7 @@ export default function AuthPage({ onLoginSuccess }) {
     tos_accepted: false
   });
 
-  const [status, setStatus] = useState('');
+  const { showToast } = useToast(); 
   const { route } = useLocation();
 
   const handleLoginInput = (e) => {
@@ -35,34 +37,36 @@ export default function AuthPage({ onLoginSuccess }) {
 
   const handleSubmitLogin = async (e) => {
     e.preventDefault();
-    setStatus('Logging in...');
     try {
+      showToast('Signing in...', 'info');
       const data = await authService.login(loginForm.usernameOrEmail, loginForm.password);
       localStorage.setItem('token', data.access_token);
       localStorage.setItem('refresh_token', data.refresh_token);
-      setStatus('Successfully logged in!');
+      
       if (onLoginSuccess) await onLoginSuccess();
+      
+      showToast('Successfully logged in!', 'success');
       route('/');
     } catch (err) {
-      setStatus(`Error: ${err.message}`);
+      showToast(err.message || 'Failed to login.', 'error');
     }
   };
 
   const handleSubmitRegister = async (e) => {
     e.preventDefault();
-    setStatus('Registering...');
 
     if (registerForm.password !== registerForm.confirmPassword) {
-      setStatus('Error: Passwords do not match!');
+      showToast('Passwords do not match!', 'error');
       return;
     }
 
     if (!registerForm.tos_accepted) {
-      setStatus('Error: You must accept the Terms of Service!');
+      showToast('You must accept the Terms of Service.', 'error');
       return;
     }
 
     try {
+      showToast('Registering...', 'info');
       await authService.register(
         registerForm.username,
         registerForm.email,
@@ -70,10 +74,10 @@ export default function AuthPage({ onLoginSuccess }) {
         registerForm.tos_accepted
       );
 
-      setStatus('Successfully registered! You can now log in.');
+      showToast('Account registered successfully! You can now log in.', 'success');
       setRegisterForm({ username: '', email: '', password: '', confirmPassword: '', tos_accepted: false });
     } catch (err) {
-      setStatus(`Error: ${err.message}`);
+      showToast(err.message || 'Registration failed.', 'error');
     }
   };
 
@@ -180,8 +184,6 @@ export default function AuthPage({ onLoginSuccess }) {
 
         <button type="submit">Zarejestruj się</button>
       </form>
-
-      {status && <p style={{ marginTop: '10px', fontWeight: 'bold' }}>{status}</p>}
     </div>
   );
 }

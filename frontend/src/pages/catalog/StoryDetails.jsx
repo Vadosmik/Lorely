@@ -3,9 +3,11 @@ import { useState, useEffect } from 'preact/hooks';
 import { catalogService } from '../../services/CatalogService.js';
 import { storageService } from '../../services/StorageService.js';
 
+import CachedImage from '../../components/common/CachedImage'
+import { DEFAULT_COVER } from '../../utils/imageCache';
+
 export default function StoryDetails({ story_id }) {
   const [story, setStory] = useState([]);
-  const [coverUrl, setCoverUrl] = useState(null);
 
   const { route } = useLocation();
 
@@ -13,14 +15,6 @@ export default function StoryDetails({ story_id }) {
     async function loadCatalogData() {
       try {
         const fetchedStory = await catalogService.getStory(story_id);
-
-        if (fetchedStory && fetchedStory.cover_pic_path) {
-          const blob = await storageService.getFile(fetchedStory.cover_pic_path);
-          const url = URL.createObjectURL(blob);
-          setCoverUrl(url);
-        } else {
-          setCoverUrl(null);
-        }
 
         setStory(fetchedStory);
       } catch (err) {
@@ -54,10 +48,11 @@ export default function StoryDetails({ story_id }) {
       {story ? (
         <div>
           <div className="info">
-            <img
-              src={coverUrl || '/default_cover.jpg'}
+            <CachedImage
+              path={story.cover_pic_path}
+              fallback={DEFAULT_COVER}
               alt="Cover"
-              style={{ width: '150px', marginBottom: '10px', borderRadius: '8px' }}
+                style={styles.cover}
             />
 
             <h3>Title:</h3>
@@ -95,5 +90,10 @@ export default function StoryDetails({ story_id }) {
 }
 
 const styles = {
-
+  cover: {
+    width: '100%',
+    aspectRatio: '3 / 4',
+    objectFit: 'cover',
+    display: 'block',
+  },
 }

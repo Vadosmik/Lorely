@@ -1,25 +1,68 @@
+import { formatDateByLang } from '../../utils/dateFormatter'
+import CachedImage from '../../components/common/CachedImage'
 
+import { DEFAULT_AVATAR } from '../../utils/imageCache';
 
-export default function ProfileView({ userData, avatarUrl }) {
+export default function ProfileView({ title, userData, avatarUrl, currentLang }) {
   return (
-    <>
-      <img
-        src={avatarUrl || '/default_ava.jpg'}
-        alt="User Avatar"
-        style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover' }}
-      />
+    <section>
+      {title}
+      <div style={styles.avatarContainer}>
+        <CachedImage 
+          path={userData.ava_pic_path}
+          fallback={DEFAULT_AVATAR}
+          alt="User Avatar"
+          style={styles.avatarImg}
+        />
+      </div>
 
-      <h3>Username:</h3>
-      <p>{userData.username}</p>
+      <div style={styles.infoGrid}>
+        <span style={styles.label}>Username</span>
+        <p style={styles.value}>{userData.username}</p>
 
-      <h3>Email:</h3>
-      <p>{userData.email}</p>
+        <span style={styles.label}>Email</span>
+        <p style={styles.value}>{userData.email}</p>
 
-      <h3>Bio:</h3>
-      <p>{userData.bio}</p>
+        <div style={styles.infoGroup}>
+          <span style={styles.label}>Bio:</span>
+          <span style={styles.value}>{userData.bio || '—'}</span>
+        </div>
 
-      <h3>Birthday date:</h3>
-      <p>{userData.birthday_date}</p>
-    </>
+        <div style={styles.infoGroup}>
+          <span style={styles.label}>Birthday date:</span>
+          <span style={styles.value}>{formatDateByLang(userData.birthday_date, currentLang)}</span> 
+        </div>
+      </div>
+    </section>
   )
 }
+
+const styles = {
+  avatarContainer: {
+    width: '140px',
+    height: '200px',
+    borderRadius: '16px',
+    overflow: 'hidden',
+    border: '1px solid var(--color-border)',
+    background: 'var(--color-bg)',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+  },
+  avatarImg: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  },
+  label: {
+    fontSize: '0.8rem',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    color: 'var(--color-text-muted)',
+  },
+  value: {
+    fontSize: '1.1rem',
+    fontWeight: '500',
+    color: 'var(--color-text)',
+    margin: 0,
+  },
+};

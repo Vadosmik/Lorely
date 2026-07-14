@@ -30,7 +30,6 @@ async def get_current_user(session: SessionDep, token: TokenDep) -> User:
   except jwt.PyJWTError:
     raise credentials_exception
 
-  # Używamy selectinload, aby pobrać role użytkownika razem z obiektem User
   statement = select(User).where(User.id == int(user_id)).options(selectinload(User.roles))
   result = await session.execute(statement)
   user = result.scalar_one_or_none()

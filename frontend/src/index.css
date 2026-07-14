@@ -1,42 +1,100 @@
 :root {
-  --color-yellow: #FFD441;
-  --color-yellow-light: #FEDE6F;
+  /* Neutrale */
+  --raw-white: #ffffff;
+  --raw-cream: #F2F1ED;
+  --raw-black: #111111;
+  --raw-dark: #1E1D1D;
 
-  --color-navy: #18316A;
-  --color-blue-dark: #5E7BBF;
-  --color-blue-light: #A3C5EB;
+  /* Żółcie */
+  --raw-yellow: #FFD441;
+  --raw-yellow-light: #FEDE6F;
 
-  --color-black: #1E1D1D;
-  --color-white: #FFFFFF;
-  --color-cream: #F2F1ED;
+  /* Niebieskie / Navy */
+  --raw-navy: #18316A;
+  --raw-blue-dark: #5E7BBF;
+  --raw-blue-light: #A3C5EB;
 
   --color-ok: #36f44f;
   --color-warning: #f4db36;
   --color-error: #f44336;
+
+  --base-font-size: 16px;
 }
 
 [data-theme="light"] {
-  --color-bg: var(--color-cream);
-  --color-surface: var(--color-white);
-  --color-text: var(--color-black);
+  --color-bg: var(--raw-cream);
+  --color-surface: var(--raw-white);
 
-  --color-primary: var(--color-yellow);
-  --color-accent: var(--color-blue-dark);
-  --color-border: var(--color-navy);
+  --color-text: var(--raw-dark);
+  --color-text-muted: var(--raw-blue-dark);
+
+  --color-primary: var(--raw-yellow);
+  --color-primary-hover: var(--raw-yellow-light);
+  --color-accent: var(--raw-navy);
+  --color-border: var(--raw-blue-dark);
 }
 
 [data-theme="dark"] {
-  --color-bg: var(--color-black);
-  --color-surface: #2a2928;
-  --color-text: var(--color-white);
+  --color-bg: var(--raw-dark);
+  --color-surface: var(--raw-black);
 
-  --color-primary: var(--color-yellow);
-  --color-accent: var(--color-blue-light);
-  --color-border: var(--color-blue-dark);
+  --color-text: var(--raw-white);
+  --color-text-muted: var(--raw-blue-light);
+
+  --color-primary: var(--raw-yellow);
+  --color-primary-hover: var(--raw-yellow-light);
+  --color-accent: var(--raw-blue-light);
+  --color-border: var(--raw-blue-dark);
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+html {
+  font-size: var(--base-font-size);
+  transition: font-size 0.2s ease;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+section {
+  background: var(--color-surface);
+  margin: 20px auto;
+  width: calc(100% - 40px);
+  max-width: 1200px;
+  padding: 20px;
+  border-radius: 22px;
+}
+
+hr {
+  border-color: var(--color-border);
+  margin-bottom: 20px;
+  border-style: solid;
+  border-width: 0 0 1px 0
+}
+
+*,
+*::before,
+*::after {
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
 }

@@ -1,22 +1,26 @@
-import { useLocation } from 'preact-iso';
 import { useState, useEffect } from 'preact/hooks';
+
+import { useToast } from '../../context/ToastContext.jsx';
 
 import { profileService } from '../../services/ProfileService.js';
 import { storageService } from '../../services/StorageService.js';
 
-export default function ProfileEditForms({ initialUserData, initialAvatarUrl, onProfileRefresh }) {
-  const [formData, setFormData] = useState(initialUserData);
-  const [currentAvatarUrl, setCurrentAvatarUrl] = useState(initialAvatarUrl);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [passwordForm, setPasswordForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
-  const [status, setStatus] = useState('');
+import CachedImage from '../../components/common/CachedImage';
+import { invalidateImageCache, DEFAULT_AVATAR } from '../../utils/imageCache';
 
-  const { route } = useLocation();
+export default function ProfileEditForms({ initialUserData, onProfileRefresh }) {
+  const [formData, setFormData] = useState(initialUserData);
+  const [currentAvatarUrl, setCurrentAvatarUrl] = useState(null);
+  const [passwordForm, setPasswordForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const { showToast } = useToast();
 
   useEffect(() => {
     setFormData(initialUserData);
-    setCurrentAvatarUrl(initialAvatarUrl);
-  }, [initialUserData, initialAvatarUrl]);
+    setSelectedFile(null);
+    setCurrentAvatarUrl(null);
+  }, [initialUserData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,15 +34,18 @@ export default function ProfileEditForms({ initialUserData, initialAvatarUrl, on
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setSelectedFile(file);
-      setCurrentAvatarUrl(URL.createObjectURL(file));
-    }
+    if (!file) return;
+
+    setSelectedFile(file);
+
+    const reader = new FileReader();
+    reader.onload = () => setCurrentAvatarUrl(reader.result);
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus('Updating profile...');
+    showToast('Updating profile data...', 'info');
 
     const updatePayload = {};
     ['username', 'email', 'bio', 'birthday_date'].forEach((field) => {
@@ -48,79 +55,113 @@ export default function ProfileEditForms({ initialUserData, initialAvatarUrl, on
     });
 
     if (Object.keys(updatePayload).length === 0) {
-      setStatus('No changes detected.');
+      showToast('No changes detected.', 'info');
       return;
     }
 
     try {
       await profileService.updateMyInfo(updatePayload);
-      setStatus('Profile updated successfully!');
+      showToast('Profile updated successfully!', 'success');
       if (onProfileRefresh) await onProfileRefresh(formData.username);
     } catch (err) {
-      setStatus(`Error: ${err.message}`);
+      showToast(`Error: ${err.message}`, 'error');
     }
   };
 
   const handleSubmitPass = async (e) => {
     e.preventDefault();
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setStatus('Error: New passwords do not match!');
+      showToast('New passwords do not match!', 'error');
       return;
     }
     try {
+      showToast('Changing password...', 'info');
       await profileService.updateMyPassword({
         old_password: passwordForm.oldPassword,
         new_password: passwordForm.newPassword
       });
-      setStatus('Password changed successfully!');
+      showToast('Password changed successfully!', 'success');
       setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
     } catch (err) {
-      setStatus(`Error: ${err.message}`);
+      showToast(`Error: ${err.message}`, 'error');
     }
   };
 
   const handleAvatarSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedFile) return setStatus('Error: Please select a file first!');
+    if (!selectedFile) return showToast('Please select a file first!', 'error');
+
+    const oldAvaPath = formData?.ava_pic_path;
 
     try {
-      if (formData?.ava_pic_path) {
-        try { await storageService.deleteFile(formData.ava_pic_path); } catch (e) {}
+      showToast('Uploading new avatar...', 'info');
+      if (oldAvaPath) {
+        invalidateImageCache(oldAvaPath);
+        try {
+          await storageService.deleteFile(oldAvaPath);
+        } catch (e) { }
       }
+
       const newAvaPath = await storageService.uploadFile('avatars', selectedFile);
       await profileService.updateMyInfo({ ava_pic_path: newAvaPath });
+
       setSelectedFile(null);
-      setStatus('Ava changed successfully!');
+      setCurrentAvatarUrl(null);
+
+      showToast('Avatar changed successfully!', 'success');
       if (onProfileRefresh) await onProfileRefresh(formData.username);
     } catch (err) {
-      setStatus(`Error: ${err.message}`);
+      showToast(`Error: ${err.message}`, 'error');
     }
   };
 
- const handleAvatarDelete = async () => {
-    if (!formData?.ava_pic_path) return setStatus("You don't have an avatar to delete.");
+  const handleAvatarDelete = async () => {
+    const oldAvaPath = formData?.ava_pic_path;
+    if (!oldAvaPath) {
+      return showToast("You don't have an avatar to delete.", 'error');
+    }
 
     try {
-      await storageService.deleteFile(formData.ava_pic_path);
+      showToast('Deleting avatar...', 'info');
+
+      invalidateImageCache(oldAvaPath);
+
+      await storageService.deleteFile(oldAvaPath);
       await profileService.updateMyInfo({ ava_pic_path: null });
+
       setSelectedFile(null);
-      setStatus('Ava deleted successfully!');
+      setCurrentAvatarUrl(null);
+
+      showToast('Avatar deleted successfully!', 'success');
       if (onProfileRefresh) await onProfileRefresh(formData.username);
     } catch (err) {
-      setStatus(`Error: ${err.message}`);
+      showToast(`Error: ${err.message}`, 'error');
     }
   };
 
   if (!formData) return null;
 
   return (
-    <>
+    <section>
       <h2>Update Ava</h2>
       <form onSubmit={handleAvatarSubmit}>
         <label htmlFor="avatar" style={{ cursor: 'pointer' }}>
-          <img src={currentAvatarUrl || '/default_ava.jpg'} style={styles.avatarImg} alt="Avatar" />
+          <CachedImage
+            path={formData.ava_pic_path}
+            previewUrl={currentAvatarUrl}
+            fallback={DEFAULT_AVATAR}
+            alt="User Avatar"
+            style={styles.avatarImg}
+          />
         </label>
-        <input id="avatar" type="file" name="avatar" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
+        <input
+          id="avatar"
+          type="file"
+          name="avatar"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={handleFileChange}
+        />
         <button type="submit">Update Ava</button>
         <button type="button" onClick={handleAvatarDelete}>Delete Ava</button>
       </form>
@@ -146,7 +187,6 @@ export default function ProfileEditForms({ initialUserData, initialAvatarUrl, on
         <button type="submit">Update</button>
       </form>
 
-      <hr style={styles.hr} />
       <h2>Update Password</h2>
       <form onSubmit={handleSubmitPass}>
         <div style={styles.formGroup}>
@@ -163,13 +203,11 @@ export default function ProfileEditForms({ initialUserData, initialAvatarUrl, on
         </div>
         <button type="submit">Update Password</button>
       </form>
-      {status && <p>{status}</p>}
-    </>
+    </section>
   );
 }
 
 const styles = {
-  hr: { borderColor: '#333', marginBottom: '20px' },
   formGroup: { marginBottom: '15px' },
   avatarImg: { width: '150px', height: '150px', borderRadius: '50%', objectFit: 'cover' }
 };
