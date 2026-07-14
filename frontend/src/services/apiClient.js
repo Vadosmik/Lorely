@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.API_URL || 'http://localhost:80';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:80';
 
 const getHeaders = (isFormData = false) => {
   const token = localStorage.getItem('token');
