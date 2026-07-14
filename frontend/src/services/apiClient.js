@@ -1,4 +1,4 @@
-const BASE_URL = 'https://7d25e67daa2272.lhr.life';
+const BASE_URL = import.meta.env.API_URL || 'http://localhost:80';
 
 const getHeaders = (isFormData = false) => {
   const token = localStorage.getItem('token');
