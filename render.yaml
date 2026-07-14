@@ -1,19 +1,18 @@
 services:
-  # 1. NGINX API Gateway
+  # 1. NGINX API Gateway (Publiczny punkt wejścia)
   - type: web
     name: lorely-gateway
-    env: docker
+    runtime: docker
     dockerfilePath: ./backend/nginx.dockerfile
-    context: ./backend
+    dockerContext: ./backend
     plan: free
-    port: 80
 
   # 2. USER SERVICE
   - type: pserv
     name: user-service
-    env: docker
+    runtime: docker # <-- Zmieniono z 'env: docker'
     dockerfilePath: ./dockerfile
-    context: ./backend/user-service
+    dockerContext: ./backend/user-service
     plan: free
     envVars:
       - key: DATABASE_URL
@@ -24,9 +23,9 @@ services:
   # 3. STORY SERVICE
   - type: pserv
     name: story-service
-    env: docker
+    runtime: docker
     dockerfilePath: ./dockerfile
-    context: ./backend/story-service
+    dockerContext: ./backend/story-service
     plan: free
     envVars:
       - key: DATABASE_URL
@@ -37,9 +36,9 @@ services:
   # 4. CATALOG SERVICE
   - type: pserv
     name: catalog-service
-    env: docker
+    runtime: docker
     dockerfilePath: ./dockerfile
-    context: ./backend/catalog-service
+    dockerContext: ./backend/catalog-service
     plan: free
     envVars:
       - key: DATABASE_URL
@@ -50,9 +49,9 @@ services:
   # 5. STORAGE SERVICE
   - type: pserv
     name: storage-service
-    env: docker
+    runtime: docker
     dockerfilePath: ./dockerfile
-    context: ./backend/storage-service
+    dockerContext: ./backend/storage-service
     plan: free
 
 # Automatyczne utworzenie darmowej bazy danych Postgres na Renderze
