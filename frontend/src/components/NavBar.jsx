@@ -1,6 +1,7 @@
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslation } from '../utils/useTranslation';
 import { useState, useEffect } from 'preact/hooks';
+import { useLocation } from 'preact-iso';
 
 const langOptions = {
   "en": "English",
@@ -71,9 +72,16 @@ function useIsMobile(breakpoint = 768) {
 export function NavBar({ user, onLogout }) {
   const { currentLang, changeLang } = useLanguage();
   const { t } = useTranslation('navbar');
+  const { path } = useLocation();
 
   const isMobile = useIsMobile(768);
 
+  const isCanvasPage = /^\/studio\/[^/]+\/canvas\/?$/.test(path);
+
+  if (isMobile && isCanvasPage) {
+    return null;
+  }
+  
   if (isMobile) {
     return (
       <>
