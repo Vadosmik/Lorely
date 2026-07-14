@@ -81,7 +81,7 @@ export function NavBar({ user, onLogout }) {
   if (isMobile && isCanvasPage) {
     return null;
   }
-  
+
   if (isMobile) {
     return (
       <>
@@ -107,6 +107,7 @@ export function NavBar({ user, onLogout }) {
             </>
           )}
         </div>
+
         <div style={styles.mobileDockContainer}>
           <div style={styles.mobileDock}>
             <a href="/catalog" style={styles.dockItem} title={t('catalog')}>
@@ -240,7 +241,6 @@ const styles = {
   },
 
   // ====
-
   mobileTopBar: {
     display: 'flex',
     position: 'sticky',
@@ -250,8 +250,8 @@ const styles = {
     alignItems: 'center',
     padding: '10px 20px',
     backgroundColor: 'var(--color-surface)',
-    borderBottom: '1px solid var(--color-border)',
-    boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+
+    boxShadow: '0 4px 6px color-mix(in srgb, var(--color-border) 30%, transparent)',
   },
   mobileDockContainer: {
     position: 'fixed',
@@ -262,19 +262,19 @@ const styles = {
     justifyContent: 'center',
     zIndex: 1000,
     padding: '0 20px',
-    pointerEvents: 'none' // Nie blokuje kliknięć poza samym dokiem
+    pointerEvents: 'none'
   },
   mobileDock: {
-    pointerEvents: 'auto', // Przywraca klikalność na samym doku
+    pointerEvents: 'auto',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-around',
-    backgroundColor: '#666666', // Ciemnoszary tył ze zdjęcia
+    backgroundColor: '#666666',
     padding: '10px 20px',
-    borderRadius: '40px', // Bardzo zaokrąglone brzegi
+    borderRadius: '40px',
     width: '100%',
     maxWidth: '360px',
-    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
+    boxShadow: '0 1px 8px rgba(0, 0, 0, 0.3)',
     gap: '10px'
   },
   dockItem: {
@@ -283,13 +283,13 @@ const styles = {
     justifyContent: 'center',
     width: '48px',
     height: '48px',
-    color: '#ffffff', // Białe ikony
+    color: '#ffffff',
     textDecoration: 'none',
     borderRadius: '50%',
     transition: 'all 0.2s ease',
   },
   dockItemActive: {
-    backgroundColor: '#000000', // Aktywna ikona (pióro z kółkiem) ma czarne tło
+    backgroundColor: '#000000',
     color: '#ffffff',
   },
   buttonReset: {
