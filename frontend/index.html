@@ -1,14 +1,69 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/Lorely/frontend/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
-    <script type="module" crossorigin src="/Lorely/frontend/assets/index-Tsr_DI3w.js"></script>
-    <link rel="stylesheet" crossorigin href="/Lorely/frontend/assets/index-xicvRpnr.css">
-  </head>
-  <body>
-    <div id="app"></div>
-  </body>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Lorely</title>
+  <meta name="description"
+    content="Discover, read, and create interactive branch-based stories. Unleash your creativity with Lorely Studio's advanced visual canvas." />
+  <meta name="keywords"
+    content="interactive fiction, text games, visual novel, story canvas, storytelling studio, write stories" />
+  <meta name="author" content="Lorely Team" />
+
+  <script>
+    // Zapobieganie mignięciu bieli dla użytkowników Dark Mode
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
+
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <!-- <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" /> -->
+  <!-- <link rel="manifest" href="/site.webmanifest" /> -->
+  <script type="module" crossorigin src="/assets/index-CGi6rRY9.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DUNIkKMj.css">
+</head>
+
+<body>
+  <noscript style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(30, 29, 29, 0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 99999;
+        font-family: system-ui, sans-serif;
+      ">
+    <div style="
+          width: 90%;
+          max-width: 500px;
+          padding: 30px;
+          background: #FFFFFF;
+          color: #1E1D1D;
+          border-radius: 16px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          text-align: center;
+          border-top: 6px solid #f44336;
+        ">
+      <span style="font-size: 22px; font-weight: bold; display: block; margin-bottom: 12px; color: #f44336;">
+        ⚠️ JavaScript Required
+      </span>
+      <p style="margin: 0; font-size: 15px; color: #555; line-height: 1.5; font-weight: normal;">
+        Lorely requires JavaScript to function properly. <br />
+        Please enable JavaScript in your browser settings to discover and create stories.
+      </p>
+    </div>
+  </noscript>
+
+  <div id="app"></div>
+
+</body>
+
 </html>
