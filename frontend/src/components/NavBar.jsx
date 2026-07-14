@@ -189,14 +189,6 @@ export function NavBar({ user, onLogout }) {
 }
 
 const styles = {
-  mobileTopBar: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px 20px',
-    backgroundColor: 'var(--color-surface)',
-    borderBottom: '1px solid var(--color-border)',
-  },
   space: {
     height: 20,
   },
@@ -248,9 +240,22 @@ const styles = {
   },
 
   // ====
+
+  mobileTopBar: {
+    display: 'flex',
+    position: 'sticky',
+    top: 0,
+    zIndex: 100,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '10px 20px',
+    backgroundColor: 'var(--color-surface)',
+    borderBottom: '1px solid var(--color-border)',
+    boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+  },
   mobileDockContainer: {
     position: 'fixed',
-    bottom: '24px',
+    bottom: 5,
     left: '0',
     right: '0',
     display: 'flex',
