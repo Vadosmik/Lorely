@@ -50,7 +50,7 @@ export function ThemeBtn() {
 const styles = {
   btn: {
     position: 'fixed',
-    bottom: 20,
+    bottom: 100,
     right: 20,
 
     width: '48px',
