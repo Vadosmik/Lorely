@@ -10,7 +10,7 @@ const getHeaders = (isFormData = false) => {
 
 function logoutUser() {
   localStorage.removeItem('token');
-  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('refresh_token');
 
   window.location.href = '/';
 }
@@ -29,7 +29,7 @@ export const apiClient = {
     const isAuthRoute = endpoint.includes('/auth/login') || endpoint.includes('/auth/register');
 
     if (res.status === 401 && !isAuthRoute) {
-      const refreshToken = localStorage.getItem('refreshToken');
+      const refreshToken = localStorage.getItem('refresh_token');
       if (refreshToken) {
         try {
           const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
