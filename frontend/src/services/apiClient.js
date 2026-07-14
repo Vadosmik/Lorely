@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:80';
+const BASE_URL = 'https://7d25e67daa2272.lhr.life';
 
 const getHeaders = (isFormData = false) => {
   const token = localStorage.getItem('token');
