@@ -79,9 +79,10 @@ export function NavBar({ user, onLogout }) {
   const isMobile = useIsMobile(768);
 
   const isCanvasPage = /^\/studio\/[^/]+\/canvas\/?$/.test(path);
+  const isReaderDetails = /^\/catalog\/[^/]+\/details\/?$/.test(path);
   const isReaderPage = /^\/catalog\/[^/]+\/read\/?$/.test(path);
 
-  if ((isMobile && isCanvasPage) || isReaderPage) {
+  if ((isMobile && isCanvasPage && isReaderDetails) || isReaderPage) {
     return null;
   }
 
