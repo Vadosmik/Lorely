@@ -1,25 +1,43 @@
 import { useLocation } from 'preact-iso';
 import { useState, useEffect } from 'preact/hooks';
+import { useLanguage } from '../../context/LanguageContext.jsx';
+
 import { profileService } from '../../services/ProfileService.js';
 import { catalogService } from '../../services/CatalogService.js';
 import { storageService } from '../../services/StorageService.js';
+import { genreService } from '../../services/GenreService.js';
+import { categoryService } from '../../services/CategoryService.js';
 
 import CachedImage from '../../components/common/CachedImage'
 import { DEFAULT_COVER } from '../../utils/imageCache';
 
 export default function StoryDetails({ story_id }) {
   const [story, setStory] = useState(null);
+  // const [genres, setGenres] = useState([]);
+  // const [categories, setCategories] = useState([]);
 
   const { route } = useLocation();
+  const { currentLang } = useLanguage();
 
   useEffect(() => {
     async function loadCatalogData() {
       try {
         const fetchedStory = await catalogService.getStory(story_id);
+        if (!fetchedStory) return;
 
+        const [fetchedUser, fetchedGenres, fetchedCategories] = await Promise.all([
+          profileService.getUser(fetchedStory.author_id).catch(() => null),
+          genreService.getGenres().catch(() => []),
+          categoryService.getCategories().catch(() => [])
+        ]);
 
-        const fetchedUser = await profileService.getUser(fetchedStory.author_id);
         fetchedStory.author_username = fetchedUser?.username || 'Unknown Author';
+
+        const genresMap = new Map((fetchedGenres || []).map(g => [g.id, g.slug]));
+        const storyGenreIds = fetchedStory.genre_ids || fetchedStory.genres || [];
+
+        const categoriesMap = new Map((fetchedCategories || []).map(c => [c.id, c.slug]));
+        const storyCategoryIds = fetchedStory.category_ids || fetchedStory.categories || [];
 
         setStory(fetchedStory);
       } catch (err) {
@@ -77,8 +95,17 @@ export default function StoryDetails({ story_id }) {
 
       <div style={styles.section}>
         <h3 style={styles.sectionTitle}>Description:</h3>
-        <p style={styles.descriptionText}>{story.description || "Video provides a powerful way to help you prove your point..."}</p>
-        <p style={styles.tags}>#cos #tam #blood #maks</p>
+        <p style={styles.descriptionText}>{story.description || "No description..."}</p>
+        <p style={styles.tags}>
+          {(story.genres || []).map(genre => (
+            <span key={genre.id} style={{ marginRight: '8px' }}>#{genre[currentLang] || genre.en}</span>
+          ))}
+        </p>
+        <p style={styles.tags}>
+          {(story.categories || []).map(category => (
+            <span key={category.id} style={{ marginRight: '8px' }}>#{category[currentLang] || category.en}</span>
+          ))}
+        </p>
       </div>
 
       <div style={styles.section}>
