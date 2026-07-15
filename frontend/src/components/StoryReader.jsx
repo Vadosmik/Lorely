@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'preact/hooks';
 
-export default function StoryReader({ storyId, storyJson, onReset }) {
+export default function StoryReader({ storyId, storyJson }) {
   const [historyData, setHistoryData] = useState([]);
   const [variablesData, setVariablesData] = useState({});
   const [activeNode, setActiveNode] = useState(null);
@@ -75,20 +75,10 @@ export default function StoryReader({ storyId, storyJson, onReset }) {
     processNode(nextNodeId, updatedVars, updatedHistory);
   };
 
-  const localReset = () => {
-    localStorage.removeItem(varsKey);
-    localStorage.removeItem(historyKey);
-    onReset();
-  };
-
   return (
-    <div>
-      <div>
-        <h2>{storyJson.story_title || "Lorely Reader"}</h2>
-        <button onClick={localReset}>Reset Game</button>
-      </div>
-
-      <div>
+    <div style={styles.readerWrapper}>
+      {/* Treść opowiadania */}
+      <main style={styles.storyContent}>
         {historyData.map((sceneId, idx) => {
           const node = storyJson.nodes[sceneId];
           if (!node || !node.text) return null;
@@ -96,12 +86,14 @@ export default function StoryReader({ storyId, storyJson, onReset }) {
             <div
               key={`${sceneId}_${idx}`}
               dangerouslySetInnerHTML={{ __html: node.text }}
+              style={styles.paragraph}
             />
           );
         })}
-      </div>
+      </main>
 
-      <div>
+      {/* Duże przyciski wyborów */}
+      <div style={styles.choicesContainer}>
         {activeNode && activeNode.choices && activeNode.choices.map((choice, idx) => {
           if (choice.requires) {
             for (let varName in choice.requires) {
@@ -112,6 +104,7 @@ export default function StoryReader({ storyId, storyJson, onReset }) {
             <button
               key={idx}
               onClick={() => handleSelectChoice(choice.next_node, choice.variables)}
+              style={styles.choiceBtn}
             >
               {choice.text}
             </button>
@@ -123,5 +116,49 @@ export default function StoryReader({ storyId, storyJson, onReset }) {
 }
 
 const styles = {
-
-};
+  readerWrapper: {
+    maxWidth: '1200px',
+    width: '100%',
+    margin: '0 auto',
+    paddingTop: '24px',
+    paddingBottom: '80px',
+    color: 'var(--color-text)',
+    fontFamily: 'Georgia, serif',
+    lineHeight: '1.7',
+    boxSizing: 'border-box',
+  },
+  storyContent: {
+    maxWidth: '800px',
+    margin: '0 auto',
+    padding: '0 24px',
+    textAlign: 'justify',
+  },
+  paragraph: {
+    fontSize: '1.25rem',
+    textIndent: '1.75em',
+    marginBottom: '1.5rem',
+  },
+  choicesContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+    maxWidth: '800px',
+    margin: '40px auto 0 auto',
+    padding: '0 24px',
+  },
+  choiceBtn: {
+    background: 'var(--color-surface)',
+    color: 'var(--color-text)',
+    fontFamily: 'sans-serif',
+    textAlign: 'center',
+    fontSize: '1.1rem',
+    fontWeight: '500',
+    cursor: 'pointer',
+    padding: '16px 20px',
+    border: '1.5px solid var(--color-border)',
+    borderRadius: '16px',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.02)',
+    outline: 'none',
+  },
+}

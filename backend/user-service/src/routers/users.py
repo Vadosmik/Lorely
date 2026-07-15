@@ -65,7 +65,7 @@ async def get_users(session: SessionDep):
   return result.scalars().all()
 
 @router.get("/{id}", response_model=UserRead)
-async def get_user_profile(id: str, session: SessionDep):
+async def get_user_profile(id: int, session: SessionDep):
   query = select(User).where(User.id == id, User.deleted_at == None)
   result = await session.execute(query)
   user = result.scalar_one_or_none()

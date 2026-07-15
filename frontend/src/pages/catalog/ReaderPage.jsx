@@ -6,8 +6,10 @@ import { storageService } from '../../services/StorageService.js';
 import StoryReader from '../../components/StoryReader.jsx';
 
 export default function ReaderPage({ story_id }) {
-  const [story, setStory] = useState([]);
+  const [story, setStory] = useState(null);
   const [storyJson, setStoryJson] = useState(null);
+
+  const [resetKey, setResetKey] = useState(0);
 
   const { route } = useLocation();
 
@@ -45,23 +47,88 @@ export default function ReaderPage({ story_id }) {
   };
 
   const handleResetTrigger = () => {
-    loadStoryData();
+    if (window.confirm("Are you sure you want to reset your progress?")) {
+      localStorage.removeItem(`lorely_history_${story_id}`);
+      localStorage.removeItem(`lorely_variables_${story_id}`);
+      
+      setResetKey(prev => prev + 1);
+    }
   };
 
+  if (!story || !storyJson) {
+    return (
+      <div style={styles.loadingContainer}>
+        <p style={{ color: 'var(--color-text-muted)' }}>Loading story...</p>
+      </div>
+    );
+  }
+
   return (
-    <div>
-      <button onClick={handleBack}>{'< back'}</button>
-      {story && storyJson && (
-        <StoryReader
-          storyId={story.id}
-          storyJson={storyJson}
-          onReset={handleResetTrigger}
-        />
-      )}
+    <div style={styles.pageContainer}>
+      <header style={styles.storyHeader}>
+        <button onClick={handleBack} style={styles.backButton}>{'← Back'}</button>
+        <h1 style={styles.headerTitle}>{story.title || "Lorely Reader"}</h1>
+        <button onClick={handleResetTrigger} style={styles.resetBtn}>Reset Progress</button>
+      </header>
+
+      <StoryReader
+        key={resetKey}
+        storyId={story.id}
+        storyJson={storyJson}
+      />
     </div>
   )
 }
 
 const styles = {
-
+  pageContainer: {
+    backgroundColor: 'var(--color-bg)',
+    minHeight: '100vh',
+    width: '100%',
+  },
+  loadingContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '100vh',
+    backgroundColor: 'var(--color-bg)',
+  },
+  backButton: {
+    background: 'none',
+    border: 'none',
+    color: 'var(--color-text-muted)',
+    cursor: 'pointer',
+    fontSize: '15px',
+    padding: 0,
+    margin: 0, 
+  },
+  storyHeader: {
+    position: 'sticky',
+    top: 0,
+    zIndex: 1000,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '16px 24px',
+    backgroundColor: 'var(--color-surface)',
+    borderBottom: '1px solid var(--color-border)',
+  },
+  headerTitle: {
+    fontFamily: 'sans-serif',
+    fontSize: '1.4rem',
+    margin: 0,
+    fontWeight: 'bold',
+    color: 'var(--color-text)',
+  },
+  resetBtn: {
+    background: 'none',
+    border: '1px solid var(--color-border)',
+    color: 'var(--color-text-muted)',
+    padding: '6px 14px',
+    borderRadius: '12px',
+    cursor: 'pointer',
+    fontSize: '13px',
+    fontWeight: 'bold',
+    transition: 'all 0.2s ease',
+  },
 }
