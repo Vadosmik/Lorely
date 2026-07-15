@@ -86,6 +86,10 @@ section {
   border-radius: 22px;
 }
 
+section:last-child {
+  margin-bottom: 100px;
+}
+
 hr {
   border-color: var(--color-border);
   margin-bottom: 20px;

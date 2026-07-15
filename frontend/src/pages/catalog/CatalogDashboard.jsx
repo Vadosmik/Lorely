@@ -89,73 +89,80 @@ export default function CatalogDashboard() {
   };
 
   return (
-    <div style={styles.back}>
-      <h1>Catalog</h1>
+    <>
+      <section>
+        <label style={{ fontWeight: 'bold', display: 'block', margin: '10px 0' }}>Genre</label>
+        <ul style={{ padding: 0 }}>
+          {genres.map(genre => {
+            const isChecked = selectedGenres.includes(genre.id) || false;
 
-      <label>Genre</label>
-      {genres.map(genre => {
-        const isChecked = selectedGenres.includes(genre.id) || false;
+            return (
+              <li key={genre.id} style={styles.filterItem}>
+                <input
+                  type="checkbox"
+                  id={`genre-${genre.id}`}
+                  checked={isChecked}
+                  onChange={() => handleGenreChange(genre.id)}
+                />
+                <label htmlFor={`genre-${genre.id}`} style={{ cursor: 'pointer' }}>
+                  {genre.slug} ({genre[currentLang] || genre.en})
+                </label>
+              </li>
+            )
+          })}
+        </ul>
 
-        return (
-          <li key={genre.id}>
-            <input
-              type="checkbox"
-              id={`genre-${genre.id}`}
-              checked={isChecked}
-              onChange={() => handleGenreChange(genre.id)}
-            />
-            <label htmlFor={`genre-${genre.id}`}>
-              {genre.slug} ({genre[currentLang] || genre.en})
-            </label>
-          </li>
-        )
-      })}
-      <label>Category</label>
-      {categories.map(category => {
-        const isChecked = selectedCategories.includes(category.id) || false;
+        <label style={{ fontWeight: 'bold', display: 'block', margin: '10px 0' }}>Category</label>
+        <ul style={{ padding: 0 }}>
+          {categories.map(category => {
+            const isChecked = selectedCategories.includes(category.id) || false;
 
-        return (
-          <li key={category.id}>
-            <input
-              type="checkbox"
-              id={`category-${category.id}`}
-              checked={isChecked}
-              onChange={() => handleCategoryChange(category.id)}
-            />
-            <label htmlFor={`category-${category.id}`}>
-              {category.slug} ({category[currentLang] || category.en})
-            </label>
-          </li>
-        )
-      })}
+            return (
+              <li key={category.id} style={styles.filterItem}>
+                <input
+                  type="checkbox"
+                  id={`category-${category.id}`}
+                  checked={isChecked}
+                  onChange={() => handleCategoryChange(category.id)}
+                />
+                <label htmlFor={`category-${category.id}`} style={{ cursor: 'pointer' }}>
+                  {category.slug} ({category[currentLang] || category.en})
+                </label>
+              </li>
+            )
+          })}
+        </ul>
 
-      <button type="button" onClick={() => loadCatalogData()}>
-        Search
-      </button>
+        <button type="button" onClick={() => loadCatalogData()}>
+          Search
+        </button>
+      </section>
 
-      <h2>Stories List</h2>
-      <ul style={styles.grid}>
-        {stories.map(story => (
-          <li key={story.id} style={styles.item}>
-            <button
-              onClick={() => handleOnNavigateToDetails(story.id)}
-              style={styles.card}
-            >
-              <CachedImage
-                path={story.cover_pic_path}
-                fallback={DEFAULT_COVER}
-                alt="Cover"
-                style={styles.cover}
-              />
-              <div style={styles.cardContent}>
-                <strong style={styles.title}>{story.title}</strong>
-              </div>
-            </button>
-            <span style={styles.author}>{story.author_username || 'author'}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
+      <section>
+        <h2>Stories List</h2>
+        <ul style={styles.grid}>
+          {stories.map(story => (
+            <li key={story.id} style={styles.storyItem}>
+              <button
+                onClick={() => handleOnNavigateToDetails(story.id)}
+                style={styles.card}
+              >
+                <CachedImage
+                  path={story.cover_pic_path}
+                  fallback={DEFAULT_COVER}
+                  alt="Cover"
+                  style={styles.cover}
+                />
+                <div style={styles.cardContent}>
+                  <strong style={styles.title}>{story.title}</strong>
+                </div>
+              </button>
+              <span style={styles.author}>{story.author_username || 'author'}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </>
   )
 }
 
@@ -168,8 +175,17 @@ const styles = {
     gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
     gap: '24px 32px',
     marginTop: '20px',
+    padding: 0,
   },
-  item: {
+  filterItem: {
+    listStyle: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    margin: '6px 0',
+  },
+  storyItem: {
+    listStyle: 'none',
     display: 'flex',
     flexDirection: 'column',
   },
@@ -203,7 +219,6 @@ const styles = {
     color: 'var(--color-primary)',
     marginTop: '4px',
     fontSize: '14px',
-
     textAlign: 'right',
   },
 };

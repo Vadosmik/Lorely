@@ -159,8 +159,6 @@ export default function StudioDashboard() {
   return (
     <>
       <section>
-        <h1>Story Editor</h1>
-
         <h2>Create New Story</h2>
         <form onSubmit={handleOnStoryCreate}>
           <div>

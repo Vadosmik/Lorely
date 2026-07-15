@@ -2,10 +2,10 @@
 export default function Home() {
 
   return (
-    <div className="home-container">
+    <section>
       <h1>Home Page</h1>
       <p>Hello Lorely!</p>
-    </div>
+    </section>
   );
 }
 
