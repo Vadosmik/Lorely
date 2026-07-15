@@ -34,4 +34,8 @@ class User(SQLModel, table=True):
   updated_at: datetime = Field(default_factory=datetime.utcnow, sa_column_kwargs={"onupdate": datetime.utcnow})
   deleted_at: Optional[datetime] = Field(default=None)
 
-  roles: List["Role"] = Relationship(back_populates="users", link_model=UserRole)
+  roles: List["Role"] = Relationship(
+    back_populates="users", 
+    link_model=UserRole,
+    sa_relationship_kwargs={"lazy": "selectin"}
+  )

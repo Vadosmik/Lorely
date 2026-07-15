@@ -2,11 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
+from sqlalchemy.orm import selectinload
 
 from core.db import get_session
 from core.dependencies import get_current_admin
 from src.schemas.users import UserAdminRead, UserAdminUpdate
-from src.models.users import User
+from src.models.users import User, Role
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -15,7 +16,7 @@ CurrentAdminDep = Annotated[User, Depends(get_current_admin)]
 
 # -- Wszystkie usery z perspektywy Admina --
 @router.get("/users", response_model=list[UserAdminRead])
-async def get_all_users_admin(session: SessionDep, admin: CurrentAdminDep):
+async def get_users(session: SessionDep, admin: CurrentAdminDep):
   query = select(User)
   result = await session.execute(query)
   return result.scalars().all()

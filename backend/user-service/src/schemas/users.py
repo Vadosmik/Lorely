@@ -1,5 +1,6 @@
-from typing import Optional
+from typing import List, Optional
 from datetime import datetime, date
+from src.schemas.roles import RoleRead
 from pydantic import BaseModel, EmailStr, ConfigDict, Field, field_validator
 
 from core.config import FORBIDDEN_USERNAMES
@@ -97,3 +98,5 @@ class UserAdminRead(UserRead):
   deleted_at: Optional[datetime] = None
   tos_accepted_at: Optional[datetime] = None
   last_login_at: Optional[datetime] = None
+
+  roles: List[RoleRead] = []

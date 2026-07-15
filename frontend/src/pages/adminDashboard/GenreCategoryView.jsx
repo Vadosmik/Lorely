@@ -1,10 +1,10 @@
 import { useLocation } from 'preact-iso';
 import { useState, useCallback, useEffect } from 'preact/hooks';
 
-import { genreService } from '../services/GenreService.js';
-import { categoryService } from '../services/CategoryService.js';
+import { genreService } from '../../services/GenreService.js';
+import { categoryService } from '../../services/CategoryService.js';
 
-export default function AdminPage() {
+export default function GenreCategoryView() {
 
   const [genres, setGenres] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -122,8 +122,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div>
-      ADMIN
+    <>
       <h2>Manage Categories</h2>
       <ul style={styles.list}>
         {categories.map(cat => (
@@ -139,7 +138,7 @@ export default function AdminPage() {
             </form>
           </li>
         ))}
-        <li style={{ borderBottom: '2px dashed #ccc', padding: '20px 0' }}>
+        <li style={styles.listItem}>
           <h3>Add New Category</h3>
           <form onSubmit={handleSaveCategories} style={styles.form}>
               <label>slug</label>
@@ -152,6 +151,8 @@ export default function AdminPage() {
           </form>
         </li>
       </ul>
+
+      <hr style={{ borderBottom: '2px dashed #ccc', padding: '20px 0' }} />
 
       <h2>Manage Genres</h2>
       <ul style={styles.list}>
@@ -169,7 +170,7 @@ export default function AdminPage() {
             </form>
           </li>
         ))}
-        <li style={{ borderBottom: '2px dashed #ccc', padding: '20px 0' }}>
+        <li style={styles.listItem}>
           <h3>Add New Genre</h3>
           <form onSubmit={handleSaveGenres} style={styles.form}>
             <label>slug</label><input type="text" minLength={2} placeholder="Slug" value={newGenre.slug} onInput={e => setNewGenre({ ...newGenre, slug: e.target.value })} style={styles.input} />
@@ -181,10 +182,15 @@ export default function AdminPage() {
           </form>
         </li>
       </ul>
-    </div>
+    </>
   )
 }
 
 const styles = {
-
+  listItem: {
+    listStyle: 'none',
+  },
+  form: {
+    marginInlineStart: 10,
+  }
 }

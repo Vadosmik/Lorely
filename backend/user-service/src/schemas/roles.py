@@ -12,5 +12,5 @@ class RoleRead(RoleBase):
   model_config = ConfigDict(from_attributes=True)
 
 class RoleAssign(BaseModel):
-  username: str
-  role_title: str
+  user_id: int
+  role_id: int

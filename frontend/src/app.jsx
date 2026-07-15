@@ -11,7 +11,7 @@ import { profileService } from './services/ProfileService.js';
 import Home from './pages/HomePage.jsx';
 import ProfilePage from './pages/profile/ProfilePage.jsx';
 import AuthPage from './pages/AuthPage.jsx';
-import AdminPage from './pages/AdminPage.jsx';
+import AdminDashboard from './pages/adminDashboard/AdminDashboard.jsx';
 
 import CatalogDashboard from './pages/catalog/CatalogDashboard.jsx';
 import CatalogDetails from './pages/catalog/StoryDetails.jsx';
@@ -84,7 +84,7 @@ export function App() {
             <StudioStoryDetails path="/studio/:story_id/details" />
             <StoryFlowCanvas path="/studio/:story_id/canvas" />
 
-            <AdminPage path="/admin" />
+            <AdminDashboard path="/admin" />
             <AuthPage path="/login" onLoginSuccess={loadUser} />
             <ProfilePage path="/:username" onProfileUpdate={loadUser} />
 
