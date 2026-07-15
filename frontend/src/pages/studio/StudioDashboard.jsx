@@ -158,25 +158,23 @@ export default function StudioDashboard() {
 
   return (
     <>
-      <section>
-        <h2>Create New Story</h2>
-        <form onSubmit={handleOnStoryCreate}>
-          <div>
-            <label htmlFor="story_title">Title:</label>
-            <input
-              type="text"
-              id="story_title"
-              value={title}
-              onInput={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit">Add New Story</button>
+      <section style={styles.createSection}>
+        <h2 style={styles.sectionHeader}>Create New Story</h2>
+        <form onSubmit={handleOnStoryCreate} style={styles.form}>
+          <input
+            type="text"
+            placeholder="Enter story title..."
+            value={title}
+            onInput={(e) => setTitle(e.target.value)}
+            required
+            style={styles.input}
+          />
+          <button type="submit" style={styles.submitBtn}>Add New Story</button>
         </form>
       </section>
 
       <section>
-        <h2>My Stories List</h2>
+        <h2 style={styles.sectionHeader}>My Stories List</h2>
         <ul>
           {stories.map(story => {
             const publishedInfo = publishedDetails.find(s => s.id === story.id);
@@ -185,46 +183,66 @@ export default function StudioDashboard() {
 
             return (
               <li key={story.id} style={styles.card}>
-                <CachedImage
-                  path={story.cover_pic_path}
-                  fallback={DEFAULT_COVER}
-                  alt="Cover"
-                  style={styles.cover}
-                />
-                <h3 style={styles.title} >{story.title}</h3>
+                <div style={styles.mainRow}>
+                  <div style={styles.coverWrapper}>
+                    <CachedImage
+                      path={story.cover_pic_path}
+                      fallback={DEFAULT_COVER}
+                      alt="Cover"
+                      style={styles.cover}
+                    />
+                  </div>
 
-                <select
-                  value={currentSelectedStatus}
-                  onChange={(e) => handleStatusChange(story.id, e.target.value)}
-                  style={styles.select}
-                >
-                  <option value=''>---</option>
-                  {Object.values(StoryStatus).map(status => (
-                    <option key={status} value={status}>{status}</option>
-                  ))}
-                </select>
+                  <div style={styles.contentColumn}>
+                    <h3 style={styles.title}>{story.title || "title name"}</h3>
+                    
+                    <div style={styles.actionsRow}>
+                      <div style={styles.selectWrapper}>
+                        <select
+                          value={currentSelectedStatus}
+                          onChange={(e) => handleStatusChange(story.id, e.target.value)}
+                          style={styles.select}
+                        >
+                          <option value=''>status</option>
+                          {Object.values(StoryStatus).map(status => (
+                            <option key={status} value={status}>{status}</option>
+                          ))}
+                        </select>
+                      </div>
 
-                <div>
-                  <button
-                    onClick={() => handlePublishSubmit(story.id)}
-                    style={styles.btn}
-                  >
-                    {isPublished ? 'Update Catalog' : 'Publish'}
-                  </button>
+                      <button
+                        onClick={() => handlePublishSubmit(story.id)}
+                        style={styles.publishBtn}
+                      >
+                        {isPublished ? 'Update' : 'Publish'}
+                      </button>
 
-                  {isPublished && (
-                    <button
-                      onClick={() => handlePublishDelete(story.id)}
-                      style={styles.btnDanger}
-                    >
-                      Delete from catalog
-                    </button>
-                  )}
+                      {isPublished && (
+                        <button
+                          onClick={() => handlePublishDelete(story.id)}
+                          style={styles.deleteBtn}
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                <button onClick={() => handleOnNavigateToDetails(story.id)} style={styles.linkBtn} >Story Details</button>
-                <button onClick={() => handleOnNavigateToFlow(story.id)} style={styles.linkBtn} >Edit Flow</button>
-
+                <div style={styles.buttonGroup}>
+                  <button
+                    onClick={() => handleOnNavigateToDetails(story.id)}
+                    style={styles.editInfoBtn}
+                  >
+                    edit info
+                  </button>
+                  <button
+                    onClick={() => handleOnNavigateToFlow(story.id)}
+                    style={styles.editStoryBtn}
+                  >
+                    edit story
+                  </button>
+                </div>
               </li>
             );
           })}
@@ -235,53 +253,119 @@ export default function StudioDashboard() {
 }
 
 const styles = {
+  sectionHeader: {
+    fontSize: '20px',
+    fontWeight: 'bold',
+    marginBottom: '16px',
+  },
+  list: {
+    listStyle: 'none',
+    padding: 0,
+    margin: 0,
+  },
+  
   card: {
-    border: '1px solid #333',
-    borderRadius: '10px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+    width: '100%',
+    marginBottom: '24px',
+  },
+  mainRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'var(--color-bg)',
+    border: '1.5px solid var(--color-primary)',
+    borderRadius: '25px',
     overflow: 'hidden',
-    marginBottom: '12px',
+    paddingInline: 20,
+    width: '100%',
+  },
+  coverWrapper: {
+    position: 'relative',
+    width: '80px',
+    height: '120px',
+    zIndex: 3,
+    overflow: 'hidden',
   },
   cover: {
-    width: '100px',
-    height: '140px',
+    width: '100%',
+    height: '100%',
     objectFit: 'cover',
-    flexShrink: 0,
+  },
+  contentColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    paddingLeft: '16px',
+    paddingRight: '12px',
+    flex: 1,
+    overflow: 'hidden',
   },
   title: {
-    margin: 0,
-    fontSize: '16px',
+    margin: '0 0 4px 0',
+    fontSize: '18px',
+    fontWeight: 'bold',
+    color: 'var(--color-text)',
+    textTransform: 'lowercase',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   },
-  select: {
-    padding: '4px 8px',
-    borderRadius: '6px',
+  actionsRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
   },
-  btn: {
-    padding: '6px 12px',
-    borderRadius: '6px',
-    border: '1px solid #4CAF50',
-    background: 'transparent',
-    color: '#4CAF50',
-    cursor: 'pointer',
-  },
-  btnDanger: {
-    padding: '6px 12px',
-    borderRadius: '6px',
-    border: '1px solid #f44336',
-    background: 'transparent',
-    color: '#f44336',
-    cursor: 'pointer',
-  },
-  linkBtn: {
-    height: '30px',
-    width: '48vw',
-    margin: '5px',
-    background: 'none',
+  publishBtn: {
+    backgroundColor: 'var(--color-accent)',
+    color: 'var(--color-bg)',
     border: 'none',
-    background: '#FFD441',
-    color: '#1E1D1D',
-    textDecoration: 'underline',
+    borderRadius: '12px',
+    padding: '6px 12px',
+    fontSize: '12px',
+    fontWeight: 'bold',
     cursor: 'pointer',
+    transition: 'opacity 0.2s ease',
+  },
+  deleteBtn: {
+    backgroundColor: 'transparent',
+    color: 'var(--color-error)',
+    border: '1px solid var(--color-error)',
+    borderRadius: '12px',
+    padding: '5px 12px',
+    fontSize: '12px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+  },
+  buttonGroup: {
+    display: 'flex',
+    gap: '12px',
+    width: '100%',
+  },
+  editInfoBtn: {
+    flex: 1,
+    backgroundColor: 'var(--color-accent)',
+    color: 'var(--color-bg)',
+    border: 'none',
+    borderRadius: '24px',
+    padding: '12px 0',
     fontSize: '16px',
-    padding: 0,
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    textAlign: 'center',
+  },
+  editStoryBtn: {
+    flex: 1,
+    backgroundColor: 'var(--color-primary)',
+    color: 'var(--color-text)',
+    border: 'none',
+    borderRadius: '24px',
+    padding: '12px 0',
+    fontSize: '16px',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    textAlign: 'center',
   },
 };
