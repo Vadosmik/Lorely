@@ -170,7 +170,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    margin: '10px 15px'
+    margin: '10px 15px',
   },
   backButton: {
     padding: '10px 15px',

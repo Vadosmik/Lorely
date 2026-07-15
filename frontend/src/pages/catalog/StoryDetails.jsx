@@ -71,8 +71,6 @@ export default function StoryDetails({ story_id }) {
   return (
     <div style={styles.container}>
       <button onClick={handleBack} style={styles.backButton}>{'← Back'}</button>
-      <h2>Story data</h2>
-
       <div style={styles.coverSection}>
         <div style={styles.coverStackBgLeft} />
         <div style={styles.coverStackBgRight} />
