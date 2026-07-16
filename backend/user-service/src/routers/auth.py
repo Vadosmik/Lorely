@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, status, HTTPException
-from typing import Annotated
+from fastapi import APIRouter, Cookie, Depends, status, HTTPException, Response
+from typing import Annotated, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
@@ -79,7 +79,7 @@ def _generate_user_tokens(user: User, refresh_token: str = None) -> dict:
     }
 
 @router.post("/login", response_model=Token)
-async def login(login_data: UserLogin, session: SessionDep):
+async def login(login_data: UserLogin, response: Response, session: SessionDep):
   query = select(User).where((User.email == login_data.username_or_email) | (User.username == login_data.username_or_email)).options(selectinload(User.roles))
   result = await session.execute(query)
   user = result.scalar_one_or_none()
@@ -97,20 +97,38 @@ async def login(login_data: UserLogin, session: SessionDep):
       detail="This user is banned"
     )
   
-  return _generate_user_tokens(user)
+  tokens = _generate_user_tokens(user)
+
+  response.set_cookie(
+      key="refresh_token",
+      value=tokens["refresh_token"],
+      httponly=True,
+      # secure=True,
+      samesite="lax",
+      max_age=settings.REFRESH_TOKEN_EXPIRATION * 24 * 3600,
+      path="/auth"
+    )
+  
+  return {"access_token": tokens["access_token"], "token_type": "bearer"}
 
 @router.post("/refresh", response_model=Token)
-async def refresh_access_token(payload: RefreshTokenRequest, session: SessionDep):
+async def refresh_access_token(session: SessionDep, refresh_token: Optional[str] = Cookie(default=None)):
   try:
-    user_id = decode_refresh_token(payload.refresh_token)
+    user_id = decode_refresh_token(refresh_token)
   except ValueError as e:
     raise HTTPException(status_code=401, detail=str(e))
 
-  query = select(User).where(User.id == user_id).options(selectinload(User.roles))
+  query = select(User).where(User.id == int(user_id)).options(selectinload(User.roles))
   result = await session.execute(query)
   user = result.scalar_one_or_none()
 
   if not user or not user.is_active:
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or inactive")
 
-  return _generate_user_tokens(user, refresh_token=payload.refresh_token)
+  tokens = _generate_user_tokens(user, refresh_token=refresh_token)
+  return {"access_token": tokens["access_token"], "token_type": "bearer"}
+
+@router.post("/logout")
+async def logout(response: Response):
+  response.delete_cookie("refresh_token", path="/auth")
+  return {"detail": "Logged out"}

@@ -8,11 +8,13 @@ const getHeaders = (isFormData = false) => {
   };
 };
 
-function logoutUser() {
-  localStorage.removeItem('token');
-  localStorage.removeItem('refresh_token');
-
-  window.location.href = '/';
+async function logoutUser() {
+  try {
+    await fetch(`${BASE_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
+  } finally {
+    localStorage.removeItem('token');
+    // window.location.href = '/';
+  }
 }
 
 export const apiClient = {
@@ -29,30 +31,22 @@ export const apiClient = {
     const isAuthRoute = endpoint.includes('/auth/login') || endpoint.includes('/auth/register');
 
     if (res.status === 401 && !isAuthRoute) {
-      const refreshToken = localStorage.getItem('refresh_token');
-      if (refreshToken) {
-        try {
-          const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refresh_token: refreshToken })
-          });
+      try {
+        const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
+          method: 'POST',
+          credentials: 'include'
+        });
 
-          if (refreshRes.ok) {
-            const data = await refreshRes.json();
-
-            localStorage.setItem('token', data.access_token);
-            options.headers['Authorization'] = `Bearer ${data.access_token}`;
-
-            res = await fetch(`${BASE_URL}${endpoint}`, options);
-          } else {
-            logoutUser();
-          }
-        } catch {
+        if (refreshRes.ok) {
+          const data = await refreshRes.json();
+          localStorage.setItem('token', data.access_token);
+          options.headers['Authorization'] = `Bearer ${data.access_token}`;
+          res = await fetch(`${BASE_URL}${endpoint}`, options);
+        } else {
           logoutUser();
         }
-      } else {
-        logoutUser()
+      } catch {
+        logoutUser();
       }
     }
 

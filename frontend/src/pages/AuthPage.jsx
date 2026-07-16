@@ -41,7 +41,6 @@ export default function AuthPage({ onLoginSuccess }) {
       showToast('Signing in...', 'info');
       const data = await authService.login(loginForm.usernameOrEmail, loginForm.password);
       localStorage.setItem('token', data.access_token);
-      localStorage.setItem('refresh_token', data.refresh_token);
 
       if (onLoginSuccess) await onLoginSuccess();
 
