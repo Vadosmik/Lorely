@@ -27,13 +27,6 @@ app = FastAPI(
   description="Backend dla interaktywnych historii Lorely"
   )
 
-app.add_middleware(
-  CORSMiddleware,
-  allow_origins=settings.CORS_ORIGINS,
-  allow_methods=["*"],
-  allow_headers=["*"],
-)
-
 @app.get("/health")
 async def health_check():
   return {"status": "ok"}

@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect } from 'preact/hooks';
 
 import GenreCategoryView from './GenreCategoryView'
 import RoleView from './RoleView'
+import UserList from './UserList';
 
 export default function AdminDashboard() {
   return (
@@ -15,6 +16,11 @@ export default function AdminDashboard() {
       {/* UserRole */}
       <section>
         <RoleView />
+      </section>
+
+      {/* UserList */}
+      <section>
+        <UserList />
       </section>
     </>
   )

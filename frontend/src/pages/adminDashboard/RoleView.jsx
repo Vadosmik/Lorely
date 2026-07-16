@@ -12,6 +12,7 @@ export default function RoleView() {
   const [newRole, setNewRole] = useState({ title: '' });
   const [pendingDelete, setPendingDelete] = useState(null);
 
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedUserId, setSelectedUserId] = useState('');
   const [selectedRoleId, setSelectedRoleId] = useState('');
 
@@ -20,7 +21,6 @@ export default function RoleView() {
   const loadUsers = async () => {
     try {
       const fetchedUsers = await adminService.getUsers();
-      console.log(fetchedUsers);
       setUsers(fetchedUsers);
     } catch (err) {
       showToast(err.message || 'Failed to fetch users.', 'error');
@@ -122,15 +122,23 @@ export default function RoleView() {
     }
   };
 
+  const filteredUsers = users
+    .filter(user =>
+      user.username.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .slice(0, 5);
+
   return (
     <>
-      <h3>Users</h3>
-      {users.map(user => (
-        <li key={user.id} style={styles.listItem}>
-          <span style={styles.username}>{user.username}</span>
-          <div style={styles.badgeContainer}>
-            {user.roles && user.roles.length > 0 ? (
-              user.roles.map(r => {
+      <h3>Users with role</h3>
+      {users.map(user => {
+        if (user.roles.length === 0) return null;
+
+        return (
+          <li key={user.id} style={styles.listItem}>
+            <span style={styles.username}>{user.username}</span>
+            <div style={styles.badgeContainer}>
+              {user.roles.map(r => {
                 const isPending = pendingDelete === `${user.id}-${r.id}`;
                 return (
                   <span
@@ -145,13 +153,11 @@ export default function RoleView() {
                     {r.title}
                   </span>
                 );
-              })
-            ) : (
-              <span style={styles.noRole}>no roles</span>
-            )}
-          </div>
-        </li>
-      ))}
+              })}
+            </div>
+          </li>
+        );
+      })}
 
       <h3>Roles <span style={{ fontWeight: 200, fontSize: '13px', color: 'var(--color-text)', fontStyle: 'italic' }}>(Click twice to delete completely)</span></h3 >
       <div style={styles.badgeContainer}>
@@ -175,17 +181,28 @@ export default function RoleView() {
 
       <h3>Assign role to user</h3>
       <form onSubmit={handleAssignRole}>
-        <select
-          value={selectedUserId}
-          onChange={(e) => setSelectedUserId(e.target.value)}
-        >
-          <option value="">-- Select User --</option>
-          {users.map(user => (
-            <option key={user.id} value={user.id}>
-              {user.username}
-            </option>
+        <input
+          type="search"
+          list="users-list"
+          placeholder="Type to search user..."
+          value={searchQuery}
+          onChange={(e) => {
+            const value = e.target.value;
+            setSearchQuery(value);
+
+            const foundUser = users.find(user => user.username === value);
+            if (foundUser) {
+              setSelectedUserId(foundUser.id);
+            } else {
+              setSelectedUserId("");
+            }
+          }}
+        />
+        <datalist id="users-list">
+          {filteredUsers.map(user => (
+            <option key={user.id} value={user.username} />
           ))}
-        </select>
+        </datalist>
 
         <select
           value={selectedRoleId}
