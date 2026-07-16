@@ -32,6 +32,8 @@
   --color-primary-hover: var(--raw-yellow-light);
   --color-accent: var(--raw-navy);
   --color-border: var(--raw-blue-dark);
+
+  color-scheme: light;
 }
 
 [data-theme="dark"] {
@@ -45,6 +47,8 @@
   --color-primary-hover: var(--raw-yellow-light);
   --color-accent: var(--raw-blue-light);
   --color-border: var(--raw-blue-dark);
+
+  color-scheme: dark;
 }
 
 * {

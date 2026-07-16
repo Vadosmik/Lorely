@@ -8,6 +8,10 @@ import { useToast } from '../../context/ToastContext';
 
 export default function UserList() {
   const [users, setUsers] = useState([]);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedUser, setSelectedUser] = useState(null);
+
   const { showToast } = useToast();
 
   const loadUsers = async () => {
@@ -23,122 +27,152 @@ export default function UserList() {
     loadUsers();
   }, [])
 
+  const handleChoiseUser = async (e) => {
+    e.preventDefault();
+    if (!selectedUser) {
+      showToast('Please select a user', 'error');
+      return;
+    }
+  };
+
+  const filteredUsers = users
+    .filter(user =>
+      user.username.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .slice(0, 5);
+
   return (
-    <div style={styles.container}>
-      <h3 style={styles.header}>Users Management ({users.length})</h3>
+    <>
+      <h3 style={styles.header}>Users Management</h3>
+      <form onSubmit={handleChoiseUser}>
+        <input
+          type="search"
+          list="users-list"
+          placeholder="Type to search user..."
+          value={searchQuery}
+          onChange={(e) => {
+            const value = e.target.value;
+            setSearchQuery(value);
 
-      <div style={styles.usersGrid}>
-        {users.map(user => {
-          const isActive = user.is_active;
-          const isDeleted = !!user.deleted_at;
+            const foundUser = users.find(user => user.username === value);
+            if (foundUser) {
+              setSelectedUser(foundUser);
+            } else {
+              setSelectedUser(null);
+            }
+          }}
+        />
+        <datalist id="users-list">
+          {filteredUsers.map(user => (
+            <option key={user.id} value={user.username} />
+          ))}
+        </datalist>
+      </form>
 
-          return (
-            <div key={user.id} style={styles.userCard}>
+      <div style={styles.userInfo}>
+        {selectedUser ? (
+          (() => {
+            const isActive = selectedUser.is_active;
+            const isDeleted = !!selectedUser.deleted_at;
 
-              {/* NAGŁÓWEK KARTY: Awatar, Nick, Główne statusy */}
-              <div style={styles.cardHeader}>
-                <div style={styles.avatar}>
-                  {user.ava_pic_path ? (
-                    <CachedImage
-                      path={user.ava_pic_path}
-                      fallback={DEFAULT_AVATAR}
-                      alt={user.username}
-                      style={styles.avatarImg}
-                    />
-                  ) : (
-                    user.username.substring(0, 2).toUpperCase()
-                  )}
+            return (
+              <>
+                {/* NAGŁÓWEK KARTY: Awatar, Nick, Główne statusy */}
+                <div style={styles.cardHeader}>
+                  <div style={styles.avatar}>
+                    {selectedUser.ava_pic_path ? (
+                      <CachedImage
+                        path={selectedUser.ava_pic_path}
+                        fallback={DEFAULT_AVATAR}
+                        alt={selectedUser.username}
+                        style={styles.avatarImg}
+                      />
+                    ) : (
+                      selectedUser.username.substring(0, 2).toUpperCase()
+                    )}
+                  </div>
+
+                  <div style={styles.headerMeta}>
+                    <h4 style={styles.username}>
+                      {selectedUser.username}
+                      <span style={styles.userId}>#{selectedUser.id}</span>
+                    </h4>
+                    <p style={styles.email}>{selectedUser.email}</p>
+                  </div>
+
+                  {/* Statusy użytkownika */}
+                  <div style={styles.statusContainer}>
+                    {isDeleted ? (
+                      <span style={{ ...styles.badge, ...styles.badgeDeleted }}>Deleted</span>
+                    ) : isActive ? (
+                      <span style={{ ...styles.badge, ...styles.badgeActive }}>Active</span>
+                    ) : (
+                      <span style={{ ...styles.badge, ...styles.badgeInactive }}>Inactive</span>
+                    )}
+                  </div>
                 </div>
 
-                <div style={styles.headerMeta}>
-                  <h4 style={styles.username}>
-                    {user.username}
-                    <span style={styles.userId}>#{user.id}</span>
-                  </h4>
-                  <p style={styles.email}>{user.email}</p>
+
+                {/* BIO */}
+                <div style={styles.bioSection}>
+                  <span style={styles.label}>Bio</span>
+                  <p style={styles.bioText}>{selectedUser.bio || 'No bio provided.'}</p>
                 </div>
 
-                {/* Statusy użytkownika */}
-                <div style={styles.statusContainer}>
-                  {isDeleted ? (
-                    <span style={{ ...styles.badge, ...styles.badgeDeleted }}>Deleted</span>
-                  ) : isActive ? (
-                    <span style={{ ...styles.badge, ...styles.badgeActive }}>Active</span>
-                  ) : (
-                    <span style={{ ...styles.badge, ...styles.badgeInactive }}>Inactive</span>
-                  )}
+                <div style={styles.rolesSection}>
+                  <span style={styles.label}>Roles</span>
+                  <div style={styles.rolesList}>
+                    {selectedUser.roles && selectedUser.roles.length > 0 ? (
+                      selectedUser.roles.map(role => (
+                        <span key={role.id} style={styles.roleBadge}>
+                          {role.title}
+                        </span>
+                      ))
+                    ) : (
+                      <span style={styles.noRoles}>No roles assigned</span>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* BIO */}
-              <div style={styles.bioSection}>
-                <span style={styles.label}>Bio</span>
-                <p style={styles.bioText}>{user.bio || 'No bio provided.'}</p>
-              </div>
+                <hr style={styles.divider} />
 
-              {/* ROLE UŻYTKOWNIKA */}
-              <div style={styles.rolesSection}>
-                <span style={styles.label}>Roles</span>
-                <div style={styles.rolesList}>
-                  {user.roles && user.roles.length > 0 ? (
-                    user.roles.map(role => (
-                      <span key={role.id} style={styles.roleBadge}>
-                        {role.title}
-                      </span>
-                    ))
-                  ) : (
-                    <span style={styles.noRoles}>No roles assigned</span>
-                  )}
+                {/* METADANE DLA ADMINA (Daty) */}
+                <div style={styles.metaGrid}>
+                  <div style={styles.metaItem}>
+                    <span style={styles.metaLabel}>Registered</span>
+                    <span style={styles.metaValue}>{(selectedUser.created_at)}</span>
+                  </div>
+                  <div style={styles.metaItem}>
+                    <span style={styles.metaLabel}>Birthday</span>
+                    <span style={styles.metaValue}>{(selectedUser.birthday_date)}</span>
+                  </div>
+                  <div style={styles.metaItem}>
+                    <span style={styles.metaLabel}>Last Login</span>
+                    <span style={styles.metaValue}>{(selectedUser.last_login_at)}</span>
+                  </div>
+                  <div style={styles.metaItem}>
+                    <span style={styles.metaLabel}>ToS Accepted</span>
+                    <span style={styles.metaValue}>{selectedUser.tos_accepted_at ? 'Yes' : 'No'}</span>
+                  </div>
                 </div>
-              </div>
-
-              <hr style={styles.divider} />
-
-              {/* METADANE DLA ADMINA (Daty) */}
-              <div style={styles.metaGrid}>
-                <div style={styles.metaItem}>
-                  <span style={styles.metaLabel}>Registered</span>
-                  <span style={styles.metaValue}>{(user.created_at)}</span>
-                </div>
-                <div style={styles.metaItem}>
-                  <span style={styles.metaLabel}>Birthday</span>
-                  <span style={styles.metaValue}>{(user.birthday_date)}</span>
-                </div>
-                <div style={styles.metaItem}>
-                  <span style={styles.metaLabel}>Last Login</span>
-                  <span style={styles.metaValue}>{(user.last_login_at)}</span>
-                </div>
-                <div style={styles.metaItem}>
-                  <span style={styles.metaLabel}>ToS Accepted</span>
-                  <span style={styles.metaValue}>{user.tos_accepted_at ? 'Yes' : 'No'}</span>
-                </div>
-              </div>
-
-            </div>
-          );
-        })}
+              </>
+            );
+          })()
+        ) : (
+          <p>please select user</p>
+        )}
       </div>
-    </div>
+    </>
   )
 }
-
 const styles = {
-  container: {
-    padding: '20px',
-    fontFamily: 'system-ui, sans-serif',
-  },
   header: {
     marginBottom: '20px',
     color: 'var(--color-text)',
   },
-  usersGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-    gap: '20px',
-  },
-  userCard: {
-    background: '#1e1e1e', // Ciemny, elegancki motyw
-    border: '1px solid #333',
+  userInfo: {
+    background: 'var(--color-surface)',
+    border: '1px solid var(--color-border)',
     borderRadius: '12px',
     padding: '20px',
     display: 'flex',
@@ -156,8 +190,8 @@ const styles = {
     width: '48px',
     height: '48px',
     borderRadius: '50%',
-    background: '#444',
-    color: '#fff',
+    background: 'var(--color-accent)',
+    color: 'var(--color-surface)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -176,19 +210,20 @@ const styles = {
   username: {
     margin: 0,
     fontSize: '1.1rem',
-    color: '#fff',
+    color: 'var(--color-text)',
     display: 'flex',
     gap: '6px',
     alignItems: 'center',
   },
   userId: {
     fontSize: '0.8rem',
-    color: '#666',
+    color: 'var(--color-text-muted)',
+    opacity: 0.7,
   },
   email: {
     margin: '2px 0 0 0',
     fontSize: '0.85rem',
-    color: '#aaa',
+    color: 'var(--color-text-muted)',
   },
   statusContainer: {
     alignSelf: 'flex-start',
@@ -200,34 +235,35 @@ const styles = {
     fontWeight: 'bold',
   },
   badgeActive: {
-    background: 'rgba(40, 167, 69, 0.2)',
+    background: 'rgba(40, 167, 69, 0.15)',
     color: '#28a745',
   },
   badgeInactive: {
-    background: 'rgba(255, 193, 7, 0.2)',
+    background: 'rgba(255, 193, 7, 0.15)',
     color: '#ffc107',
   },
   badgeDeleted: {
-    background: 'rgba(220, 53, 69, 0.2)',
+    background: 'rgba(220, 53, 69, 0.15)',
     color: '#dc3545',
   },
   label: {
     fontSize: '0.75rem',
     textTransform: 'uppercase',
-    color: '#666',
+    color: 'var(--color-text-muted)',
     fontWeight: 'bold',
     display: 'block',
     marginBottom: '4px',
   },
   bioSection: {
-    background: '#151515',
+    background: 'var(--color-bg)',
     padding: '8px 12px',
     borderRadius: '6px',
+    border: '1px solid var(--color-border)',
   },
   bioText: {
     margin: 0,
     fontSize: '0.9rem',
-    color: '#ccc',
+    color: 'var(--color-text)',
     fontStyle: 'italic',
   },
   rolesSection: {
@@ -241,20 +277,21 @@ const styles = {
     marginTop: '4px',
   },
   roleBadge: {
-    background: '#3498db',
-    color: '#fff',
+    background: 'var(--color-primary)',
+    color: 'var(--color-text)',
     fontSize: '0.75rem',
     padding: '3px 8px',
     borderRadius: '4px',
     fontWeight: 'bold',
+    border: '1px solid var(--color-border)',
   },
   noRoles: {
     fontSize: '0.85rem',
-    color: '#555',
+    color: 'var(--color-text-muted)',
   },
   divider: {
     border: 'none',
-    borderTop: '1px solid #333',
+    borderTop: '1px solid var(--color-border)',
     margin: '8px 0',
   },
   metaGrid: {
@@ -268,11 +305,11 @@ const styles = {
   },
   metaLabel: {
     fontSize: '0.7rem',
-    color: '#555',
+    color: 'var(--color-text-muted)',
     textTransform: 'uppercase',
   },
   metaValue: {
     fontSize: '0.85rem',
-    color: '#bbb',
+    color: 'var(--color-text)',
   },
 }
