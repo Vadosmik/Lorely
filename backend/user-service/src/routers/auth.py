@@ -103,7 +103,7 @@ async def login(login_data: UserLogin, response: Response, session: SessionDep):
       key="refresh_token",
       value=tokens["refresh_token"],
       httponly=True,
-      # secure=True,
+      secure=True,
       samesite="lax",
       max_age=settings.REFRESH_TOKEN_EXPIRATION * 24 * 3600,
       path="/auth"

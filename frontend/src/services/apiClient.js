@@ -25,6 +25,7 @@ export const apiClient = {
       ...getHeaders(isFormData),
       ...options.headers
     };
+    options.credentials = 'include';
 
     let res = await fetch(`${BASE_URL}${endpoint}`, options);
 
