@@ -70,25 +70,28 @@ export function App() {
           <NavBar user={user} onLogout={handleLogout} />
           <ThemeBtn />
 
-          <Router>
+          <main className="app-content">
+            <Router>
 
-            <Home path="/" />
+              <Home path="/" user={user} onLogout={handleLogout} />
 
-            {/* SEKCJA KATALOGU / GRACZA */}
-            <CatalogDashboard path="/catalog" />
-            <CatalogDetails path="/catalog/:story_id/details" />
-            <StoryPlayer path="/catalog/:story_id/read" />
+              {/* SEKCJA KATALOGU / GRACZA */}
+              <CatalogDashboard path="/catalog" />
+              <CatalogDetails path="/catalog/:story_id/details" />
+              <StoryPlayer path="/catalog/:story_id/read" />
 
-            {/* SEKCJA STUDIA / TWÓRCY */}
-            <StudioDashboard path="/studio" />
-            <StudioStoryDetails path="/studio/:story_id/details" />
-            <StoryFlowCanvas path="/studio/:story_id/canvas" />
+              {/* SEKCJA STUDIA / TWÓRCY */}
+              <StudioDashboard path="/studio" />
+              <StudioStoryDetails path="/studio/:story_id/details" />
+              <StoryFlowCanvas path="/studio/:story_id/canvas" />
 
-            <AdminDashboard path="/admin" />
-            <AuthPage path="/login" onLoginSuccess={loadUser} />
-            <ProfilePage path="/:username" onProfileUpdate={loadUser} />
+              <AdminDashboard path="/admin" />
+              <AuthPage path="/login" onLoginSuccess={loadUser} />
+              <ProfilePage path="/:username" currentUser={user} onProfileUpdate={loadUser} />
 
-          </Router>
+            </Router>
+          </main>
+
         </LocationProvider>
       </ToastProvider>
     </LanguageProvider>

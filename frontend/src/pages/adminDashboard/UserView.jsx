@@ -1,73 +1,24 @@
-import { useLocation } from 'preact-iso';
-import { useState, useCallback, useEffect } from 'preact/hooks';
-import CachedImage from '../../components/common/CachedImage'
-import { DEFAULT_AVATAR } from '../../utils/imageCache';
+import { useState, useEffect } from 'preact/hooks';
 
 import { adminService } from '../../services/AdminService';
 import { useToast } from '../../context/ToastContext';
 
-export default function UserList() {
-  const [users, setUsers] = useState([]);
+import CachedImage from '../../components/common/CachedImage'
+import UserPicker from '../../components/common/UserPicker';
+import { DEFAULT_AVATAR } from '../../utils/imageCache';
 
-  const [searchQuery, setSearchQuery] = useState("");
+export default function UserView({ users }) {
   const [selectedUser, setSelectedUser] = useState(null);
-
-  const { showToast } = useToast();
-
-  const loadUsers = async () => {
-    try {
-      const fetchedUsers = await adminService.getUsers();
-      setUsers(fetchedUsers);
-    } catch (err) {
-      showToast(err.message || 'Failed to fetch users.', 'error');
-    }
-  }
-
-  useEffect(() => {
-    loadUsers();
-  }, [])
-
-  const handleChoiseUser = async (e) => {
-    e.preventDefault();
-    if (!selectedUser) {
-      showToast('Please select a user', 'error');
-      return;
-    }
-  };
-
-  const filteredUsers = users
-    .filter(user =>
-      user.username.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .slice(0, 5);
 
   return (
     <>
       <h3 style={styles.header}>Users Management</h3>
-      <form onSubmit={handleChoiseUser}>
-        <input
-          type="search"
-          list="users-list"
-          placeholder="Type to search user..."
-          value={searchQuery}
-          onChange={(e) => {
-            const value = e.target.value;
-            setSearchQuery(value);
-
-            const foundUser = users.find(user => user.username === value);
-            if (foundUser) {
-              setSelectedUser(foundUser);
-            } else {
-              setSelectedUser(null);
-            }
-          }}
-        />
-        <datalist id="users-list">
-          {filteredUsers.map(user => (
-            <option key={user.id} value={user.username} />
-          ))}
-        </datalist>
-      </form>
+      <UserPicker
+        users={users}
+        selectedUser={selectedUser}
+        onSelectUser={setSelectedUser}
+        id="user"
+      />
 
       <div style={styles.userInfo}>
         {selectedUser ? (
@@ -77,7 +28,6 @@ export default function UserList() {
 
             return (
               <>
-                {/* NAGŁÓWEK KARTY: Awatar, Nick, Główne statusy */}
                 <div style={styles.cardHeader}>
                   <div style={styles.avatar}>
                     {selectedUser.ava_pic_path ? (

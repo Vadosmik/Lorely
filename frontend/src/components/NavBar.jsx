@@ -1,7 +1,10 @@
-import { useLanguage } from '../context/LanguageContext';
-import { useTranslation } from '../utils/useTranslation';
-import { useState, useEffect } from 'preact/hooks';
 import { useLocation } from 'preact-iso';
+import { useState, useEffect } from 'preact/hooks';
+import { useLanguage } from '../context/LanguageContext';
+
+import { useTranslation } from '../utils/useTranslation';
+import { useMobile } from '../hooks/useMobile';
+import { Background } from 'reactflow';
 
 const langOptions = {
   "en": "English",
@@ -11,6 +14,12 @@ const langOptions = {
 };
 
 const Icons = {
+  Home: () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+  ),
   Catalog: () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="3" width="7" height="7" />
@@ -33,10 +42,19 @@ const Icons = {
       <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
     </svg>
   ),
-  Admin: () => (
+  Library: () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
       <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+    </svg>
+  ),
+  Admin: () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+
+      <circle cx="17" cy="4" r="2.5" />
+      <path d="M17 1.5v.5M17 6.5v.5M14.5 4h.5M19.5 4h.5" />
     </svg>
   ),
   Notifications: () => (
@@ -61,26 +79,29 @@ const Icons = {
   )
 };
 
-function useIsMobile(breakpoint = 768) {
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= breakpoint);
-  useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth <= breakpoint);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, [breakpoint]);
-  return isMobile;
-}
-
 export function NavBar({ user, onLogout }) {
   const { currentLang, changeLang } = useLanguage();
   const { t } = useTranslation('navbar');
   const { path } = useLocation();
 
-  const isMobile = useIsMobile(768);
+  const [activeItem, setActiveStatus] = useState(null);
+
+  const isMobile = useMobile();
 
   const isCanvasPage = /^\/studio\/[^/]+\/canvas\/?$/.test(path);
   const isReaderDetails = /^\/catalog\/[^/]+\/details\/?$/.test(path);
   const isReaderPage = /^\/catalog\/[^/]+\/read\/?$/.test(path);
+
+  const getDockStyle = (targetPath) => {
+    const isActive = targetPath === '/'
+      ? path === '/'
+      : path.startsWith(targetPath);
+
+    return {
+      ...styles.dockItem,
+      ...(isActive ? styles.dockItemActive : {})
+    };
+  };
 
   if ((isMobile && (isCanvasPage || isReaderDetails)) || isReaderPage) {
     return null;
@@ -90,55 +111,47 @@ export function NavBar({ user, onLogout }) {
     return (
       <>
         <div style={styles.mobileTopBar}>
-          <select
-            value={currentLang}
-            onChange={(e) => changeLang(e.target.value)}
-            style={styles.mobileSelect}
-          >
+          <div style={styles.navbarBrand}>
+            <a href="/" style={styles.brand}>Lorely</a>
+          </div>
+
+          {/* element na czas testów do puki nie bede wiedział gdzie go wrzuce dla tego bez stylu */}
+          <select value={currentLang} onChange={(e) => changeLang(e.target.value)} >
             {Object.entries(langOptions).map(([code, name]) => (
-              <option key={code} value={code}>
-                {name}
-              </option>
+              <option key={code} value={code}> {name} </option>
             ))}
           </select>
 
-          {user && (
-            <>
-              <a href="/admin" style={styles.link}>{t('admin')}</a>
-              <a href={`/${user.username}`} style={{ ...styles.link, ...styles.username }}>
-                {user.username}
-              </a>
-            </>
+          {user ? (
+            <a href={`/${user.username}`} style={{ ...styles.link, ...styles.topBarItem }} title="home">
+              <Icons.Home />
+            </a>
+          ) : (
+            <a href={`/login`} style={{ ...styles.link, ...styles.topBarItem }} title="login">
+              <Icons.Home />
+            </a>
           )}
         </div>
 
         <div style={styles.mobileDockContainer}>
           <div style={styles.mobileDock}>
-            <a href="/catalog" style={styles.dockItem} title={t('catalog')}>
+
+            <a href="/catalog" style={getDockStyle('/catalog')} title={t('catalog')}>
               <Icons.Catalog />
             </a>
-
-            <a href="/" style={styles.dockItem} title="Search">
+            <a href="/" style={getDockStyle('/')} title="Search">
               <Icons.Search />
             </a>
+            <a href="/studio" style={getDockStyle('/studio')} title={t('studio')}>
+              <Icons.Studio />
+            </a>
+            <a href="/" style={getDockStyle('/')} title={t('librari')}>
+              <Icons.Library />
+            </a>
 
-            {user ? (
-              <>
-                <a href="/studio" style={{ ...styles.dockItem, ...styles.dockItemActive }} title={t('studio')}>
-                  <Icons.Studio />
-                </a>
-                <a href="/studio" style={styles.dockItem} title={t('admin')}>
-                  <Icons.Admin />
-                </a>
-                <button onClick={onLogout} style={{ ...styles.dockItem, ...styles.buttonReset }} title={t('logout')}>
-                  <Icons.Logout />
-                </button>
-              </>
-            ) : (
-              <a href="/login" style={styles.dockItem} title={t('login')}>
-                <Icons.Login />
-              </a>
-            )}
+            <a href="/admin" style={getDockStyle('/admin')} title={t('admin')}>
+              <Icons.Admin />
+            </a>
           </div>
         </div>
       </>
@@ -149,7 +162,7 @@ export function NavBar({ user, onLogout }) {
     <>
       <div style={styles.space}></div>
       <nav style={styles.navbar}>
-        <div className="navbar-brand">
+        <div style={styles.navbarBrand}>
           <a href="/" style={styles.brand}>Lorely</a>
         </div>
 
@@ -183,7 +196,7 @@ export function NavBar({ user, onLogout }) {
 
         <div className="navbar-auth">
           {user ? (
-            <button onClick={onLogout} style={{ ...styles.link, ...styles.button }}>{t('logout')}</button>
+            <button onClick={() => console.log('go')} style={{ ...styles.link, ...styles.button }}>{t('logout')}</button>
           ) : (
             <a href="/login" style={{ ...styles.link, ...styles.button }}>{t('login')}</a>
           )}
@@ -211,10 +224,15 @@ const styles = {
 
     boxShadow: '0 4px 6px color-mix(in srgb, var(--color-border) 30%, transparent)',
   },
+  navbarBrand: {
+    backgroundColor: 'var(--color-surface)',
+    padding: '8px 15px',
+    borderRadius: 12,
+  },
   brand: {
     color: 'var(--color-text)',
     textDecoration: 'none',
-    fontSize: '1.5rem',
+    fontSize: '1.3rem',
     fontWeight: '800',
     letterSpacing: '-0.05em'
   },
@@ -253,10 +271,8 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '10px 20px',
-    backgroundColor: 'var(--color-surface)',
-
-    boxShadow: '0 4px 6px color-mix(in srgb, var(--color-border) 30%, transparent)',
   },
+
   mobileDockContainer: {
     position: 'fixed',
     bottom: 5,
@@ -268,6 +284,12 @@ const styles = {
     padding: '0 20px',
     pointerEvents: 'none'
   },
+  topBarItem: {
+    backgroundColor: 'var(--color-surface)',
+    padding: '8px 10px',
+    borderRadius: 12,
+  },
+
   mobileDock: {
     pointerEvents: 'auto',
     display: 'flex',

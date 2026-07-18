@@ -63,42 +63,27 @@ html {
 }
 
 body {
-  font-family: system-ui, sans-serif;
   background-color: var(--color-bg);
   color: var(--color-text);
 }
 
-h1 {
-  font-size: 2.5rem;
-}
-
-h2 {
-  font-size: 2rem;
-}
-
-p {
-  font-size: 1rem;
-  line-height: 1.5;
+.app-content {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
 section {
   background: var(--color-surface);
-  margin: 20px auto;
-  width: calc(100% - 40px);
-  max-width: 1200px;
+  margin: 20px 0;
+  width: 100%;
   padding: 20px;
   border-radius: 22px;
 }
 
 section:last-child {
   margin-bottom: 100px;
-}
-
-hr {
-  border-color: var(--color-border);
-  margin-bottom: 20px;
-  border-style: solid;
-  border-width: 0 0 1px 0
 }
 
 *,

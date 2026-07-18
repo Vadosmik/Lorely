@@ -117,19 +117,13 @@ export default function StoryReader({ storyId, storyJson }) {
 
 const styles = {
   readerWrapper: {
-    maxWidth: '1200px',
-    width: '100%',
-    margin: '0 auto',
     paddingTop: '24px',
     paddingBottom: '80px',
     color: 'var(--color-text)',
     fontFamily: 'Georgia, serif',
     lineHeight: '1.7',
-    boxSizing: 'border-box',
   },
   storyContent: {
-    maxWidth: '800px',
-    margin: '0 auto',
     padding: '0 24px',
     textAlign: 'justify',
   },
@@ -142,8 +136,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     gap: '12px',
-    maxWidth: '800px',
-    margin: '40px auto 0 auto',
+    marginTop: '40px',
     padding: '0 24px',
   },
   choiceBtn: {
@@ -161,4 +154,4 @@ const styles = {
     boxShadow: '0 4px 6px rgba(0,0,0,0.02)',
     outline: 'none',
   },
-}
+};

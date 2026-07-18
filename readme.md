@@ -13,7 +13,7 @@ The goal is to bridge the gap between writing a book and developing a game.
 
 ## Technology Stack
 *   **Backend:** Python with `FastAPI`.
-*   **Frontend:** React + `React Flow`.
+*   **Frontend:** pReact + `React Flow`.
 *   **Database:** 
     *   **PostgreSQL:** Primary storage for users, finished stories, and metadata.
     *   **Redis:** "Hot storage" for real-time session caching, autosaves, and fast editor updates.

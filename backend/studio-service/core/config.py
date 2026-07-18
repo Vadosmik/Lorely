@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-  PROJECT_NAME: str = "Lorely Story Service API"
+  PROJECT_NAME: str = "Lorely Studio Service API"
   VERSION: str = "1.0.0"
   DEBUG: bool = False
 

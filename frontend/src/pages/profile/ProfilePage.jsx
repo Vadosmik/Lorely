@@ -9,7 +9,7 @@ import { toISODateString } from '../../utils/dateFormatter.js';
 import ProfileView from './ProfileView.jsx';
 import ProfileEditForms from './ProfileEditForms.jsx';
 
-export default function ProfilePage({ username, onProfileUpdate }) {
+export default function ProfilePage({ currentUser, username, onProfileUpdate }) {
   const [userData, setUserData] = useState(null);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -19,24 +19,20 @@ export default function ProfilePage({ username, onProfileUpdate }) {
 
   const fetchProfile = async () => {
     try {
-      const me = await profileService.getMe();
-      let displayData = null;
-
-      if (me && me.username === username) {
+      if (currentUser && currentUser.username === username) {
         setIsOwnProfile(true);
-        displayData = me;
+        setUserData({
+          ...currentUser,
+          birthday_date: currentUser.birthday_date ? toISODateString(currentUser.birthday_date) : null
+        });
       } else {
         setIsOwnProfile(false);
-        displayData = await profileService.getUserByUsername(username);
+        const externalData = await profileService.getUserByUsername(username);
+        if (externalData && externalData.birthday_date) {
+          externalData.birthday_date = toISODateString(externalData.birthday_date);
+        }
+        setUserData(externalData);
       }
-
-      if (!displayData) return;
-
-      if (displayData.birthday_date) {
-        displayData.birthday_date = toISODateString(displayData.birthday_date);
-      }
-
-      setUserData(displayData);
     } catch (err) {
       console.error(err);
     } finally {
@@ -46,7 +42,7 @@ export default function ProfilePage({ username, onProfileUpdate }) {
 
   useEffect(() => {
     fetchProfile();
-  }, [username]);
+  }, [username, currentUser]);
 
   useEffect(() => {
     if (userData?.username) {
@@ -88,15 +84,3 @@ export default function ProfilePage({ username, onProfileUpdate }) {
 const styles = {
 
 };
-
-
-
-// zrobić kaszowanie zdj utilitu, a potem common element CachedImage ktury bedzie miał logike z util
-// import CachedImage from '../common/CachedImage';
-
-// <CachedImage 
-//   path={userData.ava_pic_path} 
-//   fallback="/default_ava.jpg"
-//   alt="User Avatar"
-//   style={styles.avatarImg}
-// />

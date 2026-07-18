@@ -11,7 +11,7 @@ services:
       - lorely-net
     depends_on:
       - user-service
-      - story-service
+      - studio-service
       - storage-service
   user-service:
     build: ./user-service
@@ -27,12 +27,12 @@ services:
       db:
         condition: service_healthy
   
-  story-service:
-    build: ./story-service
-    container_name: story-service
+  studio-service:
+    build: ./studio-service
+    container_name: studio-service
     env_file:
       - .env
-      - ./story-service/.env
+      - ./studio-service/.env
     networks:
       - lorely-net
     depends_on:

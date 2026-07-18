@@ -1,8 +1,8 @@
 import { apiClient } from './apiClient';
 
-const PATH = '/stories';
+const PATH = '/studio';
 
-export const storyService = {
+export const studioService = {
   async getStories() {
     const res = await apiClient.request(`${PATH}/`);
     return res.json();

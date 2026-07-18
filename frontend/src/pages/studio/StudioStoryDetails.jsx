@@ -4,7 +4,7 @@ import { useLanguage } from '../../context/LanguageContext.jsx';
 
 import { useToast } from '../../context/ToastContext.jsx';
 
-import { storyService } from '../../services/StoryService.js';
+import { studioService } from '../../services/StudioService.js';
 import { catalogService } from '../../services/CatalogService.js';
 import { storageService } from '../../services/StorageService.js';
 import { genreService } from '../../services/GenreService.js';
@@ -41,7 +41,7 @@ export default function StudioStoryDetails({ story_id }) {
   useEffect(() => {
     async function loadStoryData() {
       try {
-        const fetchedStory = await storyService.getStory(story_id);
+        const fetchedStory = await studioService.getStory(story_id);
         const fetchedGenres = await genreService.getGenres();
         const fetchedCategory = await categoryService.getCategories();
 
@@ -134,7 +134,7 @@ export default function StudioStoryDetails({ story_id }) {
       }
 
       const newCoverPath = await storageService.uploadFile('covers', selectedFile);
-      const updatedStory = await storyService.updateStoryInfo(storyData.id, { cover_pic_path: newCoverPath });
+      const updatedStory = await studioService.updateStoryInfo(storyData.id, { cover_pic_path: newCoverPath });
 
       setStoryData(updatedStory);
       revokeLocalPreview();
@@ -158,7 +158,7 @@ export default function StudioStoryDetails({ story_id }) {
       invalidateImageCache(oldAvaPath);
 
       await storageService.deleteFile(oldAvaPath);
-      const updatedStory = await storyService.updateStoryInfo(storyData.id, { cover_pic_path: null });
+      const updatedStory = await studioService.updateStoryInfo(storyData.id, { cover_pic_path: null });
 
       setStoryData(updatedStory);
       revokeLocalPreview();
@@ -182,7 +182,7 @@ export default function StudioStoryDetails({ story_id }) {
         category_ids: storyData.category_ids || []
       };
 
-      const updatedStory = await storyService.updateStoryInfo(storyData.id, updatePayload);
+      const updatedStory = await studioService.updateStoryInfo(storyData.id, updatePayload);
 
       setStoryData(updatedStory);
     } catch (err) {
@@ -201,7 +201,7 @@ export default function StudioStoryDetails({ story_id }) {
         await catalogService.deleteStory(story_id);
       }
 
-      await storyService.deleteStory(story_id);
+      await studioService.deleteStory(story_id);
       route(`/studio`);
     } catch (err) {
       console.error(err);

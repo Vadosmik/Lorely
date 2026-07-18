@@ -1,31 +1,20 @@
-import { useLocation } from 'preact-iso';
-import { useState, useCallback, useEffect } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 
 import { roleService } from '../../services/RoleService';
-import { adminService } from '../../services/AdminService';
 import { useToast } from '../../context/ToastContext';
 
-export default function RoleView() {
-  const [users, setUsers] = useState([]);
+import UserPicker from '../../components/common/UserPicker';
+
+export default function RoleView({ users, onUsersChanged }) {
   const [roles, setRoles] = useState([]);
 
   const [newRole, setNewRole] = useState({ title: '' });
   const [pendingDelete, setPendingDelete] = useState(null);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedUserId, setSelectedUserId] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
   const [selectedRoleId, setSelectedRoleId] = useState('');
 
   const { showToast } = useToast();
-
-  const loadUsers = async () => {
-    try {
-      const fetchedUsers = await adminService.getUsers();
-      setUsers(fetchedUsers);
-    } catch (err) {
-      showToast(err.message || 'Failed to fetch users.', 'error');
-    }
-  }
 
   const loadRoles = async () => {
     try {
@@ -37,7 +26,6 @@ export default function RoleView() {
   }
 
   useEffect(() => {
-    loadUsers();
     loadRoles();
   }, [])
 
@@ -50,7 +38,7 @@ export default function RoleView() {
           const res = await roleService.removeRoleFromUser(userId, roleId);
           showToast(res.message || 'Role removed successfully', 'success');
           setPendingDelete(null);
-          await loadUsers();
+          await onUsersChanged();
         } catch (err) {
           showToast(err.message || 'Failed to remove role', 'error');
         }
@@ -76,7 +64,7 @@ export default function RoleView() {
           showToast('Role deleted from system', 'success');
           setPendingDelete(null);
           await loadRoles();
-          await loadUsers();
+          await onUsersChanged();
         } catch (err) {
           showToast(err.message || 'Failed to delete role', 'error');
         }
@@ -93,17 +81,17 @@ export default function RoleView() {
 
   const handleAssignRole = async (e) => {
     e.preventDefault();
-    if (!selectedUserId || !selectedRoleId) {
+    if (!selectedUser || !selectedRoleId) {
       showToast('Please select both a user and a role', 'error');
       return;
     }
 
     try {
-      const res = await roleService.assignRoleToUser(Number(selectedUserId), Number(selectedRoleId));
+      const res = await roleService.assignRoleToUser(Number(selectedUser.id), Number(selectedRoleId));
       showToast(res.message || 'Role assigned successfully', 'success');
-      setSelectedUserId('');
+      setSelectedUser(null);
       setSelectedRoleId('');
-      await loadUsers();
+      await onUsersChanged();
     } catch (err) {
       showToast(err.message || 'Error assigning role', 'error');
     }
@@ -121,12 +109,6 @@ export default function RoleView() {
       alert(err.message || 'Error creating role');
     }
   };
-
-  const filteredUsers = users
-    .filter(user =>
-      user.username.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .slice(0, 5);
 
   return (
     <>
@@ -181,28 +163,12 @@ export default function RoleView() {
 
       <h3>Assign role to user</h3>
       <form onSubmit={handleAssignRole}>
-        <input
-          type="search"
-          list="users-list"
-          placeholder="Type to search user..."
-          value={searchQuery}
-          onChange={(e) => {
-            const value = e.target.value;
-            setSearchQuery(value);
-
-            const foundUser = users.find(user => user.username === value);
-            if (foundUser) {
-              setSelectedUserId(foundUser.id);
-            } else {
-              setSelectedUserId("");
-            }
-          }}
+        <UserPicker
+          users={users}
+          selectedUser={selectedUser}
+          onSelectUser={setSelectedUser}
+          id="role"
         />
-        <datalist id="users-list">
-          {filteredUsers.map(user => (
-            <option key={user.id} value={user.username} />
-          ))}
-        </datalist>
 
         <select
           value={selectedRoleId}

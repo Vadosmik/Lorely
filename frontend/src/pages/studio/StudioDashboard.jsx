@@ -1,7 +1,7 @@
 import { useLocation } from 'preact-iso';
 import { useState, useEffect } from 'preact/hooks';
 
-import { storyService } from '../../services/StoryService.js';
+import { studioService } from '../../services/StudioService.js';
 import { catalogService } from '../../services/CatalogService.js';
 import { storageService } from '../../services/StorageService.js';
 import { profileService } from '../../services/ProfileService.js';
@@ -28,8 +28,7 @@ export default function StudioDashboard() {
   useEffect(() => {
     async function loadStoiesData() {
       try {
-        const fetchedStories = await storyService.getStories();
-        const user = await profileService.getMe();
+        const fetchedStories = await studioService.getStories();
         const myPublished = await catalogService.getMinePublishedStories();
 
         const initialSelected = {};
@@ -68,7 +67,7 @@ export default function StudioDashboard() {
         category_ids: []
       };
 
-      const savedStory = await storyService.createStory(payload);
+      const savedStory = await studioService.createStory(payload);
 
       setStories(prev => [...prev, savedStory]);
       setTitle('');
@@ -82,7 +81,7 @@ export default function StudioDashboard() {
     const isAlreadyPublished = publishedDetails.find(s => s.id === id);
 
     try {
-      const storyData = await storyService.getStory(id);
+      const storyData = await studioService.getStory(id);
 
       let newCoverPath = null;
       let newStoryPath = null;

@@ -1,5 +1,6 @@
 import { useLocation } from 'preact-iso';
 import { useState, useCallback, useEffect } from 'preact/hooks';
+
 import { catalogService } from '../../services/CatalogService.js';
 import { storageService } from '../../services/StorageService.js';
 
@@ -82,16 +83,13 @@ export default function ReaderPage({ story_id }) {
 
 const styles = {
   pageContainer: {
-    backgroundColor: 'var(--color-bg)',
     minHeight: '100vh',
-    width: '100%',
   },
   loadingContainer: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: '100vh',
-    backgroundColor: 'var(--color-bg)',
+    minHeight: '50vh',
   },
   backButton: {
     background: 'none',
@@ -131,4 +129,4 @@ const styles = {
     fontWeight: 'bold',
     transition: 'all 0.2s ease',
   },
-}
+};

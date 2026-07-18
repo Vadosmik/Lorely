@@ -147,13 +147,12 @@ const styles = {
   container: {
     maxWidth: '450px',
     margin: '0 auto',
-    backgroundColor: 'var(--color-bg)',
     color: 'var(--color-text)',
     fontFamily: 'sans-serif',
     padding: '16px',
-    minHeight: '100vh',
     position: 'relative',
     boxSizing: 'border-box',
+    paddingBottom: '80px',
   },
   backButton: {
     background: 'none',
@@ -311,4 +310,4 @@ const styles = {
     textAlign: 'center',
     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
   },
-}
+};

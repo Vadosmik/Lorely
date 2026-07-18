@@ -1,7 +1,7 @@
 import { useLocation } from 'preact-iso';
 import { useRef, useState, useEffect, useCallback } from 'preact/hooks';
 
-import { storyService } from '../../services/StoryService.js';
+import { studioService } from '../../services/StudioService.js';
 import { storageService } from '../../services/StorageService.js';
 import { transformFlowToJson, transformJsonToFlow } from '../../utils/transformJsonToFlow.js';
 
@@ -33,7 +33,7 @@ export default function StoryFlowCanvas({ story_id }) {
   useEffect(() => {
     async function loadStory() {
       try {
-        const data = await storyService.getStory(story_id);
+        const data = await studioService.getStory(story_id);
         setStoryData(data);
       } catch (err) {
         console.error("Error loading story metadata:", err);
@@ -78,7 +78,7 @@ export default function StoryFlowCanvas({ story_id }) {
         }
       }
       const newJsonPath = await storageService.uploadFile('stories', file);
-      const updatedStory = await storyService.updateStoryInfo(storyData.id, { story_json_path: newJsonPath });
+      const updatedStory = await studioService.updateStoryInfo(storyData.id, { story_json_path: newJsonPath });
 
       setStoryData(updatedStory);
       alert('Story saved successfully!');

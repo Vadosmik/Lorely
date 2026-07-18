@@ -5,7 +5,6 @@ import { genreService } from '../../services/GenreService.js';
 import { categoryService } from '../../services/CategoryService.js';
 
 export default function GenreCategoryView() {
-
   const [genres, setGenres] = useState([]);
   const [categories, setCategories] = useState([]);
 
