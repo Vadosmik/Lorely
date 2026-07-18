@@ -48,12 +48,10 @@ const Icons = {
       <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
     </svg>
   ),
-  Admin: () => (
+  User: () => (
     <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
       <circle cx="12" cy="7" r="4" />
-
-      <circle cx="17" cy="4" r="2.5" />
       <path d="M17 1.5v.5M17 6.5v.5M14.5 4h.5M19.5 4h.5" />
     </svg>
   ),
@@ -122,25 +120,19 @@ export function NavBar({ user, onLogout }) {
             ))}
           </select>
 
-          {user ? (
-            <a href={`/${user.username}`} style={{ ...styles.link, ...styles.topBarItem }} title="home">
-              <Icons.Home />
-            </a>
-          ) : (
-            <a href={`/login`} style={{ ...styles.link, ...styles.topBarItem }} title="login">
-              <Icons.Home />
-            </a>
-          )}
+          <a href={`/admin`} style={{ ...styles.link, ...styles.topBarItem }} title="admin">
+            <Icons.Home />
+          </a>
         </div>
 
         <div style={styles.mobileDockContainer}>
           <div style={styles.mobileDock}>
 
-            <a href="/catalog" style={getDockStyle('/catalog')} title={t('catalog')}>
-              <Icons.Catalog />
+            <a href="/" style={getDockStyle('/')} title={t('catalog')}>
+              <Icons.Home />
             </a>
-            <a href="/" style={getDockStyle('/')} title="Search">
-              <Icons.Search />
+            <a href="/catalog" style={getDockStyle('/catalog')} title="Search">
+              <Icons.Catalog />
             </a>
             <a href="/studio" style={getDockStyle('/studio')} title={t('studio')}>
               <Icons.Studio />
@@ -149,9 +141,15 @@ export function NavBar({ user, onLogout }) {
               <Icons.Library />
             </a>
 
-            <a href="/admin" style={getDockStyle('/admin')} title={t('admin')}>
-              <Icons.Admin />
-            </a>
+            {user ? (
+              <a href={`/${user.username}`} style={getDockStyle(`/${user.username}`)} title="user">
+                <Icons.User />
+              </a>
+            ) : (
+              <a href={`/login`} style={getDockStyle('/login')} title="login">
+                <Icons.User />
+              </a>
+            )}
           </div>
         </div>
       </>

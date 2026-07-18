@@ -91,6 +91,9 @@ export default function CatalogDashboard() {
   return (
     <>
       <section>
+        <h3>SEARCH</h3>
+      </section>
+      <section>
         <label style={{ fontWeight: 'bold', display: 'block', margin: '10px 0' }}>Genre</label>
         <ul style={{ padding: 0 }}>
           {genres.map(genre => {
@@ -213,22 +216,22 @@ const styles = {
     background: 'var(--color-primary)',
     padding: '14px 10px',
     textAlign: 'center',
-    flexGrow: 1, 
+    flexGrow: 1,
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'flex-start', 
+    justifyContent: 'flex-start',
     alignItems: 'center',
   },
   title: {
     fontSize: '15px',
     color: '#222',
-    
+
     display: '-webkit-box',
     WebkitLineClamp: 2,
     WebkitBoxOrient: 'vertical',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    
+
     width: '100%',
   },
   author: {
