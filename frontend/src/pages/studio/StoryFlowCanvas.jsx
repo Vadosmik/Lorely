@@ -163,6 +163,11 @@ const styles = {
     gridTemplateRows: 'auto 1fr',
     height: '94vh',
     width: '100vw',
+
+    position: 'relative',
+    left: '50%',
+    transform: 'translateX(-50%)',
+
     overflow: 'hidden',
     boxSizing: 'border-box'
   },

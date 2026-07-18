@@ -8,12 +8,12 @@ const getHeaders = (isFormData = false) => {
   };
 };
 
-async function logoutUser() {
+export async function logoutUser() {
   try {
     await fetch(`${BASE_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
   } finally {
     localStorage.removeItem('token');
-    // window.location.href = '/';
+    window.location.href = '/login';
   }
 }
 

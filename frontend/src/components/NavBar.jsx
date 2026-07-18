@@ -2,8 +2,6 @@ import { useLocation } from 'preact-iso';
 import { useState, useEffect } from 'preact/hooks';
 import { useLanguage } from '../context/LanguageContext';
 
-
-
 import { useTranslation } from '../utils/useTranslation';
 import { useMobile } from '../hooks/useMobile';
 import { Background } from 'reactflow';
@@ -19,7 +17,7 @@ const langOptions = {
   "ru": "Русский"
 };
 
-export function NavBar({ user, onLogout }) {
+export function NavBar({ user }) {
   const { currentLang, changeLang } = useLanguage();
   const { t } = useTranslation('navbar');
   const { path } = useLocation();
@@ -76,30 +74,40 @@ export function NavBar({ user, onLogout }) {
             <a href="/catalog" style={getDockStyle('/catalog')} title="Search">
               <Icon name="catalog" alt="Catalog" />
             </a>
-            <a href="/studio" style={getDockStyle('/studio')} title={t('studio')}>
-              <Icon name="studio" alt="Studio" />
-            </a>
-            <a href="/library" style={getDockStyle('/library')} title={t('librari')}>
-              <Icon name="library" alt="Library" />
-            </a>
-
             {user ? (
-              <a href={`/${user.username}`} style={getDockStyle(`/${user.username}`)} title="user">
-                {user.ava_pic_path ? (
-                  <CachedImage
-                    path={user.ava_pic_path}
-                    fallback={DEFAULT_AVATAR}
-                    alt="User Avatar"
-                    style={styles.avatarImg}
-                  />
-                ) : (
-                  <Icon name="user" alt="User" />
-                )}
-              </a>
+              <>
+                <a href="/studio" style={getDockStyle('/studio')} title={t('studio')}>
+                  <Icon name="studio" alt="Studio" />
+                </a>
+                <a href="/library" style={getDockStyle('/library')} title={t('library')}>
+                  <Icon name="library" alt="Library" />
+                </a>
+
+                <a href={`/${user.username}`} style={getDockStyle(`/${user.username}`)} title="user">
+                  {user.ava_pic_path ? (
+                    <CachedImage
+                      path={user.ava_pic_path}
+                      fallback={DEFAULT_AVATAR}
+                      alt="User Avatar"
+                      style={styles.avatarImg}
+                    />
+                  ) : (
+                    <Icon name="user" alt="User" />
+                  )}
+                </a>
+              </>
             ) : (
-              <a href={`/login`} style={getDockStyle('/login')} title="login">
-                <Icon name="user" alt="User" />
-              </a>
+              <>
+                <a href="/login" style={getDockStyle('/studio')} title={t('studio')}>
+                  <Icon name="studio" alt="Studio" />
+                </a>
+                <a href="/login" style={getDockStyle('/library')} title={t('library')}>
+                  <Icon name="library" alt="Library" />
+                </a>
+                <a href={`/login`} style={getDockStyle('/login')} title="login">
+                  <Icon name="user" alt="User" />
+                </a>
+              </>
             )}
           </div>
         </div>
@@ -115,39 +123,41 @@ export function NavBar({ user, onLogout }) {
           <a href="/" style={styles.brand}>Lorely</a>
         </div>
 
-        <div style={styles.links}>
-          <a href="/catalog" style={styles.link}>{t('catalog')}</a>
+        <a style={styles.link}>
+          <select value={currentLang} onChange={(e) => changeLang(e.target.value)} >
+            {Object.entries(langOptions).map(([code, name]) => (
+              <option key={code} value={code}> {name} </option>
+            ))}
+          </select>
+        </a>
 
-          {user && (
+        <div style={styles.links}>
+          <a href="/" style={styles.link}>{t('home')}</a>  {/* <Icon name="home" alt="Home" /> */}
+          <a href="/catalog" style={styles.link}>{t('catalog')}</a>  {/* <Icon name="catalog" alt="Catalog" /> */}
+          {user ? (
             <>
-              <a href="/studio" style={styles.link}>{t('studio')}</a>
-              <a href="/admin" style={styles.link}>{t('admin')}</a>
-              <a href={`/${user.username}`} style={{ ...styles.link, ...styles.username }}>
-                {user.username}
+              <a href="/studio" style={styles.link}>{t('studio')}</a> {/* <Icon name="studio" alt="Studio" /> */}
+              <a href="/library" style={styles.link}>{t('library')}</a> {/* <Icon name="studio" alt="Studio" /> */}
+
+              <a href={`/${user.username}`} style={getDockStyle(`/${user.username}`)} title="user">
+                {user.ava_pic_path ? (
+                  <CachedImage
+                    path={user.ava_pic_path}
+                    fallback={DEFAULT_AVATAR}
+                    alt="User Avatar"
+                    style={styles.avatarImg}
+                  />
+                ) : (
+                  <Icon name="user" alt="User" />
+                )}
               </a>
             </>
-          )}
-
-          <a style={styles.link}>
-            <select
-              value={currentLang}
-              onChange={(e) => changeLang(e.target.value)}
-              style={{ background: 'transparent', color: 'inherit', border: '1px solid var(--color-border)', padding: '2px 5px', borderRadius: '4px' }}
-            >
-              {Object.entries(langOptions).map(([code, name]) => (
-                <option key={code} value={code}>
-                  {name}
-                </option>
-              ))}
-            </select>
-          </a>
-        </div>
-
-        <div className="navbar-auth">
-          {user ? (
-            <button onClick={() => console.log('go')} style={{ ...styles.link, ...styles.button }}>{t('logout')}</button>
           ) : (
-            <a href="/login" style={{ ...styles.link, ...styles.button }}>{t('login')}</a>
+            <>
+              <a href="/login" style={styles.link}>{t('studio')}</a>
+              <a href="/login" style={styles.link}>{t('library')}</a>
+              <a href="/login" style={{ ...styles.link, ...styles.button }}>{t('login')}</a>
+            </>
           )}
         </div>
       </nav>

@@ -6,6 +6,7 @@ import { ToastProvider } from './context/ToastContext.jsx';
 import { NavBar } from './components/NavBar';
 import { ThemeBtn } from './components/ThemeBtn.jsx';
 
+import { logoutUser } from './services/apiClient.js';
 import { profileService } from './services/ProfileService.js';
 
 import Home from './pages/HomePage.jsx';
@@ -25,6 +26,8 @@ import StoryFlowCanvas from './pages/studio/StoryFlowCanvas.jsx'
 
 import { getCachedStaticImage, DEFAULT_AVATAR, DEFAULT_COVER } from './utils/imageCache';
 
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:80';
+
 export function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -40,7 +43,7 @@ export function App() {
       const userData = await profileService.getMe();
       setUser(userData);
     } catch (err) {
-      console.warn("User not authorisated:", err.message);
+      console.warn("User not authorized:", err.message);
       setUser(null);
     } finally {
       setLoading(false);
@@ -50,17 +53,11 @@ export function App() {
   useEffect(() => {
     getCachedStaticImage(DEFAULT_AVATAR);
     getCachedStaticImage(DEFAULT_COVER);
-  }, []);
-
-  useEffect(() => {
     loadUser();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-    setUser(null);
-    window.location.href = '/login';
+  const handleLogout = async () => {
+    await logoutUser();
   };
 
   if (loading) return <div>Ładowanie aplikacji...</div>;
@@ -75,7 +72,7 @@ export function App() {
           <main className="app-content">
             <Router>
 
-              <Home path="/" user={user} onLogout={handleLogout} />
+              <Home path="/" user={user} />
 
               <LibraryPage path="/library" />
 
@@ -91,7 +88,7 @@ export function App() {
 
               <AdminDashboard path="/admin" />
               <AuthPage path="/login" onLoginSuccess={loadUser} />
-              <ProfilePage path="/:username" currentUser={user} onProfileUpdate={loadUser} />
+              <ProfilePage path="/:username" currentUser={user} onProfileUpdate={loadUser} onLogout={handleLogout} />
 
             </Router>
           </main>

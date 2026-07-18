@@ -1,6 +1,5 @@
 import { useLocation } from 'preact-iso';
 import { useState, useEffect } from 'preact/hooks';
-import { useLanguage } from '../../context/LanguageContext.jsx';
 
 import { profileService } from '../../services/ProfileService.js';
 import { catalogService } from '../../services/CatalogService.js';
@@ -8,56 +7,45 @@ import { catalogService } from '../../services/CatalogService.js';
 import { genreService } from '../../services/GenreService.js';
 import { categoryService } from '../../services/CategoryService.js';
 
+import FilterList from './component/FilterList.jsx';
 import Icon from '../../components/common/Icon'
 import CachedImage from '../../components/common/CachedImage'
 import { DEFAULT_COVER } from '../../utils/imageCache';
 
 export default function CatalogDashboard() {
   const [stories, setStories] = useState([]);
-  const [allStories, setAllStories] = useState([]);
-
   const [genres, setGenres] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  const [selectedGenres, setSelectedGenres] = useState([]);
-  const [selectedCategories, setSelectedCategories] = useState([]);
-
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedGenres, setSelectedGenres] = useState(() => {
+    const saved = sessionStorage.getItem('catalog_genres');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [selectedCategories, setSelectedCategories] = useState(() => {
+    const saved = sessionStorage.getItem('catalog_categories');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [searchQuery, setSearchQuery] = useState(() => {
+    return sessionStorage.getItem('catalog_search') || '';
+  });
 
   const { route } = useLocation();
-  const { currentLang } = useLanguage();
 
   useEffect(() => {
-    async function initData() {
-      try {
-        const fetchedStories = await catalogService.getStories([]);
-        const fetchedGenres = await genreService.getGenres();
-        const fetchedCategory = await categoryService.getCategories();
+    sessionStorage.setItem('catalog_genres', JSON.stringify(selectedGenres));
+    sessionStorage.setItem('catalog_categories', JSON.stringify(selectedCategories));
+    sessionStorage.setItem('catalog_search', searchQuery);
+  }, [selectedGenres, selectedCategories, searchQuery]);
 
-        const fetchedUsers = await profileService.getUsers() || [];
-        const usersMap = new Map(fetchedUsers.map(u => [u.id, u.username]));
-
-        fetchedStories.forEach(story => {
-          story.author_username = usersMap.get(story.author_id) || 'Unknown Author';
-        });
-
-        setAllStories(fetchedStories);
-        setStories(fetchedStories);
-
-        setGenres(fetchedGenres || []);
-        setCategories(fetchedCategory || []);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    initData();
-  }, []);
-
-  async function loadCatalogData() {
+  async function loadFilteredCatalog(overrides = {}) {
     try {
-      const filters = {
-        genre_ids: selectedGenres,
-        category_ids: selectedCategories
+      const genreIds = overrides.genreIds ?? selectedGenres;
+      const categoryIds = overrides.categoryIds ?? selectedCategories;
+      const query = (overrides.query ?? searchQuery).toLowerCase().trim();
+
+      const filters = { 
+        genre_ids: genreIds, 
+        category_ids: categoryIds 
       };
 
       const fetchedStories = await catalogService.searchStories(filters);
@@ -71,58 +59,75 @@ export default function CatalogDashboard() {
 
       let filtered = [...fetchedStories];
 
-      // tymczasowa wyszukiwarke bez zapytania na back
-      const query = searchQuery.toLowerCase().trim();
-
       if (query) {
         const scoredStories = filtered.map(story => {
           const title = story.title.toLowerCase();
           let score = 0;
 
           if (title === query) {
-            score += 100; // Idealne trafienie
+            score += 100;
           } else if (title.startsWith(query)) {
-            score += 50;  // Zaczyna się od wpisanej frazy
+            score += 50;
           } else if (title.includes(query)) {
-            score += 20;  // Zawiera frazę gdzieś w środku
+            score += 20;
           }
 
-          // Rozbijamy wpisaną frazę na pojedyncze słowa (szukanie przybliżone)
           const words = query.split(/\s+/);
           words.forEach(word => {
             if (word && title.includes(word)) {
-              score += 5; // Każde pasujące słowo podnosi pozycję w wynikach
+              score += 5;
             }
           });
 
           return { ...story, score };
         });
 
-        // Zostawiamy tylko te, które mają jakikolwiek punkt i sortujemy od najbardziej trafnych
         filtered = scoredStories
           .filter(story => story.score > 0)
           .sort((a, b) => b.score - a.score);
       }
 
       setStories(filtered);
-      // setStories(fetchedStories);
     } catch (err) {
       console.error("Błąd filtrowania:", err);
     }
   }
 
+  useEffect(() => {
+    async function initData() {
+      try {
+        const fetchedGenres = await genreService.getGenres();
+        const fetchedCategory = await categoryService.getCategories();
+
+        setGenres(fetchedGenres || []);
+        setCategories(fetchedCategory || []);
+
+        await loadFilteredCatalog();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    initData();
+  }, []);
+
   const handleGenreChange = (genreId) => {
     setSelectedGenres(prev => {
-      const next = prev.includes(genreId) ? prev.filter(id => id !== genreId) : [...prev, genreId];
-      return next;
+      return (prev.includes(genreId) ? prev.filter(id => id !== genreId) : [...prev, genreId]);
     });
   };
 
   const handleCategoryChange = (categoryId) => {
     setSelectedCategories(prev => {
-      const next = prev.includes(categoryId) ? prev.filter(id => id !== categoryId) : [...prev, categoryId];
-      return next;
+      return (prev.includes(categoryId) ? prev.filter(id => id !== categoryId) : [...prev, categoryId]);
     });
+  };
+
+  async function handleClearFilters() {
+    setSearchQuery('');
+    setSelectedCategories([]);
+    setSelectedGenres([]);
+
+    await loadFilteredCatalog({ genreIds: [], categoryIds: [], query: '' });
   };
 
   const handleOnNavigateToDetails = (id) => {
@@ -139,7 +144,7 @@ export default function CatalogDashboard() {
             placeholder="Type to search story..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && loadCatalogData()}
+            onKeyDown={(e) => e.key === 'Enter' && loadFilteredCatalog()}
             style={styles.searchInput}
           />
         </div>
@@ -148,48 +153,19 @@ export default function CatalogDashboard() {
       <section>
         <label style={{ fontWeight: 'bold', display: 'block', margin: '10px 0' }}>Genre</label>
         <ul style={{ padding: 0 }}>
-          {genres.map(genre => {
-            const isChecked = selectedGenres.includes(genre.id) || false;
-
-            return (
-              <li key={genre.id} style={styles.filterItem}>
-                <input
-                  type="checkbox"
-                  id={`genre-${genre.id}`}
-                  checked={isChecked}
-                  onChange={() => handleGenreChange(genre.id)}
-                />
-                <label htmlFor={`genre-${genre.id}`} style={{ cursor: 'pointer' }}>
-                  {genre.slug} ({genre[currentLang] || genre.en})
-                </label>
-              </li>
-            )
-          })}
+          <FilterList items={genres} selected={selectedGenres} onChange={handleGenreChange} prefix="genre" />
         </ul>
 
         <label style={{ fontWeight: 'bold', display: 'block', margin: '10px 0' }}>Category</label>
         <ul style={{ padding: 0 }}>
-          {categories.map(category => {
-            const isChecked = selectedCategories.includes(category.id) || false;
-
-            return (
-              <li key={category.id} style={styles.filterItem}>
-                <input
-                  type="checkbox"
-                  id={`category-${category.id}`}
-                  checked={isChecked}
-                  onChange={() => handleCategoryChange(category.id)}
-                />
-                <label htmlFor={`category-${category.id}`} style={{ cursor: 'pointer' }}>
-                  {category.slug} ({category[currentLang] || category.en})
-                </label>
-              </li>
-            )
-          })}
+          <FilterList items={categories} selected={selectedCategories} onChange={handleCategoryChange} prefix="category" />
         </ul>
 
-        <button type="button" onClick={() => loadCatalogData()}>
+        <button type="button" onClick={loadFilteredCatalog}>
           Search
+        </button>
+        <button type="button" onClick={handleClearFilters}>
+          Clear filters
         </button>
       </section>
 
@@ -263,13 +239,6 @@ const styles = {
     marginTop: 'clamp(4px, 1.5vw, 20px)',
     padding: 0,
   },
-  filterItem: {
-    listStyle: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    margin: '6px 0',
-  },
   storyItem: {
     listStyle: 'none',
     display: 'flex',
@@ -297,7 +266,7 @@ const styles = {
   },
   cardContent: {
     background: 'var(--color-primary)',
-    padding: '14px 10px',
+    padding: '10px 10px',
     textAlign: 'center',
     flexGrow: 1,
     display: 'flex',
@@ -306,7 +275,7 @@ const styles = {
     alignItems: 'center',
   },
   title: {
-    fontSize: '15px',
+    fontSize: '14px',
     color: '#222',
 
     display: '-webkit-box',

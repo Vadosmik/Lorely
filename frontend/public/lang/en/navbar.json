@@ -1,7 +1,8 @@
 {
-  "catalog": "Catalog",
-  "studio": "Studio",
-  "admin": "ADMIN",
-  "logout": "Log out",
-  "login": "Log in"
+  "home": "home",
+  "catalog": "catalog",
+  "studio": "studio",
+  "library": "library",
+  "logout": "log out",
+  "login": "log in"
 }

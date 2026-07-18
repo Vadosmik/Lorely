@@ -9,7 +9,7 @@ import { toISODateString } from '../../utils/dateFormatter.js';
 import ProfileView from './ProfileView.jsx';
 import ProfileEditForms from './ProfileEditForms.jsx';
 
-export default function ProfilePage({ currentUser, username, onProfileUpdate }) {
+export default function ProfilePage({ currentUser, username, onProfileUpdate, onLogout }) {
   const [userData, setUserData] = useState(null);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -70,6 +70,7 @@ export default function ProfilePage({ currentUser, username, onProfileUpdate }) 
         userData={userData}
         currentLang={currentLang}
       />
+      <button onClick={onLogout} style={{ ...styles.link, ...styles.button }}>{('logout')}</button>
 
       {isOwnProfile && (
         <ProfileEditForms

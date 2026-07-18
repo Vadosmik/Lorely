@@ -4,6 +4,8 @@ import { useState } from 'preact/hooks';
 import { authService } from '../services/AuthService';
 import { useToast } from '../context/ToastContext';
 
+import { useTranslation } from '../utils/useTranslation';
+
 export default function AuthPage({ onLoginSuccess }) {
   const [loginForm, setLoginForm] = useState({
     usernameOrEmail: '',
@@ -18,6 +20,8 @@ export default function AuthPage({ onLoginSuccess }) {
     tos_accepted: false
   });
 
+
+  const { t } = useTranslation('auth');
   const { showToast } = useToast();
   const { route } = useLocation();
 
@@ -83,10 +87,10 @@ export default function AuthPage({ onLoginSuccess }) {
   return (
     <>
       <section>
-        <h2>Logowanie</h2>
+        <h2>{t('loginHeader')}</h2>
         <form onSubmit={handleSubmitLogin}>
           <div style={{ marginBottom: '10px' }}>
-            <label htmlFor="login_ioe" style={{ display: 'block' }}>Username or email:</label>
+            <label htmlFor="login_ioe" style={{ display: 'block' }}>{t('usernameOrEmail')}:</label>
             <input
               type="text"
               id="login_ioe"
@@ -97,7 +101,7 @@ export default function AuthPage({ onLoginSuccess }) {
             />
           </div>
           <div style={{ marginBottom: '10px' }}>
-            <label htmlFor="login_pass" style={{ display: 'block' }}>Password:</label>
+            <label htmlFor="login_pass" style={{ display: 'block' }}>{t('password')}:</label>
             <input
               type="password"
               id="login_pass"
@@ -109,15 +113,15 @@ export default function AuthPage({ onLoginSuccess }) {
               required
             />
           </div>
-          <button type="submit">Zaloguj się</button>
+          <button type="submit">{t('loginBtn')}</button>
         </form>
       </section>
 
       <section>
-        <h2>Rejestracja</h2>
+        <h2>{t('loginHeader')}</h2>
         <form onSubmit={handleSubmitRegister}>
           <div style={{ marginBottom: '10px' }}>
-            <label htmlFor="reg_user" style={{ display: 'block' }}>Username:</label>
+            <label htmlFor="reg_user" style={{ display: 'block' }}>{t('username')}:</label>
             <input
               type="text"
               id="reg_user"
@@ -129,7 +133,7 @@ export default function AuthPage({ onLoginSuccess }) {
           </div>
 
           <div style={{ marginBottom: '10px' }}>
-            <label htmlFor="reg_email" style={{ display: 'block' }}>Email:</label>
+            <label htmlFor="reg_email" style={{ display: 'block' }}>{t('email')}:</label>
             <input
               type="email"
               id="reg_email"
@@ -141,7 +145,7 @@ export default function AuthPage({ onLoginSuccess }) {
           </div>
 
           <div style={{ marginBottom: '10px' }}>
-            <label htmlFor="reg_pass" style={{ display: 'block' }}>Password:</label>
+            <label htmlFor="reg_pass" style={{ display: 'block' }}>{t('password')}:</label>
             <input
               type="password"
               id="reg_pass"
@@ -155,7 +159,7 @@ export default function AuthPage({ onLoginSuccess }) {
           </div>
 
           <div style={{ marginBottom: '10px' }}>
-            <label htmlFor="reg_confirm" style={{ display: 'block' }}>Confirm Password:</label>
+            <label htmlFor="reg_confirm" style={{ display: 'block' }}>{t('confirmPassword')}:</label>
             <input
               type="password"
               id="reg_confirm"
@@ -178,11 +182,11 @@ export default function AuthPage({ onLoginSuccess }) {
               required
             />
             <label htmlFor="reg_tos" style={{ fontSize: '14px', cursor: 'pointer' }}>
-              I accept the Terms of Service
+              {t('acceptTos')}
             </label>
           </div>
 
-          <button type="submit">Zarejestruj się</button>
+          <button type="submit">{t('registerBtn')}</button>
         </form>
       </section>
     </>
