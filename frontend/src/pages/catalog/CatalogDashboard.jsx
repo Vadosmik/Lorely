@@ -8,17 +8,21 @@ import { catalogService } from '../../services/CatalogService.js';
 import { genreService } from '../../services/GenreService.js';
 import { categoryService } from '../../services/CategoryService.js';
 
+import Icon from '../../components/common/Icon'
 import CachedImage from '../../components/common/CachedImage'
 import { DEFAULT_COVER } from '../../utils/imageCache';
 
 export default function CatalogDashboard() {
   const [stories, setStories] = useState([]);
+  const [allStories, setAllStories] = useState([]);
 
   const [genres, setGenres] = useState([]);
   const [categories, setCategories] = useState([]);
 
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
+
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { route } = useLocation();
   const { currentLang } = useLanguage();
@@ -37,6 +41,7 @@ export default function CatalogDashboard() {
           story.author_username = usersMap.get(story.author_id) || 'Unknown Author';
         });
 
+        setAllStories(fetchedStories);
         setStories(fetchedStories);
 
         setGenres(fetchedGenres || []);
@@ -64,7 +69,43 @@ export default function CatalogDashboard() {
         story.author_username = usersMap.get(story.author_id) || 'Unknown Author';
       });
 
-      setStories(fetchedStories);
+      let filtered = [...fetchedStories];
+
+      // tymczasowa wyszukiwarke bez zapytania na back
+      const query = searchQuery.toLowerCase().trim();
+
+      if (query) {
+        const scoredStories = filtered.map(story => {
+          const title = story.title.toLowerCase();
+          let score = 0;
+
+          if (title === query) {
+            score += 100; // Idealne trafienie
+          } else if (title.startsWith(query)) {
+            score += 50;  // Zaczyna się od wpisanej frazy
+          } else if (title.includes(query)) {
+            score += 20;  // Zawiera frazę gdzieś w środku
+          }
+
+          // Rozbijamy wpisaną frazę na pojedyncze słowa (szukanie przybliżone)
+          const words = query.split(/\s+/);
+          words.forEach(word => {
+            if (word && title.includes(word)) {
+              score += 5; // Każde pasujące słowo podnosi pozycję w wynikach
+            }
+          });
+
+          return { ...story, score };
+        });
+
+        // Zostawiamy tylko te, które mają jakikolwiek punkt i sortujemy od najbardziej trafnych
+        filtered = scoredStories
+          .filter(story => story.score > 0)
+          .sort((a, b) => b.score - a.score);
+      }
+
+      setStories(filtered);
+      // setStories(fetchedStories);
     } catch (err) {
       console.error("Błąd filtrowania:", err);
     }
@@ -91,8 +132,19 @@ export default function CatalogDashboard() {
   return (
     <>
       <section>
-        <h3>SEARCH</h3>
+        <div style={styles.searchContainer}>
+          <Icon name="search" alt="Search" style={styles.searchIcon} />
+          <input
+            type="search"
+            placeholder="Type to search story..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && loadCatalogData()}
+            style={styles.searchInput}
+          />
+        </div>
       </section>
+
       <section>
         <label style={{ fontWeight: 'bold', display: 'block', margin: '10px 0' }}>Genre</label>
         <ul style={{ padding: 0 }}>
@@ -172,6 +224,37 @@ export default function CatalogDashboard() {
 const styles = {
   back: {
     minHeight: '100vh',
+  },
+  searchSection: {
+    marginBottom: '20px',
+    width: '100%',
+  },
+  searchContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    backgroundColor: 'var(--color-surface)',
+    border: '1px solid var(--color-border)',
+    borderRadius: '8px',
+    padding: '4px 12px',
+    width: '100%',
+    boxSizing: 'border-box',
+  },
+  searchIcon: {
+    width: '24px',
+    height: '24px',
+    color: 'var(--color-text)',
+    flexShrink: 0,
+  },
+  searchInput: {
+    flexGrow: 1,
+    padding: '8px 0',
+    borderRadius: '0',
+    border: 'none',
+    backgroundColor: 'transparent',
+    color: 'var(--color-text)',
+    fontSize: '16px',
+    outline: 'none',
   },
   grid: {
     display: 'grid',
