@@ -51,7 +51,7 @@ export default function ReaderPage({ story_id }) {
     if (window.confirm("Are you sure you want to reset your progress?")) {
       localStorage.removeItem(`lorely_history_${story_id}`);
       localStorage.removeItem(`lorely_variables_${story_id}`);
-      
+
       setResetKey(prev => prev + 1);
     }
   };
@@ -98,7 +98,7 @@ const styles = {
     cursor: 'pointer',
     fontSize: '15px',
     padding: 0,
-    margin: 0, 
+    margin: 0,
   },
   storyHeader: {
     position: 'sticky',
@@ -107,17 +107,24 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '16px 24px',
+    padding: 'clamp(10px, 2vw, 16px) clamp(12px, 4vw, 24px)',
     backgroundColor: 'var(--color-surface)',
     borderBottom: '1px solid var(--color-border)',
+    gap: '12px',
   },
   headerTitle: {
-    fontFamily: 'sans-serif',
-    fontSize: '1.4rem',
-    margin: 0,
-    fontWeight: 'bold',
-    color: 'var(--color-text)',
-  },
+  fontSize: 'clamp(16px, 4vw, 20px)',
+  fontWeight: 'bold',
+  color: 'var(--color-text)',
+  textAlign: 'center',
+  flex: 1,
+  
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+},
   resetBtn: {
     background: 'none',
     border: '1px solid var(--color-border)',

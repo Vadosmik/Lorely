@@ -172,9 +172,9 @@ const styles = {
   },
   grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-    gap: '24px 32px',
-    marginTop: '20px',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+    gap: 'clamp(8px, 2vw, 24px) clamp(6px, 1.5vw, 32px)',
+    marginTop: 'clamp(4px, 1.5vw, 20px)',
     padding: 0,
   },
   filterItem: {
@@ -188,6 +188,7 @@ const styles = {
     listStyle: 'none',
     display: 'flex',
     flexDirection: 'column',
+    height: '100%',
   },
   card: {
     display: 'flex',
@@ -199,21 +200,36 @@ const styles = {
     padding: 0,
     cursor: 'pointer',
     transition: 'border-color 0.15s ease',
+    height: '100%',
   },
   cover: {
     width: '100%',
     aspectRatio: '3 / 4',
     objectFit: 'cover',
     display: 'block',
+    flexShrink: 0,
   },
   cardContent: {
     background: 'var(--color-primary)',
     padding: '14px 10px',
     textAlign: 'center',
+    flexGrow: 1, 
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start', 
+    alignItems: 'center',
   },
   title: {
     fontSize: '15px',
     color: '#222',
+    
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    
+    width: '100%',
   },
   author: {
     color: 'var(--color-primary)',

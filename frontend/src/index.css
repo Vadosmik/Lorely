@@ -71,19 +71,19 @@ body {
   width: 100%;
   max-width: 1000px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 clamp(6px, 2vw, 20px);
 }
 
 section {
   background: var(--color-surface);
-  margin: 20px 0;
+  margin: clamp(6px, 1.5vw, 30px) 0;
   width: 100%;
-  padding: 20px;
-  border-radius: 22px;
+  padding: clamp(10px, 3vw, 20px);
+  border-radius: 16px;
 }
 
 section:last-child {
-  margin-bottom: 100px;
+  margin-bottom: max(0px, 140px - 10vw);
 }
 
 *,

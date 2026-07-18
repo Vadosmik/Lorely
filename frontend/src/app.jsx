@@ -13,6 +13,8 @@ import ProfilePage from './pages/profile/ProfilePage.jsx';
 import AuthPage from './pages/AuthPage.jsx';
 import AdminDashboard from './pages/adminDashboard/AdminDashboard.jsx';
 
+import LibraryPage from './pages/LibraryPage.jsx'
+
 import CatalogDashboard from './pages/catalog/CatalogDashboard.jsx';
 import CatalogDetails from './pages/catalog/StoryDetails.jsx';
 import StoryPlayer from './pages/catalog/ReaderPage.jsx';
@@ -74,6 +76,8 @@ export function App() {
             <Router>
 
               <Home path="/" user={user} onLogout={handleLogout} />
+
+              <LibraryPage path="/library" />
 
               {/* SEKCJA KATALOGU / GRACZA */}
               <CatalogDashboard path="/catalog" />
