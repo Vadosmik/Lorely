@@ -1,6 +1,5 @@
 import { useLocation } from 'preact-iso';
 import { useState, useEffect } from 'preact/hooks';
-import { useLanguage } from '../context/LanguageContext';
 
 import { useTranslation } from '../utils/useTranslation';
 import { useMobile } from '../hooks/useMobile';
@@ -10,15 +9,7 @@ import CachedImage from './common/CachedImage';
 import Icon from './common/Icon';
 import { DEFAULT_AVATAR } from '../utils/imageCache';
 
-const langOptions = {
-  "en": "English",
-  "pl": "Polski",
-  "by": "Беларуская",
-  "ru": "Русский"
-};
-
 export function NavBar({ user }) {
-  const { currentLang, changeLang } = useLanguage();
   const { t } = useTranslation('navbar');
   const { path } = useLocation();
 
@@ -52,13 +43,6 @@ export function NavBar({ user }) {
           <div style={styles.navbarBrand}>
             <a href="/" style={styles.brand}>Lorely</a>
           </div>
-
-          {/* element na czas testów do puki nie bede wiedział gdzie go wrzuce dla tego bez stylu */}
-          <select value={currentLang} onChange={(e) => changeLang(e.target.value)} >
-            {Object.entries(langOptions).map(([code, name]) => (
-              <option key={code} value={code}> {name} </option>
-            ))}
-          </select>
 
           <a href="/admin" style={styles.topBarItem} title="admin">
             <Icon name="notification" alt="Notification" />
@@ -122,14 +106,6 @@ export function NavBar({ user }) {
         <div style={styles.navbarBrand}>
           <a href="/" style={styles.brand}>Lorely</a>
         </div>
-
-        <a style={styles.link}>
-          <select value={currentLang} onChange={(e) => changeLang(e.target.value)} >
-            {Object.entries(langOptions).map(([code, name]) => (
-              <option key={code} value={code}> {name} </option>
-            ))}
-          </select>
-        </a>
 
         <div style={styles.links}>
           <a href="/" style={styles.link}>{t('home')}</a>  {/* <Icon name="home" alt="Home" /> */}

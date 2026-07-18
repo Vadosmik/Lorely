@@ -142,7 +142,7 @@ export default function ProfileEditForms({ initialUserData, onProfileRefresh }) 
   if (!formData) return null;
 
   return (
-    <section>
+    <>
       <h2>Update Ava</h2>
       <form onSubmit={handleAvatarSubmit}>
         <label htmlFor="avatar" style={{ cursor: 'pointer' }}>
@@ -203,7 +203,7 @@ export default function ProfileEditForms({ initialUserData, onProfileRefresh }) 
         </div>
         <button type="submit">Update Password</button>
       </form>
-    </section>
+    </>
   );
 }
 

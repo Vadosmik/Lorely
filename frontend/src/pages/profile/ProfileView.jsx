@@ -5,7 +5,7 @@ import { DEFAULT_AVATAR } from '../../utils/imageCache';
 
 export default function ProfileView({ title, userData, avatarUrl, currentLang }) {
   return (
-    <section>
+    <>
       {title}
       <div style={styles.avatarContainer}>
         <CachedImage 
@@ -33,7 +33,7 @@ export default function ProfileView({ title, userData, avatarUrl, currentLang })
           <span style={styles.value}>{formatDateByLang(userData.birthday_date, currentLang)}</span> 
         </div>
       </div>
-    </section>
+    </>
   )
 }
 

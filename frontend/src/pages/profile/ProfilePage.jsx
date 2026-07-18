@@ -9,12 +9,19 @@ import { toISODateString } from '../../utils/dateFormatter.js';
 import ProfileView from './ProfileView.jsx';
 import ProfileEditForms from './ProfileEditForms.jsx';
 
+const langOptions = {
+  "en": "English",
+  "pl": "Polski",
+  "by": "Беларуская",
+  "ru": "Русский"
+};
+
 export default function ProfilePage({ currentUser, username, onProfileUpdate, onLogout }) {
   const [userData, setUserData] = useState(null);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const { currentLang } = useLanguage();
+  const { currentLang, changeLang } = useLanguage();
   const { route } = useLocation();
 
   const fetchProfile = async () => {
@@ -64,24 +71,42 @@ export default function ProfilePage({ currentUser, username, onProfileUpdate, on
   if (!userData) return <div>User not found.</div>;
 
   return (
-    <div>
-      <ProfileView
-        title={<h1>{isOwnProfile ? 'My Profile' : `${userData.username}'s Profile`}</h1>}
-        userData={userData}
-        currentLang={currentLang}
-      />
-      <button onClick={onLogout} style={{ ...styles.link, ...styles.button }}>{('logout')}</button>
-
-      {isOwnProfile && (
-        <ProfileEditForms
-          initialUserData={userData}
-          onProfileRefresh={handleProfileRefresh}
+    <>
+      <section>
+        {isOwnProfile && (
+          <div style={styles.setting}>
+            <button onClick={onLogout} style={{ ...styles.link, ...styles.button }}>{('logout')}</button>
+            <select value={currentLang} onChange={(e) => changeLang(e.target.value)} >
+              {Object.entries(langOptions).map(([code, name]) => (
+                <option key={code} value={code}> {name} </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </section>
+      <section>
+        <ProfileView
+          title={<h1>{isOwnProfile ? 'My Profile' : `${userData.username}'s Profile`}</h1>}
+          userData={userData}
+          currentLang={currentLang}
         />
-      )}
-    </div>
+      </section>
+
+      <section>
+        {isOwnProfile && (
+          <ProfileEditForms
+            initialUserData={userData}
+            onProfileRefresh={handleProfileRefresh}
+          />
+        )}
+      </section>
+    </>
   );
 }
 
 const styles = {
-
+  setting: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  }
 };
