@@ -63,7 +63,7 @@ export function NavBar({ user, onLogout }) {
           </select>
 
           <a href="/admin" style={styles.topBarItem} title="admin">
-            <Icon name="home" alt="Home" />
+            <Icon name="notification" alt="Notification" />
           </a>
         </div>
 

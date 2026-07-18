@@ -69,7 +69,7 @@ export default function ReaderPage({ story_id }) {
       <header style={styles.storyHeader}>
         <button onClick={handleBack} style={styles.backButton}>{'← Back'}</button>
         <h1 style={styles.headerTitle}>{story.title || "Lorely Reader"}</h1>
-        <button onClick={handleResetTrigger} style={styles.resetBtn}>Reset Progress</button>
+        <button onClick={handleResetTrigger} style={styles.resetBtn}>Reset</button>
       </header>
 
       <StoryReader
