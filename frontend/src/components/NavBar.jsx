@@ -1,9 +1,6 @@
 import { useLocation } from 'preact-iso';
-import { useState, useEffect } from 'preact/hooks';
-
 import { useTranslation } from '../utils/useTranslation';
 import { useMobile } from '../hooks/useMobile';
-import { Background } from 'reactflow';
 
 import CachedImage from './common/CachedImage';
 import Icon from './common/Icon';
@@ -12,152 +9,83 @@ import { DEFAULT_AVATAR } from '../utils/imageCache';
 export function NavBar({ user }) {
   const { t } = useTranslation('navbar');
   const { path } = useLocation();
-
-  const [activeItem, setActiveStatus] = useState(null);
-
   const isMobile = useMobile();
+
+  const navItems = [
+    { href: '/', icon: 'home', title: t('home') },
+    { href: '/catalog', icon: 'catalog', title: t('catalog') },
+    {
+      href: user ? '/studio' : '/login',
+      icon: 'studio',
+      title: t('studio')
+    },
+    {
+      href: user ? '/library' : '/login',
+      icon: 'library',
+      title: t('library')
+    },
+    {
+      href: user ? `/${user.username}` : '/login',
+      icon: 'user',
+      title: user ? 'user' : 'login',
+      isProfile: true
+    },
+  ];
 
   const isCanvasPage = /^\/studio\/[^/]+\/canvas\/?$/.test(path);
   const isReaderDetails = /^\/catalog\/[^/]+\/details\/?$/.test(path);
   const isReaderPage = /^\/catalog\/[^/]+\/read\/?$/.test(path);
 
-  const getDockStyle = (targetPath) => {
-    const isActive = targetPath === '/'
-      ? path === '/'
-      : path.startsWith(targetPath);
-
-    return {
-      ...styles.dockItem,
-      ...(isActive ? styles.dockItemActive : {})
-    };
-  };
-
   if ((isMobile && (isCanvasPage || isReaderDetails)) || isReaderPage) {
     return null;
   }
 
-  if (isMobile) {
-    return (
-      <>
-        <div style={styles.mobileTopBar}>
-          <div style={styles.navbarBrand}>
-            <a href="/" style={styles.brand}>Lorely</a>
-          </div>
+  const isItemActive = (targetPath) => {
+    return targetPath === '/' ? path === '/' : path.startsWith(targetPath);
+  };
 
-          <a href="/admin" style={styles.topBarItem} title="admin">
-            <Icon name="notification" alt="Notification" />
-          </a>
-        </div>
+  const dynamicNavbarStyle = {
+    ...styles.navbar,
+    ...(isMobile ? styles.navbarMobile : styles.navbarDesktop)
+  };
 
-        <div style={styles.mobileDockContainer}>
-          <div style={styles.mobileDock}>
-
-            <a href="/" style={getDockStyle('/')} title={t('catalog')}>
-              <Icon name="home" alt="Home" />
-            </a>
-            <a href="/catalog" style={getDockStyle('/catalog')} title="Search">
-              <Icon name="catalog" alt="Catalog" />
-            </a>
-            {user ? (
-              <>
-                <a href="/studio" style={getDockStyle('/studio')} title={t('studio')}>
-                  <Icon name="studio" alt="Studio" />
-                </a>
-                <a href="/library" style={getDockStyle('/library')} title={t('library')}>
-                  <Icon name="library" alt="Library" />
-                </a>
-
-                <a href={`/${user.username}`} style={getDockStyle(`/${user.username}`)} title="user">
-                  {user.ava_pic_path ? (
-                    <CachedImage
-                      path={user.ava_pic_path}
-                      fallback={DEFAULT_AVATAR}
-                      alt="User Avatar"
-                      style={styles.avatarImg}
-                    />
-                  ) : (
-                    <Icon name="user" alt="User" />
-                  )}
-                </a>
-              </>
-            ) : (
-              <>
-                <a href="/login" style={getDockStyle('/studio')} title={t('studio')}>
-                  <Icon name="studio" alt="Studio" />
-                </a>
-                <a href="/login" style={getDockStyle('/library')} title={t('library')}>
-                  <Icon name="library" alt="Library" />
-                </a>
-                <a href={`/login`} style={getDockStyle('/login')} title="login">
-                  <Icon name="user" alt="User" />
-                </a>
-              </>
-            )}
-          </div>
-        </div>
-      </>
-    );
-  }
 
   return (
     <>
-      <div style={styles.space}></div>
-      <nav style={styles.navbar}>
+      <div style={styles.topBar}>
         <div style={styles.navbarBrand}>
           <a href="/" style={styles.brand}>Lorely</a>
         </div>
 
-        <div style={styles.links}>
-          <a href="/" style={styles.link}>{t('home')}</a>  {/* <Icon name="home" alt="Home" /> */}
-          <a href="/catalog" style={styles.link}>{t('catalog')}</a>  {/* <Icon name="catalog" alt="Catalog" /> */}
-          {user ? (
-            <>
-              <a href="/studio" style={styles.link}>{t('studio')}</a> {/* <Icon name="studio" alt="Studio" /> */}
-              <a href="/library" style={styles.link}>{t('library')}</a> {/* <Icon name="studio" alt="Studio" /> */}
+        <a href="/admin" style={styles.topBarItem} title="admin">
+          admin
+        </a>
+      </div>
 
-              <a href={`/${user.username}`} style={getDockStyle(`/${user.username}`)} title="user">
-                {user.ava_pic_path ? (
-                  <CachedImage
-                    path={user.ava_pic_path}
-                    fallback={DEFAULT_AVATAR}
-                    alt="User Avatar"
-                    style={styles.avatarImg}
-                  />
-                ) : (
-                  <Icon name="user" alt="User" />
-                )}
-              </a>
-            </>
-          ) : (
-            <>
-              <a href="/login" style={styles.link}>{t('studio')}</a>
-              <a href="/login" style={styles.link}>{t('library')}</a>
-              <a href="/login" style={{ ...styles.link, ...styles.button }}>{t('login')}</a>
-            </>
-          )}
-        </div>
+      <nav style={dynamicNavbarStyle}>
+        {navItems.map((item) => {
+          const isActive = isItemActive(item.href);
+
+          return (
+            <a key={item.href} href={item.href} style={{ ...styles.navItem, ...(isActive ? styles.navItemActive : {}) }} title={item.title}>
+              <Icon name={item.icon} alt={item.title} style={styles.navIcon} />
+            </a>
+          )
+        })}
       </nav>
     </>
-  );
+  )
 }
 
 const styles = {
-  space: {
-    height: 20,
-  },
-  navbar: {
+  topBar: {
     display: 'flex',
     position: 'sticky',
     top: 0,
     zIndex: 100,
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '0.75rem 2rem',
-    backgroundColor: 'var(--color-surface)',
-    color: 'var(--color-text)',
-    gap: '1.5rem',
-
-    boxShadow: '0 4px 6px color-mix(in srgb, var(--color-border) 30%, transparent)',
+    padding: '10px 20px',
   },
   navbarBrand: {
     backgroundColor: 'var(--color-surface)',
@@ -171,110 +99,58 @@ const styles = {
     fontWeight: '800',
     letterSpacing: '-0.05em'
   },
-  links: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1.5rem',
-    marginLeft: 'auto'
-  },
-  link: {
-    color: 'var(--color-text)',
-    textDecoration: 'none',
-    fontSize: '0.95rem',
-    fontWeight: '500',
-    cursor: 'pointer',
-    opacity: 0.9
-  },
-  username: {
-    color: 'var(--color-primary)',
-  },
-  button: {
-    backgroundColor: 'var(--color-bg)',
-    padding: '0.5rem 1.2rem',
-    borderRadius: '20px',
-    border: '1px solid var(--color-border)',
-    color: 'var(--color-text)',
-    transition: 'all 0.2s ease'
-  },
-
-  // ====
-  mobileTopBar: {
-    display: 'flex',
-    position: 'sticky',
-    top: 0,
-    zIndex: 100,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px 20px',
-  },
-
-  mobileDockContainer: {
-    position: 'fixed',
-    bottom: 5,
-    left: '0',
-    right: '0',
-    display: 'flex',
-    justifyContent: 'center',
-    zIndex: 1000,
-    padding: '0 20px',
-    pointerEvents: 'none'
-  },
   topBarItem: {
-    backgroundColor: 'var(--color-surface)',
-    width: 'clamp(32px, 9vw, 42px)',
-    height: 'clamp(32px, 9vw, 42px)',
-    borderRadius: 12,
-    padding: '8px 10px',
-
     color: 'var(--color-text)',
-
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  mobileDock: {
-    pointerEvents: 'auto',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    backgroundColor: '#666666',
-    color: 'var(--color-surface)',
-    padding: '10px 20px',
-    borderRadius: '40px',
-    width: '100%',
-    maxWidth: '360px',
-    boxShadow: '0 1px 8px rgba(0, 0, 0, 0.3)',
-    gap: '10px'
-  },
-  dockItem: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 'clamp(34px, 9vw, 42px)',
-    height: 'clamp(34px, 9vw, 42px)',
-    color: '#ffffff',
     textDecoration: 'none',
-    borderRadius: '50%',
-    transition: 'all 0.2s ease',
-    padding: '8px',
   },
-  avatarImg: {
-    width: '150%',
-    height: '150%',
-    borderRadius: '50%',
-    objectFit: 'cover',
-    display: 'block'
-  },
-  dockItemActive: {
+
+  // ===
+
+  navbar: {
+    display: 'flex',
     backgroundColor: '#000000',
-    color: '#ffffff',
+    borderRadius: 33,
+    padding: '15px',
+    gap: 15,
+    position: 'fixed',
+    zIndex: 1000,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  buttonReset: {
-    background: 'none',
-    border: 'none',
-    outline: 'none',
-    padding: 0,
-    cursor: 'pointer'
-  }
+
+  navbarMobile: {
+    flexDirection: 'row',
+    bottom: 20,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: 'calc(100% - 40px)',
+    maxWidth: 360,
+    justifyContent: 'space-around',
+  },
+  navbarDesktop: {
+    flexDirection: 'column',
+    left: 20,
+    top: '50%',
+    transform: 'translateY(-50%)',
+  },
+
+
+  navItem: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 48,
+    height: 48,
+    borderRadius: '50%',
+    cursor: 'pointer',
+    transition: 'background 0.2s ease',
+  },
+  navItemActive: {
+    backgroundColor: '#ffffff22', 
+  },
+  navIcon: {
+    width: 30,
+    height: 30,
+    backgroundColor: '#ffffff',
+  },
 };

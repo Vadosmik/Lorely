@@ -49,6 +49,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
+  rating-service:
+    build: ./rating-service
+    container_name: rating-service
+    env_file:
+      - .env
+      - ./rating-service/.env
+    networks:
+      - lorely-net
+    depends_on:
+      db:
+        condition: service_healthy
   storage-service:
     build: ./storage-service
     container_name: storage-service

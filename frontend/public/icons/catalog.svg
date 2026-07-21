@@ -1,7 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-  <rect x="3" y="3" width="7" height="7" />
-  <rect x="14" y="3" width="7" height="7" />
-  <rect x="3" y="14" width="7" height="7" />
-  <line x1="15" y1="15.5" x2="20" y2="15.5" />
-  <line x1="15" y1="19.5" x2="19" y2="19.5" />
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="0.493833" y="0.493833" width="12.0843" height="12.4804" rx="3.50617" fill="#F7FAFF" stroke="#F7FAFF" stroke-width="0.987665" stroke-linecap="round"/>
+<rect x="17.0505" y="0.493833" width="12.0843" height="12.4804" rx="3.50617" fill="#F7FAFF" stroke="#F7FAFF" stroke-width="0.987665" stroke-linecap="round"/>
+<rect x="0.493833" y="16.655" width="12.0843" height="12.4804" rx="3.50617" fill="#F7FAFF" stroke="#F7FAFF" stroke-width="0.987665" stroke-linecap="round"/>
+<line x1="19.9877" y1="19.0123" x2="26.727" y2="19.0123" stroke="#F7FAFF" stroke-width="1.97533" stroke-linecap="round"/>
+<line x1="19.9877" y1="22.9625" x2="26.727" y2="22.9625" stroke="#F7FAFF" stroke-width="1.97533" stroke-linecap="round"/>
+<line x1="19.9877" y1="26.9137" x2="26.727" y2="26.9137" stroke="#F7FAFF" stroke-width="1.97533" stroke-linecap="round"/>
 </svg>

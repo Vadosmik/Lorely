@@ -1,5 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-  <circle cx="12" cy="7" r="4" />
-  <path d="M17 1.5v.5M17 6.5v.5M14.5 4h.5M19.5 4h.5" />
+<svg width="25" height="31" viewBox="0 0 25 31" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M24.3909 24.4046C22.1547 18.601 16.4417 16.6665 12.4593 16.6665C8.47686 16.6665 2.76465 17.6338 0.526209 24.4046C-0.13084 26.392 -0.218595 30.2082 0.526209 30.2082H24.3909C24.9193 30.2082 25.4452 27.1407 24.3909 24.4046Z" fill="white"/>
+<circle cx="11.9798" cy="6.77083" r="6.77083" fill="white"/>
 </svg>
