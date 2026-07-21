@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'preact/hooks';
-import { LocationProvider, Router, Route } from 'preact-iso';
+import { LocationProvider, Router, useLocation } from 'preact-iso';
 import { LanguageProvider } from './context/LanguageContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 
@@ -11,22 +11,19 @@ import { profileService } from './services/ProfileService.js';
 
 import Home from './pages/HomePage.jsx';
 import ProfilePage from './pages/profile/ProfilePage.jsx';
-import AuthPage from './pages/AuthPage.jsx';
+import AuthPage from './pages/AuthPage.jsx'; // Będziemy go używać jako Modala!
 import AdminDashboard from './pages/adminDashboard/AdminDashboard.jsx';
-
-import LibraryPage from './pages/LibraryPage.jsx'
+import LibraryPage from './pages/LibraryPage.jsx';
 
 import CatalogDashboard from './pages/catalog/CatalogDashboard.jsx';
 import CatalogDetails from './pages/catalog/StoryDetails.jsx';
 import StoryPlayer from './pages/catalog/ReaderPage.jsx';
 
-import StudioDashboard from './pages/studio/StudioDashboard.jsx'
-import StudioStoryDetails from './pages/studio/StudioStoryDetails.jsx'
-import StoryFlowCanvas from './pages/studio/StoryFlowCanvas.jsx'
+import StudioDashboard from './pages/studio/StudioDashboard.jsx';
+import StudioStoryDetails from './pages/studio/StudioStoryDetails.jsx';
+import StoryFlowCanvas from './pages/studio/StoryFlowCanvas.jsx';
 
 import { getCachedStaticImage, DEFAULT_AVATAR, DEFAULT_COVER } from './utils/imageCache';
-
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:80';
 
 export function App() {
   const [user, setUser] = useState(null);
@@ -43,7 +40,7 @@ export function App() {
       const userData = await profileService.getMe();
       setUser(userData);
     } catch (err) {
-      console.warn("User not authorized:", err.message);
+      console.warn("User not authorized: ", err.message);
       setUser(null);
     } finally {
       setLoading(false);
@@ -58,6 +55,7 @@ export function App() {
 
   const handleLogout = async () => {
     await logoutUser();
+    setUser(null);
   };
 
   if (loading) return <div>Ładowanie aplikacji...</div>;
@@ -66,35 +64,68 @@ export function App() {
     <LanguageProvider>
       <ToastProvider>
         <LocationProvider>
-          <NavBar user={user} onLogout={handleLogout} />
-          <ThemeBtn />
-
-          <main className="app-content">
-            <Router>
-
-              <Home path="/" user={user} />
-
-              <LibraryPage path="/library" />
-
-              {/* SEKCJA KATALOGU / GRACZA */}
-              <CatalogDashboard path="/catalog" />
-              <CatalogDetails path="/catalog/:story_id/details" />
-              <StoryPlayer path="/catalog/:story_id/read" />
-
-              {/* SEKCJA STUDIA / TWÓRCY */}
-              <StudioDashboard path="/studio" />
-              <StudioStoryDetails path="/studio/:story_id/details" />
-              <StoryFlowCanvas path="/studio/:story_id/canvas" />
-
-              <AdminDashboard path="/admin" />
-              <AuthPage path="/login" onLoginSuccess={loadUser} />
-              <ProfilePage path="/:username" currentUser={user} onProfileUpdate={loadUser} onLogout={handleLogout} />
-
-            </Router>
-          </main>
-
+          <AppContent user={user} loadUser={loadUser} handleLogout={handleLogout} />
         </LocationProvider>
       </ToastProvider>
     </LanguageProvider>
+  );
+}
+
+function AppContent({ user, loadUser, handleLogout }) {
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+
+  useEffect(() => {
+    const checkHash = () => {
+      setIsLoginOpen(window.location.hash === '#login');
+    };
+
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+    return () => window.removeEventListener('hashchange', checkHash);
+  }, []);
+
+  const closeLoginModal = () => {
+    if (window.location.hash === '#login') {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+      setIsLoginOpen(false);
+    }
+  };
+
+  return (
+    <>
+      <NavBar user={user} onLogout={handleLogout} />
+      <ThemeBtn />
+
+      <main className="app-content">
+        <Router>
+          <Home path="/" user={user} />
+          <LibraryPage path="/library" />
+
+          {/* SEKCJA KATALOGU */}
+          <CatalogDashboard path="/catalog" />
+          <CatalogDetails path="/catalog/:story_id/details" />
+          <StoryPlayer path="/catalog/:story_id/read" />
+
+          {/* SEKCJA STUDIA */}
+          <StudioDashboard path="/studio" />
+          <StudioStoryDetails path="/studio/:story_id/details" />
+          <StoryFlowCanvas path="/studio/:story_id/canvas" />
+
+          <AdminDashboard path="/admin" />
+          
+          <ProfilePage path="/:username" currentUser={user} onProfileUpdate={loadUser} onLogout={handleLogout} />
+        </Router>
+      </main>
+
+      {isLoginOpen && (
+        <AuthPage 
+          onClose={closeLoginModal} 
+          onLoginSuccess={() => {
+            closeLoginModal();
+            loadUser();
+          }} 
+        />
+      )}
+    </>
   );
 }

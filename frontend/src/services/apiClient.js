@@ -13,7 +13,7 @@ export async function logoutUser() {
     await fetch(`${BASE_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
   } finally {
     localStorage.removeItem('token');
-    window.location.href = '/login';
+    window.location.href = '/';
   }
 }
 

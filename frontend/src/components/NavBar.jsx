@@ -15,17 +15,20 @@ export function NavBar({ user }) {
     { href: '/', icon: 'home', title: t('home') },
     { href: '/catalog', icon: 'catalog', title: t('catalog') },
     {
-      href: user ? '/studio' : '/login',
+      href: user ? '/studio' : '#login',
+      // href: user ? '/studio' : '/login',
       icon: 'studio',
       title: t('studio')
     },
     {
-      href: user ? '/library' : '/login',
+      href: user ? '/library' : '#login',
+      // href: user ? '/library' : '/login',
       icon: 'library',
       title: t('library')
     },
     {
-      href: user ? `/${user.username}` : '/login',
+      href: user ? `/${user.username}` : '#login',
+      // href: user ? `/${user.username}` : '/login',
       icon: 'user',
       title: user ? 'user' : 'login',
       isProfile: true
@@ -67,7 +70,12 @@ export function NavBar({ user }) {
           const isActive = isItemActive(item.href);
 
           return (
-            <a key={item.href} href={item.href} style={{ ...styles.navItem, ...(isActive ? styles.navItemActive : {}) }} title={item.title}>
+            <a
+              key={item.icon}
+              href={item.href}
+              style={{ ...styles.navItem, ...(isActive ? styles.navItemActive : {}) }}
+              title={item.title}
+            >
               <Icon name={item.icon} alt={item.title} style={styles.navIcon} />
             </a>
           )
@@ -146,7 +154,7 @@ const styles = {
     transition: 'background 0.2s ease',
   },
   navItemActive: {
-    backgroundColor: '#ffffff22', 
+    backgroundColor: '#ffffff22',
   },
   navIcon: {
     width: 30,

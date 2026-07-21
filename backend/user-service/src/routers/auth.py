@@ -105,7 +105,7 @@ async def login(login_data: UserLogin, response: Response, session: SessionDep):
       httponly=True,
       secure=True,
       samesite="lax",
-      max_age=settings.REFRESH_TOKEN_EXPIRATION * 24 * 3600,
+      max_age=settings.REFRESH_TOKEN_EXPIRATION * 24 * 3600, # rememberMe ? 7 * 24 * 60 * 60 * 1000 : undefined potem jak bede robić przecisk rememberMe
       path="/auth"
     )
   
