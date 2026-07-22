@@ -73,6 +73,7 @@ export function App() {
 
 function AppContent({ user, loadUser, handleLogout }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const { path } = useLocation();
 
   useEffect(() => {
     const checkHash = () => {
@@ -97,33 +98,35 @@ function AppContent({ user, loadUser, handleLogout }) {
       <ThemeBtn />
 
       <main className="app-content">
-        <Router>
-          <Home path="/" user={user} />
-          <LibraryPage path="/library" />
+        <div key={path} className="page-transition">
+          <Router>
+            <Home path="/" user={user} />
+            <LibraryPage path="/library" />
 
-          {/* SEKCJA KATALOGU */}
-          <CatalogDashboard path="/catalog" />
-          <CatalogDetails path="/catalog/:story_id/details" />
-          <StoryPlayer path="/catalog/:story_id/read" />
+            {/* SEKCJA KATALOGU */}
+            <CatalogDashboard path="/catalog" />
+            <CatalogDetails path="/catalog/:story_id/details" />
+            <StoryPlayer path="/catalog/:story_id/read" />
 
-          {/* SEKCJA STUDIA */}
-          <StudioDashboard path="/studio" />
-          <StudioStoryDetails path="/studio/:story_id/details" />
-          <StoryFlowCanvas path="/studio/:story_id/canvas" />
+            {/* SEKCJA STUDIA */}
+            <StudioDashboard path="/studio" />
+            <StudioStoryDetails path="/studio/:story_id/details" />
+            <StoryFlowCanvas path="/studio/:story_id/canvas" />
 
-          <AdminDashboard path="/admin" />
-          
-          <ProfilePage path="/:username" currentUser={user} onProfileUpdate={loadUser} onLogout={handleLogout} />
-        </Router>
+            <AdminDashboard path="/admin" />
+
+            <ProfilePage path="/:username" currentUser={user} onProfileUpdate={loadUser} onLogout={handleLogout} />
+          </Router>
+        </div>
       </main>
 
       {isLoginOpen && (
-        <AuthPage 
-          onClose={closeLoginModal} 
+        <AuthPage
+          onClose={closeLoginModal}
           onLoginSuccess={() => {
             closeLoginModal();
             loadUser();
-          }} 
+          }}
         />
       )}
     </>
